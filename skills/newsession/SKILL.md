@@ -45,9 +45,11 @@ continue. Never block on this — it's a gate for the user's benefit, not a chor
 Save the generated handoff prompt as a standalone prompt file — this becomes the project's resume point. Mirror `/newplan`'s naming:
 - Write to the **current working directory** (the project being worked on) as `<topic>-prompt-YYYY-MM-DD.md` with today's date. Derive `<topic>` from `$ARGUMENTS` if it named a focus, otherwise from the current directory's name.
 - If the cwd is a branch root (e.g. `~/ClaudeOS/personal`) rather than a project dir, write the file there as the fallback.
-- The newest-dated `*-prompt-*.md` for a project is its resume pointer; you may delete an older same-project prompt file you are superseding.
+- The newest-dated `*-prompt-*.md` for a project is its resume pointer. Before writing the new prompt, **demote the prior same-project prompt to SUPERSEDED**: prepend the banner `STATUS YYYY-MM-DD — SUPERSEDED by <new-prompt-filename>.` (today's date) as its first line. Do **not** delete it — `/prompt-sweep` archives superseded prompts later, with the user's approval. **Never demote a `keep-loose` REUSABLE prompt** (first line `LIFECYCLE: REUSABLE — keep-loose.`) — skip it entirely when choosing the prior prompt.
 
 Write only the contents of the handoff prompt (no intro line, no fences) to the file with the Write tool. Do **not** create or modify a README or a `.last-newsession.md`.
+
+The prompt lifecycle (states, banner formats, when things get archived) is defined once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow that spec; do not restate its rules here.
 
 ## Step 4 — Display the handoff prompt
 

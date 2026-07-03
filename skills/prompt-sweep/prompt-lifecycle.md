@@ -1,0 +1,90 @@
+<!-- CANONICAL:prompt-lifecycle -->
+# Prompt Lifecycle — canonical spec
+
+The single source of truth for how `*-prompt-*.md` files are born, superseded, retired,
+and archived. **Rules only — no live state, no project backlog.** `/prompt-sweep`,
+`/newsession`, and `/newplan` all point here; they must never restate these rules.
+
+A "prompt file" is a `<topic>-prompt-YYYY-MM-DD.md` paste-to-resume handoff written by
+`/newsession` or `/newplan`. The newest-dated one in a project is that project's live
+resume pointer.
+
+## The four states
+
+| State | Definition | Swept? |
+|---|---|---|
+| **ACTIVE** | Newest prompt in a project, carrying **no** banner. The live resume pointer. | **Never** |
+| **SUPERSEDED** | An older prompt for which a newer one now exists. Carries a SUPERSEDED banner. | Yes — after approval |
+| **DONE** | Carries a DONE banner (its plan closed, or work finished). | Yes — after approval |
+| **REUSABLE** | A utility prompt tagged `keep-loose` — meant to be re-run, kept in place indefinitely. | **Never** |
+| **LEGACY** | No banner and no `keep-loose` marker — the tool can't tell a live pointer from a retired-but-unstamped orphan. Predates this system, or was retired without stamping. | Never silently — **always surfaced for a per-file decision** |
+
+Precedence when a file could match more than one: **REUSABLE > ACTIVE > DONE > SUPERSEDED.**
+A `keep-loose` file is REUSABLE even if it is also the newest; a banner never overrides
+`keep-loose`.
+
+**LEGACY is not a resting state.** An unbannered prompt is only genuinely ACTIVE when it is
+the live resume pointer of a project with an open plan; otherwise `/prompt-sweep` cannot know,
+so it must **always ask Jim** what to do rather than assume ACTIVE and skip. Jim's answer
+resolves it into ACTIVE (leave), REUSABLE (stamp `keep-loose`), or DONE/SUPERSEDED (stamp +
+sweep). This is what stops retired-but-unstamped prompts from hiding as ACTIVE forever.
+
+## Banner & marker formats
+
+Banners go at the **very top** of the prompt file, first line, so any tool sees them without
+parsing the body. Date is the day the state changed (US Mountain Time).
+
+- **DONE:**  `STATUS YYYY-MM-DD — DONE.`
+- **SUPERSEDED:**  `STATUS YYYY-MM-DD — SUPERSEDED by <newer-prompt-filename>.`
+- **REUSABLE:**  `LIFECYCLE: REUSABLE — keep-loose.`  (this is the `keep-loose` tag; presence of this line = never sweep)
+
+A file with none of these lines and that is the newest prompt in its project = **ACTIVE**.
+`STATUS …` mirrors the plan-header banner `/newplan` already stamps at Closure, so the
+vocabulary is shared between plans and prompts.
+
+## Division of labor — who changes state, and when
+
+| Tool | Trigger | Action |
+|---|---|---|
+| **`/newplan`** | Closure of a plan | Stamps its OWN plan+prompt pair `DONE`, moves both to the project's `archive/`. |
+| **`/newplan`** | Replan on an existing project | Demotes the prior prompt to `SUPERSEDED` (banner) before writing the new pair. |
+| **`/newsession`** | Refresh (new prompt written) | Stamps the prior same-project prompt `SUPERSEDED` before writing the new one. |
+| **`/prompt-sweep`** | Jim runs it (~monthly) | Backstop. Finds SUPERSEDED/DONE prompts, proposes moves, and — per Jim's approval — archives them. Catches whatever the other two missed. |
+
+Each tool owns the state changes at its own moment; `/prompt-sweep` is the periodic net
+under all of them. No tool ever deletes a prompt — the sweep **moves** files to `archive/`.
+
+## Same-day overwrite vs different-day keep
+
+Prompt filenames are keyed to **date + topic**: `<topic>-prompt-YYYY-MM-DD.md`. There is no
+time, counter, or version suffix. This is deliberate and controls whether a refresh keeps or
+replaces the prior prompt:
+
+- **Different day** (normal case): a new date makes a new filename, so the prior prompt is a
+  distinct file. `/newsession` and `/newplan` keep it and stamp it `SUPERSEDED` — history is
+  preserved, and `/prompt-sweep` archives it later. **Prior-day prompts are never overwritten.**
+- **Same day, same topic** (re-running in the same project without changing the focus): the
+  filename is identical, so the new write **overwrites** the earlier one. The `SUPERSEDED`
+  stamp cannot preserve it — old and new share the same path, so the demote step is a no-op.
+  **Same-day same-topic prompts always overwrite** — intended, to stop same-day buildup.
+- **Same day, different topic** (a different `$ARGUMENTS` focus or a different cwd): different
+  `<topic>` → different filename → both files coexist (no overwrite).
+
+Net: at most one prompt per project per day; the SUPERSEDED-keep protection applies only
+across days, because that is the only time the filenames differ.
+
+## Scope guardrail (hard rule)
+
+- `/prompt-sweep` operates on **exactly one branch** — the one whose tree contains the cwd
+  (work **or** personal). It **never crosses the work/personal line** in a single run.
+- In-scope locations: that branch's `projects/*/` (each project archives into its **own**
+  `projects/<name>/archive/`) **plus** the flat `shared/` root (archives into `shared/archive/`).
+- A file only ever moves into **its own** project's (or `shared/`'s) `archive/` — never another
+  project's, never across the branch line.
+
+## Non-negotiables
+
+- **Nothing moves without Jim's approval** — per-file or approve-all.
+- **ACTIVE and REUSABLE are never swept**, ever.
+- **Move, never delete** — recovery is always `archive/ → back`.
+- **Link, never restate** — other skills reference this file; they do not copy these rules.

@@ -75,10 +75,12 @@ The single check that confirms the agreed goal (top of this plan) was actually a
 
 ## Closure
 The last task of every plan, always present. Once the goal above is verified and the work is done:
-1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date).
+1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date) — the DONE/SUPERSEDED vocabulary defined in `shared/skills/prompt-sweep/prompt-lifecycle.md`.
 2. Move both this plan (`<topic>-plan-*.md`) and its prompt (`<topic>-prompt-*.md`) into the project's `archive/` folder.
 
 Until these are done, this section stands as the open marker that the plan isn't closed yet.
+
+The prompt lifecycle (states, banners, when prompts get archived) is specified once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow it; do not restate its rules here.
 
 ---
 
@@ -117,6 +119,8 @@ The transition prompt should contain:
 - One sentence on the goal and chosen approach
 - The first concrete step to take
 - An instruction to read the full plan file before doing anything: "Full plan is in `<topic>-plan-YYYY-MM-DD.md` — read it before starting."
+
+If this is a **replan** on an existing project (a prior `*-prompt-*.md` already exists for it), **demote the prior prompt to SUPERSEDED** before writing the new one: prepend `STATUS YYYY-MM-DD — SUPERSEDED by <new-prompt-filename>.` (today's date) as its first line. Do not delete it — `/prompt-sweep` archives superseded prompts later, with the user's approval. **Never demote a `keep-loose` REUSABLE prompt** (first line `LIFECYCLE: REUSABLE — keep-loose.`) — skip it entirely when choosing the prior prompt.
 
 Then echo the full contents of the prompt file to the screen so the user can copy-paste it immediately if starting now.
 

@@ -72,7 +72,7 @@ If Claude fetches from GitHub before answering, it's working. If it answers imme
 
 ### `/newsession`
 
-Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it does two things: first it scans the session for loose ends and asks whether any are better finished *now* than handed off; then it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history.
+Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it does two things: first it scans the session for loose ends and asks whether any are better finished *now* than handed off; then it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history. Re-run it on a later day and the previous handoff is kept and marked *superseded* (not deleted), so you keep a trail; re-run it the **same day** and it overwrites, so same-day edits don't pile up files.
 
 Optionally pass a filename and the next session will be shaped around that file:
 ```
