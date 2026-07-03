@@ -1,6 +1,6 @@
 ---
 name: newsession
-description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (full — scans for loose ends, writes file, displays handoff block) and `/newsession fast` (silent — writes file only, no scan, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
+description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the file and displays the handoff block; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (silent — writes file only, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
 ---
 
 # /newsession — Session handoff
@@ -20,25 +20,19 @@ Otherwise, if `$ARGUMENTS` is provided, determine how to treat it:
 2. If it's a bare filename (no slash, has extension), locate it: `find ~/ClaudeOS -name "<filename>" -type f 2>/dev/null | head -5` — one match → use it; multiple → list and ask; none → ask for full path.
 3. If it's a short phrase (no slash, no extension, one or more words), treat as a focus instruction — bias the handoff toward that topic/area without filtering out other important context.
 
-## Step 2 — Loose-ends pre-flight (finish-now vs defer)
+## Step 2 — Critical-only check (act first, don't hold a seminar)
 
-Before writing the handoff, scan THIS session for unfinished work and judge each item:
-is it cheaper or safer to finish NOW — in this warm session with full context — than to
-hand it to a cold one? Surface them so the user decides, then act on their choice.
+Default behavior: **just write and display the handoff** (Steps 3–4). Do not survey loose
+ends, do not produce a two-list summary, do not ask what to finish first. Unfinished work
+belongs in the handoff's Next action / Deferred sections, not in a pre-flight discussion.
 
-Better finished now (offer to complete before flushing):
-- a change the user wanted committed/pushed but isn't yet;
-- a half-applied edit, deploy, or migration left mid-step;
-- a quick verification/test whose result would change what the handoff says;
-- cleanup or restore of temporary/test state created this session.
-
-Fine to defer (do NOT do now — record in Deferred / Next action instead):
-- substantial new work; anything needing a user decision; anything blocked on input.
-
-Show a short two-list summary ("Better done now: …" / "Deferring: …"). If there are
-now-items, ask whether to complete them first (honor normal change-control and
-destructive-op acks). If there are none, say "clean — nothing better done now" and
-continue. Never block on this — it's a gate for the user's benefit, not a chore.
+The **only** exception: a single high-bar scan for anything genuinely urgent that must be
+done NOW or real harm follows if the session flushes without it — e.g. an uncommitted
+change the user explicitly asked to push, a half-applied edit that leaves things broken, or
+live/temporary state that must be restored. If — and only if — such an item exists, flag it
+in **one line** before writing and let the user decide (honor normal change-control and
+destructive-op acks). If nothing clears that bar (the usual case), say nothing and proceed
+straight to Step 3.
 
 ## Step 3 — Save the handoff to disk
 
