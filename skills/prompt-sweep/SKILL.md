@@ -59,8 +59,21 @@ Show **two** tables.
 |---|---|---|---|
 
 Recommended is one of: **keep ACTIVE** (leave in place) · **mark REUSABLE** (`keep-loose`) ·
-**archive DONE** / **archive SUPERSEDED by <file>**. Base it on the file's content and whether
-an open plan for that topic exists.
+**archive DONE** / **archive SUPERSEDED by <file>**.
+
+**Read each Table B file in full before assigning its Recommended — always. Never infer a
+disposition from the filename, the absence of a banner, or the memory index; those are what
+produce wrong first-pass calls.** Base it on what the file actually says, checking:
+- **Live task or finished one-shot?** The filename can lie — a `…-procedure-…` may be a single
+  completed test, not a reusable procedure. Trust the body's goal + next-action over the name.
+- **Is it a keep-around reference?** "Verify-don't-reapply" notes, or a file whose *current path*
+  other prompts/docs/the runbook point at, should be **REUSABLE in place** — archiving relocates
+  it and breaks those links.
+- **Is the work truly done?** Confirm against the file's own status/next-action and any open plan
+  for the topic — not just a memory summary, which can lag.
+
+(Table A candidates are banner-driven and self-stamped — no full read needed. This mandatory
+read is only for Table B, whose ambiguity is exactly what the read resolves.)
 
 Below both, list what is being **left in place** with no question and why (confirmed ACTIVE with
 an open plan; REUSABLE = keep-loose). If both tables are empty, say
