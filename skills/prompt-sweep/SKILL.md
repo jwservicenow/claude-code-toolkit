@@ -70,7 +70,8 @@ an open plan; REUSABLE = keep-loose). If both tables are empty, say
 
 Ask Jim to approve — **per-file** (list the numbers) or **all**. For Table B he confirms or
 overrides each recommendation. Then, per file:
-- **archive** → stamp the DONE/SUPERSEDED banner as its first line, then move it to `archive/`.
+- **archive** → stamp the DONE/SUPERSEDED banner as its first line, then move it to `archive/`,
+  prefixing the filename per the spec's **Archive naming** rule (origin subfolder, always, no dedup).
 - **mark REUSABLE** → stamp the `LIFECYCLE: REUSABLE — keep-loose.` marker; leave in place.
 - **keep ACTIVE** → leave untouched.
 

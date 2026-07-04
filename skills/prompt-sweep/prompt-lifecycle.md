@@ -82,6 +82,26 @@ across days, because that is the only time the filenames differ.
 - A file only ever moves into **its own** project's (or `shared/`'s) `archive/` — never another
   project's, never across the branch line.
 
+## Archive naming (prefix on move — hard rule)
+
+Archives are flat, but source files come from a project root **and** its subfolders (e.g.
+`homelab/`, `homelab/dimm/`, `homelab/hl-agents/`), all landing in the same `archive/`. To keep
+origin legible in that flat folder, **prefix the filename on move** with the subfolder path it
+came from, relative to the archive's owning project, folder names hyphen-joined:
+
+- **Always prefix; never dedup.** The origin subfolder is prepended even if the filename already
+  starts with it — doubling is expected, not a bug.
+- **Project-root files get no prefix** — the archive already sits inside that project.
+
+Examples (all → `homelab/archive/`):
+- `homelab/dimm/doc-update-procedure-prompt-2026-06-28.md` → `dimm-doc-update-procedure-prompt-2026-06-28.md`
+- `homelab/hl-agents/hl-agents-prompt-2026-06-16.md` → `hl-agents-hl-agents-prompt-2026-06-16.md` *(doubled — correct)*
+- `homelab/cu130-130-prompt-2026-06-16.md` *(project root)* → `cu130-130-prompt-2026-06-16.md` *(no prefix)*
+
+Applies to plans moved alongside prompts too. The archive-folder **location** may consolidate
+later (subfolders don't yet own their own `archive/`); this naming rule keeps names consistent
+regardless of where the folders land.
+
 ## Non-negotiables
 
 - **Nothing moves without Jim's approval** — per-file or approve-all.
