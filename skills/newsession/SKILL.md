@@ -1,6 +1,6 @@
 ---
 name: newsession
-description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the file and displays the handoff block; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (silent — writes file only, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
+description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the handoff file and prints only its path; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (silent — writes file only, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
 ---
 
 # /newsession — Session handoff
@@ -22,7 +22,7 @@ Otherwise, if `$ARGUMENTS` is provided, determine how to treat it:
 
 ## Step 2 — Critical-only check (act first, don't hold a seminar)
 
-Default behavior: **just write and display the handoff** (Steps 3–4). Do not survey loose
+Default behavior: **just write the handoff and report its path** (Steps 3–4). Do not survey loose
 ends, do not produce a two-list summary, do not ask what to finish first. Unfinished work
 belongs in the handoff's Next action / Deferred sections, not in a pre-flight discussion.
 
@@ -45,16 +45,21 @@ Write only the contents of the handoff prompt (no intro line, no fences) to the 
 
 The prompt lifecycle (states, banner formats, when things get archived) is defined once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow that spec; do not restate its rules here.
 
-## Step 4 — Display the handoff prompt
+## Step 4 — Report the filename only
 
-Generate and display a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
+**Never print the handoff prompt in chat.** It is written to disk in Step 3 and nothing more.
 
-Output format:
-- One line OUTSIDE the code block: `Paste this into a new Claude Code session to resume:`
-- A single fenced markdown code block containing the handoff prompt.
-- No other commentary.
+Output format — exactly one line, nothing else:
+`Handoff written: <full path to the prompt file>`
 
-Inside the code block — strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. **Cap at 300 words** inside the block.
+No preamble, no code block, no summary of the handoff's contents, no next-step commentary.
+(`/newsession fast` prints nothing at all.)
+
+## Handoff prompt content (written to the file in Step 3)
+
+Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
+
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. **Cap at 300 words.**
 
 Sections:
 
