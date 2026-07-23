@@ -122,15 +122,23 @@ The transition prompt should contain:
 
 If this is a **replan** on an existing project (a prior `*-prompt-*.md` already exists for it), **demote the prior prompt to SUPERSEDED** before writing the new one: prepend `STATUS YYYY-MM-DD — SUPERSEDED by <new-prompt-filename>.` (today's date) as its first line. Do not delete it — `/prompt-sweep` archives superseded prompts later, with the user's approval. **Never demote a `keep-loose` REUSABLE prompt** (first line `LIFECYCLE: REUSABLE — keep-loose.`) — skip it entirely when choosing the prior prompt.
 
-Then echo the full contents of the prompt file to the screen so the user can copy-paste it immediately if starting now.
+Tell the user both filenames, then echo the transition prompt.
 
-Tell the user both filenames.
+**The transition prompt MUST be the last thing you output — always, every run.** Present it under a clear heading (e.g. `## Session prompt — paste to resume`) inside a single fenced code block, so it's clean to copy. Nothing may come after it except the one path line below: no summary of the plan, no recap of what you built, no "want me to start?", no offer to begin the work. If you have closing remarks, they go BEFORE the prompt block.
+
+**Immediately after the fenced block, output exactly one line — the full path to the prompt file, same form as `/newsession`:**
+
+```
+Session prompt written: <full path to the *-prompt-*.md file>
+```
+
+Absolute path, no code block, no commentary after it. That line ends the turn.
 
 ### Step 8 — Finish
 
 The deliverables are the two files from Steps 6–7: the plan (`*-plan-*.md`) and the standalone transition prompt (`*-prompt-*.md`). **Do not create a README** — keep the project lean; the plan doc is the self-contained resume point and the prompt file is the paste-to-resume pointer. Leave any existing README untouched.
 
-That's the end — no handoff, no next steps.
+That's the end — the echoed transition prompt followed by the `Session prompt written: <path>` line is the final output. No handoff, no next steps, nothing after that path line.
 
 ## Rules
 
