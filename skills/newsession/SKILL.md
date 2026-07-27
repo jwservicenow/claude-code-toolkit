@@ -1,6 +1,6 @@
 ---
 name: newsession
-description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the handoff file and prints only its path; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (silent — writes file only, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
+description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the handoff file and prints only its path; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (skips the pre-flight check entirely — writes the file and prints only its path). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
 ---
 
 # /newsession — Session handoff
@@ -14,6 +14,7 @@ Look at what actually happened in this conversation (this session only — not m
 If `$ARGUMENTS` is the literal word `fast`:
 - Skip to Step 3 (Save) immediately — no argument processing, no pre-flight scan, no display.
 - Derive `<topic>` from the current directory's name.
+- Still perform Step 4 (report the filename) — `fast` only skips the pre-flight critical-only check, it is not silent.
 
 Otherwise, if `$ARGUMENTS` is provided, determine how to treat it:
 1. If it contains a "/" or ends in a file extension, treat as a file path — read it as a runbook and let its content shape the handoff.
@@ -53,7 +54,7 @@ Output format — exactly one line, nothing else:
 `Handoff written: <full path to the prompt file>`
 
 No preamble, no code block, no summary of the handoff's contents, no next-step commentary.
-(`/newsession fast` prints nothing at all.)
+This applies to `/newsession fast` too — it skips Step 2's pre-flight check, but still prints this one line.
 
 ## Handoff prompt content (written to the file in Step 3)
 
