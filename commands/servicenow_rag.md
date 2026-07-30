@@ -8,6 +8,10 @@ Answer this ServiceNow question by retrieving from the official docs mirror befo
 
 Question: $ARGUMENTS
 
+If any fetch in this flow times out, retry once before treating it as absent/broken —
+raw.githubusercontent.com occasionally times out on the first request to a file with no
+size-related cause. Only escalate to a 404/absence workaround after the retry also fails.
+
 Steps:
 1. Fetch the publication index:
    https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
