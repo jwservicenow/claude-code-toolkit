@@ -66,6 +66,15 @@ Steps:
    - ACC (it-operations-management/agent-client-collector/, flat): acc-sys-requirements.md,
      acc-install-windows.md, acc-configuring-without-mid.md. Supported-OS matrix is a HARD
      GAP — not in the mirror, punt to the ServiceNow Store page + login-gated KB.
+   - Cloud discovery patterns (Azure/AWS/GCP resource-level pattern catalogs, e.g. "what
+     Azure/AWS/GCP discovery patterns exist"): NOT under service-mapping/ or servicenow-platform/
+     despite the routing table above — actual folder is
+     it-operations-management/discovery-and-service-mapping-patterns/, undiscoverable by
+     paging the servicenow-platform or it-operations-management indexes or the Service Mapping
+     reference page. Reach it via the cloud's landing page instead: discovery/azure-cloud-discovery.md
+     (or discovery/aws-cloud-discovery.md, discovery/gcp-cloud-discovery.md) → "Useful information"
+     section links to discovery-and-service-mapping-patterns/{cloud}-cloud-discovery-patterns.md
+     (the full LP-pattern catalog + per-resource child pages + events/tags tables).
    - Now Assist for {product} (e.g. ITSM): the publication's index.md often misses or
      decoys this section (e.g. it-service-management surfaces
      using-now-assist-ai-native-itsm.md — a Simplified-ITSM dashboard feature, NOT the
