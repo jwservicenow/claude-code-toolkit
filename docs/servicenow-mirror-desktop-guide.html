@@ -365,7 +365,7 @@ search is out of bounds no matter what you discard afterward.
 ## Official Mirror — [findings, canonical docs.servicenow.com URLs]
 ## Community Sources — [each finding + full community post URL + &quot;peer-authored&quot; flag, OR &quot;no on-domain results&quot;]</pre>
 
-<h2><span class="n">3</span> Smoke tests</h2>
+<h2>Smoke tests</h2>
 <p><span style="color:var(--accent)"><b>Paste these in a fresh project chat.</b></span> Each should stay connector-only, cite a raw URL, and refuse to fabricate. All four pass on a correct setup.</p>
 <table>
   <thead><tr><th style="width:42%">Prompt</th><th>Pass looks like</th></tr></thead>
@@ -381,7 +381,7 @@ search is out of bounds no matter what you discard afterward.
   <b>Branch tip.</b> Everything above is the <code>australia</code> GA branch. For a customer on an older family, swap the branch token in the URL: <code>zurich</code>, <code>yokohama</code>, or <code>xanadu</code>. Same folder layout.
 </div>
 
-<h2><span class="n">4</span> Key hurdles addressed</h2>
+<h2>Key hurdles addressed</h2>
 <p class="muted">Nothing here needs action from you — the instruction block already neutralizes all four. They're documented so you know <i>why</i> the instructions look the way they do, and what could resurface if you edit the rules.</p>
 <div class="grid">
   <div class="card">
@@ -401,6 +401,28 @@ search is out of bounds no matter what you discard afterward.
     <p class="muted" style="margin:0">Some content genuinely isn't in the mirror (login-gated KBs, the supported-OS matrix on the Store, the patterns <code>.xlsx</code>). Correct behavior: cite by reference, don't invent. The HARD GAPS section enforces this.</p>
   </div>
 </div>
+
+<h2>Full Test Suite (A–O)</h2>
+<p class="muted">The four smoke tests above are the quick check you run yourself. Behind them sits a much deeper validation: 14 questions, each scored against hand-verified ground truth for PASS/PARTIAL/FAIL and re-run across instruction versions — this is what actually caught the fabrication and routing bugs before they could reach a customer conversation.</p>
+<table>
+  <thead><tr><th style="width:8%">Test</th><th>Question</th></tr></thead>
+  <tbody>
+    <tr><td><b>A</b></td><td>What data is populated into CMDB with the Azure Service Graph connector?</td></tr>
+    <tr><td><b>B</b></td><td>List the out-of-box Azure Discovery patterns.</td></tr>
+    <tr><td><b>C</b></td><td>What are the per-MID-Server agent-count sizing tiers for ACC-V?</td></tr>
+    <tr><td><b>D</b></td><td>What are the MID Server requirements for ACC on Windows?</td></tr>
+    <tr><td><b>E</b></td><td>What are the entry point attributes used to define a business service?</td></tr>
+    <tr><td><b>F</b></td><td>Is Oracle RAC supported for pattern-based discovery?</td></tr>
+    <tr><td><b>G</b></td><td>What are the prerequisites for top-down discovery?</td></tr>
+    <tr><td><b>H</b></td><td>What are the stages in the hardware disposal order process?</td></tr>
+    <tr><td><b>J</b></td><td>How to setup Now Assist for ITOM?</td></tr>
+    <tr><td><b>K</b></td><td>What features and functionality is provided by the plugin Event Management Core?</td></tr>
+    <tr><td><b>L</b></td><td>What business value does ITOM's HLA provide to customers?</td></tr>
+    <tr><td><b>M</b></td><td>How do I set up and configure stockrooms in Hardware Asset Management?</td></tr>
+    <tr><td><b>N</b></td><td>How do I set up and configure appointment booking in Walk-up Experience?</td></tr>
+    <tr><td><b>O</b></td><td>How do I set up incident swarming in ITSM?</td></tr>
+  </tbody>
+</table>
 
 <footer>
   Validated against ServiceNow/ServiceNowDocs @ <code>australia</code>, 2026-05-29. Not an official ServiceNow artifact.
