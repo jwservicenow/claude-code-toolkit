@@ -51,6 +51,22 @@ Steps:
    region to pull the relevant sub-tree, or fetch the landing-page file directly and follow
    its in-page links. Page sequentially only for small/medium publications.
 
+   INDEX PAGING CAP — when paging an index.md to LOCATE a file, stop after 3 chunks with
+   no hit on the term or its synonyms. Don't keep walking the index; switch to a known
+   direct path below, or state the gap. This caps index NAVIGATION only — it does not
+   limit fetches of content files, and it never overrides the pagination floor (a
+   LIST/CATALOG/ALL request still pages its content file to EOF) or the requirement to
+   show index evidence before claiming a topic is absent.
+
+   OFFSET-JUMP — for a known item deep inside a large unindexed content file (e.g.
+   r_SupportedApplications.md at ~110k chars), don't page from 0. Jump `start_index`
+   straight to your best-guess neighborhood and read at full `max_length`. Expect 2–4
+   correction jumps to land exactly; don't treat the first landing as complete. If a fetch
+   returns only a short "no more content available" stub, `start_index` is past EOF — that
+   is NOT evidence the item is absent. Halve the offset and re-read, halving again on each
+   further stub, then bracket between the last offset that returned content and the first
+   that returned a stub.
+
    Known direct paths (skip index navigation for these — same mirror, confirmed live,
    saves paging a 1MB+ index for content the index can't reliably surface anyway):
    - CMDB/CSDM have no own index.md; locate via servicenow-platform/index.md, but these
