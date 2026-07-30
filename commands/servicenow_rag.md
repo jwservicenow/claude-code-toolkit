@@ -61,6 +61,16 @@ Steps:
    - ACC (it-operations-management/agent-client-collector/, flat): acc-sys-requirements.md,
      acc-install-windows.md, acc-configuring-without-mid.md. Supported-OS matrix is a HARD
      GAP — not in the mirror, punt to the ServiceNow Store page + login-gated KB.
+   - Now Assist for {product} (e.g. ITSM): the publication's index.md often misses or
+     decoys this section (e.g. it-service-management surfaces
+     using-now-assist-ai-native-itsm.md — a Simplified-ITSM dashboard feature, NOT the
+     gen-AI product). Skip straight to direct paths:
+     {publication}/now-assist-for-{product}/now-assist-itsm.md (landing hub: Explore/
+     Configure/Use links), .../supporting-information-now-assist-itsm.md (dependencies,
+     supported versions, LLM providers), .../configure-now-assist-for-itsm.md (plugin
+     name + config steps). The actual plugin-install procedure always lives at
+     intelligent-experiences/install-now-assist-feature-plugins.md regardless of which
+     publication the product routes to.
 
    Verify-first on gap/absence notes: this mirror backfills weekly, so any "empty" or
    "404" status you infer (including the retired-file map above) is point-in-time, not
