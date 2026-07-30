@@ -32,7 +32,8 @@ Steps:
    Request the verbatim raw content — every line and every URL.
    Do not summarize or infer. Extract exact file paths from the returned links only.
    Large multi-app publications (e.g. it-asset-management ≈ 270k chars: SAM, then HAM, SaaS,
-   Cloud) are too big to page from the top — the topic you want may sit past offset 200k.
+   Cloud; intelligent-experiences, similarly oversized — full-file fetch attempts have timed
+   out) are too big to page from the top — the topic you want may sit past offset 200k.
    Don't page sequentially from 0. Instead: WebSearch the topic to find its landing-page
    slug (e.g. `ham-landing-page`), then fetch the index with a `start_index` near that
    region to pull the relevant sub-tree, or fetch the landing-page file directly and follow
