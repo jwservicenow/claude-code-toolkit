@@ -12,6 +12,14 @@ If any fetch in this flow times out, retry once before treating it as absent/bro
 raw.githubusercontent.com occasionally times out on the first request to a file with no
 size-related cause. Only escalate to a 404/absence workaround after the retry also fails.
 
+KNOWN-LOCATIONS PRECEDENCE — before Step 1, check the Known direct paths list (in Step 2
+below) for the target file BY NAME. If it's named there, fetch that file directly — do
+NOT fetch llms.txt or any index.md first. A familiar-sounding index detour (e.g. a
+"patterns" or "catalog" file that sounds on-topic) is not a reason to skip a direct
+match; the known-locations list exists because index navigation is unreliable for
+exactly these files. Only proceed to Step 1 when the target file is NOT named in Known
+direct paths.
+
 Steps:
 1. Fetch the publication index:
    https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
