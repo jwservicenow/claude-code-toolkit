@@ -33,7 +33,9 @@ Steps:
        Now LLM, AI Gateway, AI Agent, AI Governance         → intelligent-experiences
        Note: Now Assist *product-specific skills* live in their product publication,
        not intelligent-experiences — e.g. Now Assist for ITSM → it-service-management,
-       Now Assist for ITOM → servicenow-platform, Now Assist for CSM → customer-service-management
+       Now Assist for ITOM → it-operations-management (NOT servicenow-platform — that
+       routing was wrong and cost two 404s + a timeout on 2026-07-30; see the ITOM
+       direct paths in Step 2), Now Assist for CSM → customer-service-management
    If uncertain, pick the best match from the full list in llms.txt.
    Default branch is australia (current GA). Use xanadu/yokohama/zurich if the question specifies.
 
@@ -109,6 +111,24 @@ Steps:
      name + config steps). The actual plugin-install procedure always lives at
      intelligent-experiences/install-now-assist-feature-plugins.md regardless of which
      publication the product routes to.
+   - Now Assist for ITOM — FOLDER-NAME EXCEPTION, do not apply the ITSM pattern above.
+     The folder spells the product out while the filenames abbreviate it, so the
+     obvious guess (now-assist-for-itom/) 404s. Confirmed live 2026-07-30, all under
+     it-operations-management/now-assist-for-it-operations-management/ :
+       now-assist-itom.md (landing: license tiers Foundation/Advanced/Prime),
+       now-assist-itom-configure.md, now-assist-itom-use.md,
+       now-assist-itom-ai-agent-workflows.md (the 6 ITOM agentic workflows + their agents),
+       app-now-assist-itom.md (apps installed: sn_genai_platform, sn_aiops_ai_agents,
+       sn_sm_gen_ai, sn_obs_aia, sn_itom_leap).
+     KNOWN GAP: none of these pages names a single role — Now Assist for ITOM gates on
+     license tier, not roles. The only role documented in this stack is sn_aia.admin, in
+     intelligent-experiences/install-ai-agents-plugins.md. Don't keep hunting for an
+     ITOM-specific role; say it isn't documented.
+   - AI Agent Studio (intelligent-experiences/, flat): ai-agent-studio.md (Studio overview),
+     install-ai-agents-plugins.md (Pro Plus / Enterprise Plus + Now Assist license,
+     sn_aia.admin role), add-tool-aia.md (tool overview), add-script-ai-agent.md (script
+     tools: named inputs, and the mandate to use GlideRecordSecure over GlideRecord and
+     addUserEncodedQuery() over addEncodedQuery()). Confirmed live 2026-07-30.
 
    Verify-first on gap/absence notes: this mirror backfills weekly, so any "empty" or
    "404" status you infer (including the retired-file map above) is point-in-time, not
