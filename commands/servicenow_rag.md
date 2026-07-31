@@ -24,7 +24,25 @@ Steps:
 1. Fetch the publication index:
    https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
    Match the question to the right publication using this routing table (folder name → publication):
-     CMDB, IRE, Discovery, MID Server, Service Mapping, ITOM → servicenow-platform
+     CMDB, CSDM, IRE, MID Server, Service Graph Connectors  → servicenow-platform
+     Discovery, Service Mapping, Event Management, ACC,
+       ITOM Visibility, HLA, Metric Intelligence, LEAP, SRM → it-operations-management
+       CAUTION: these two are the most-confused pair in this table. ITOM is NOT one
+       publication — the CMDB/data-model half sits in servicenow-platform and the
+       discovery/operations half sits in it-operations-management. Verified by direct
+       probe 2026-07-30: servicenow-platform/discovery/… and
+       servicenow-platform/service-mapping/… both 404; it-operations-management/discovery/…
+       and it-operations-management/service-mapping/… both 200. The reverse also holds —
+       it-operations-management/mid-server/… and .../configuration-management-database-cmdb/…
+       both 404. Confirmed folder lists:
+         servicenow-platform: cmdb-ci-class-models, cmdb-integration-commons,
+           common-service-data-model-csdm, configuration-management-database-cmdb,
+           mid-server, service-graph-connectors, now-assist-for-configuration-management-database-cmdb
+         it-operations-management: agent-client-collector, discovery,
+           discovery-and-service-mapping-patterns, event-management, health-log-analytics,
+           itom-visibility, metric-intelligence, now-assist-for-it-operations-management,
+           service-mapping, service-observability, service-reliability-management,
+           aiops-leap-learning-enhanced-automation-playbooks
      ITSM, Incident, Change, Problem, Service Catalog        → it-service-management
      ITAM, Software Asset, HAM, SAM                         → it-asset-management
      CSM, Customer workflows                                 → customer-service-management
