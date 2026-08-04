@@ -14,7 +14,7 @@ A "prompt file" is a `<topic>-prompt-YYYY-MM-DD.md` paste-to-resume handoff writ
 
 | State | Definition | Swept? |
 |---|---|---|
-| **ACTIVE** | Newest prompt in a project, carrying **no** banner. The live resume pointer. | **Never** |
+| **ACTIVE** | Newest prompt **for its topic**, carrying **no** banner. The live resume pointer for that topic. | **Never** |
 | **SUPERSEDED** | An older prompt for which a newer one now exists. Carries a SUPERSEDED banner. | Yes — after approval |
 | **DONE** | Carries a DONE banner (its plan closed, or work finished). | Yes — after approval |
 | **REUSABLE** | A utility prompt tagged `keep-loose` — meant to be re-run, kept in place indefinitely. | **Never** |
@@ -24,8 +24,13 @@ Precedence when a file could match more than one: **REUSABLE > ACTIVE > DONE > S
 A `keep-loose` file is REUSABLE even if it is also the newest; a banner never overrides
 `keep-loose`.
 
+**A project holds one ACTIVE prompt per open topic, not one overall.** A project with three
+live workstreams legitimately has three ACTIVE prompts. Never infer that one topic's prompt
+retired another topic's just because it is newer — that inference is what silently retires
+live work. Only a same-topic successor supersedes.
+
 **LEGACY is not a resting state.** An unbannered prompt is only genuinely ACTIVE when it is
-the live resume pointer of a project with an open plan; otherwise `/prompt-sweep` cannot know,
+the live resume pointer of an open topic; otherwise `/prompt-sweep` cannot know,
 so it must **always ask Jim** what to do rather than assume ACTIVE and skip. Jim's answer
 resolves it into ACTIVE (leave), REUSABLE (stamp `keep-loose`), or DONE/SUPERSEDED (stamp +
 sweep). This is what stops retired-but-unstamped prompts from hiding as ACTIVE forever.
@@ -39,7 +44,7 @@ parsing the body. Date is the day the state changed (US Mountain Time).
 - **SUPERSEDED:**  `STATUS YYYY-MM-DD — SUPERSEDED by <newer-prompt-filename>.`
 - **REUSABLE:**  `LIFECYCLE: REUSABLE — keep-loose.`  (this is the `keep-loose` tag; presence of this line = never sweep)
 
-A file with none of these lines and that is the newest prompt in its project = **ACTIVE**.
+A file with none of these lines and that is the newest prompt for its topic = **ACTIVE**.
 `STATUS …` mirrors the plan-header banner `/newplan` already stamps at Closure, so the
 vocabulary is shared between plans and prompts.
 
@@ -49,7 +54,7 @@ vocabulary is shared between plans and prompts.
 |---|---|---|
 | **`/newplan`** | Closure of a plan | Stamps its OWN plan+prompt pair `DONE`, moves both to the project's `archive/`. |
 | **`/newplan`** | Replan on an existing project | Demotes the prior prompt to `SUPERSEDED` (banner) before writing the new pair. |
-| **`/newsession`** | Refresh (new prompt written) | Stamps the prior same-project prompt `SUPERSEDED` before writing the new one. |
+| **`/newsession`** | Refresh (new prompt written) | Stamps the prior **same-topic** prompt `SUPERSEDED` before writing the new one. Never touches another topic's prompt, however old. |
 | **`/prompt-sweep`** | Jim runs it (~monthly) | Backstop. Finds SUPERSEDED/DONE prompts, proposes moves, and — per Jim's approval — archives them. Catches whatever the other two missed. |
 
 Each tool owns the state changes at its own moment; `/prompt-sweep` is the periodic net
@@ -74,8 +79,25 @@ same day: `<topic>-prompt-YYYY-MM-DD[b|c|…].md`. **A prompt file is never over
   different plan worked): different `<topic>` → different filename → both coexist, no suffix
   needed.
 
-Net: the newest file — highest date, then highest letter — is the project's resume pointer;
-every earlier one survives with a `SUPERSEDED` banner until `/prompt-sweep` archives it.
+Net: within a topic, the newest file — highest date, then highest letter — is that topic's
+resume pointer; every earlier one survives with a `SUPERSEDED` banner until `/prompt-sweep`
+archives it. Across topics, nothing is compared.
+
+## Dormant topics (ACTIVE is not immortal)
+
+Topic-scoped ACTIVE has one failure mode: an abandoned topic's last prompt is never superseded,
+because no successor is ever written. Without a rule it stays ACTIVE forever and quietly pads
+the project's "what am I working on" list.
+
+So: an ACTIVE prompt whose date is **more than 60 days old** is **dormant**. `/prompt-sweep`
+**surfaces** it for a per-file decision — exactly the LEGACY treatment, in the same "needs your
+call" section — with the options **keep ACTIVE** (work is genuinely still open), **mark DONE**
+(stamp the banner, then sweep it), or **mark REUSABLE**. Dormancy is a prompt to ask, never a
+licence to act: **this does not make ACTIVE sweepable**, and the non-negotiable below stands
+unchanged.
+
+60 days, not 30, because `/prompt-sweep` runs about monthly — a topic must sit untouched across
+two consecutive sweeps before it is raised, so genuinely slow-burning work is never nagged.
 
 ## Scope guardrail (hard rule)
 

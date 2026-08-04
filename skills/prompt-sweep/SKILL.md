@@ -36,8 +36,13 @@ For each prompt file, assign a state using `prompt-lifecycle.md` precedence
 - **REUSABLE** — first line is the `LIFECYCLE: REUSABLE — keep-loose.` marker. Never swept.
 - **DONE** — first line is a `STATUS … — DONE.` banner. Sweep candidate.
 - **SUPERSEDED** — first line is a `STATUS … — SUPERSEDED by …` banner, OR it is an older
-  prompt for a project that has a newer prompt (even if someone forgot to stamp it). Sweep candidate.
-- **ACTIVE** — no banner AND the live resume pointer of a project with an open plan. Never swept.
+  prompt **for the same `<topic>`** as a newer prompt (even if someone forgot to stamp it).
+  Sweep candidate. **Compare only within a topic** — a newer prompt for a *different* topic
+  never supersedes this one, however old it is. A project may hold several live topics at once,
+  and treating the project's newest as the only survivor retires real work.
+- **ACTIVE** — no banner AND the live resume pointer of an open topic. Never swept. If its date
+  is **more than 60 days old** it is **dormant** — still never swept, but surfaced in Step 4's
+  "needs your call" list alongside LEGACY (see `prompt-lifecycle.md` § Dormant topics).
 - **LEGACY** — no banner and no `keep-loose` marker, and **not** confidently ACTIVE per the
   line above (predates the system, retired without stamping, or a lone prompt in a flat root
   with no open plan). **Do not assume ACTIVE and skip it** — surface it for a decision (Step 4).
@@ -53,7 +58,7 @@ Show **two** tables.
 | # | File (path) | State | → Destination archive/ |
 |---|---|---|---|
 
-**B. Legacy — needs your call** (unbannered, not confidently ACTIVE):
+**B. Needs your call** (unbannered and not confidently ACTIVE, or ACTIVE but dormant >60 days):
 
 | # | File (path) | Recommended | Why |
 |---|---|---|---|
@@ -75,8 +80,8 @@ produce wrong first-pass calls.** Base it on what the file actually says, checki
 (Table A candidates are banner-driven and self-stamped — no full read needed. This mandatory
 read is only for Table B, whose ambiguity is exactly what the read resolves.)
 
-Below both, list what is being **left in place** with no question and why (confirmed ACTIVE with
-an open plan; REUSABLE = keep-loose). If both tables are empty, say
+Below both, list what is being **left in place** with no question and why (ACTIVE within 60 days
+on an open topic; REUSABLE = keep-loose). If both tables are empty, say
 "Nothing to sweep — all prompts are ACTIVE or REUSABLE." and stop.
 
 ## Step 5 — Get approval, then act
