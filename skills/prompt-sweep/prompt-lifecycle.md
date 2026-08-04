@@ -6,8 +6,9 @@ and archived. **Rules only — no live state, no project backlog.** `/prompt-swe
 `/newsession`, and `/newplan` all point here; they must never restate these rules.
 
 A "prompt file" is a `<topic>-prompt-YYYY-MM-DD.md` paste-to-resume handoff written by
-`/newsession` or `/newplan`. The newest-dated one in a project is that project's live
-resume pointer.
+`/newsession` or `/newplan`. The newest one for a topic is that topic's live resume pointer —
+**newest = highest date, then highest letter suffix** (`…-08-03c.md` beats `…-08-03b.md` beats
+`…-08-03.md`).
 
 ## The four states
 
