@@ -54,24 +54,27 @@ vocabulary is shared between plans and prompts.
 Each tool owns the state changes at its own moment; `/prompt-sweep` is the periodic net
 under all of them. No tool ever deletes a prompt — the sweep **moves** files to `archive/`.
 
-## Same-day overwrite vs different-day keep
+## Same-day suffix vs different-day keep
 
-Prompt filenames are keyed to **date + topic**: `<topic>-prompt-YYYY-MM-DD.md`. There is no
-time, counter, or version suffix. This is deliberate and controls whether a refresh keeps or
-replaces the prior prompt:
+Prompt filenames are keyed to **date + topic**, with a letter suffix for repeat runs on the
+same day: `<topic>-prompt-YYYY-MM-DD[b|c|…].md`. **A prompt file is never overwritten.**
 
 - **Different day** (normal case): a new date makes a new filename, so the prior prompt is a
   distinct file. `/newsession` and `/newplan` keep it and stamp it `SUPERSEDED` — history is
-  preserved, and `/prompt-sweep` archives it later. **Prior-day prompts are never overwritten.**
+  preserved, and `/prompt-sweep` archives it later.
 - **Same day, same topic** (re-running in the same project without changing the focus): the
-  filename is identical, so the new write **overwrites** the earlier one. The `SUPERSEDED`
-  stamp cannot preserve it — old and new share the same path, so the demote step is a no-op.
-  **Same-day same-topic prompts always overwrite** — intended, to stop same-day buildup.
-- **Same day, different topic** (a different `$ARGUMENTS` focus or a different cwd): different
-  `<topic>` → different filename → both files coexist (no overwrite).
+  base filename is already taken, so append the next unused letter — first re-run of the day
+  writes `…-2026-08-03b.md`, the next `…c.md`, and so on. Stamp the prior prompt `SUPERSEDED
+  by <new filename>` as usual, so the day's runs form a readable chain. Never write over an
+  existing prompt to reuse its name: a same-day handoff holds real work, and the later prompt
+  is a continuation of it, not a correction. Letters, not numbers, so the suffix can never be
+  mistaken for part of the date.
+- **Same day, different topic** (a different `$ARGUMENTS` focus, a different cwd, or a
+  different plan worked): different `<topic>` → different filename → both coexist, no suffix
+  needed.
 
-Net: at most one prompt per project per day; the SUPERSEDED-keep protection applies only
-across days, because that is the only time the filenames differ.
+Net: the newest file — highest date, then highest letter — is the project's resume pointer;
+every earlier one survives with a `SUPERSEDED` banner until `/prompt-sweep` archives it.
 
 ## Scope guardrail (hard rule)
 
