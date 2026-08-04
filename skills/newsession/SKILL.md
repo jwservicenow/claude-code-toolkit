@@ -13,7 +13,7 @@ Look at what actually happened in this conversation (this session only — not m
 
 If `$ARGUMENTS` is the literal word `fast`:
 - Skip to Step 3 (Save) immediately — no argument processing, no pre-flight scan, no display.
-- Derive `<topic>` from the current directory's name.
+- Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name) — `fast` takes no focus argument, so rule 1 never applies.
 
 Otherwise, if `$ARGUMENTS` is provided, determine how to treat it:
 1. If it contains a "/" or ends in a file extension, treat as a file path — read it as a runbook and let its content shape the handoff.
@@ -37,7 +37,10 @@ straight to Step 3.
 ## Step 3 — Save the handoff to disk
 
 Save the generated handoff prompt as a standalone prompt file — this becomes the project's resume point. Mirror `/newplan`'s naming:
-- Write to the **current working directory** (the project being worked on) as `<topic>-prompt-YYYY-MM-DD.md` with today's date. Derive `<topic>` from `$ARGUMENTS` if it named a focus, otherwise from the current directory's name.
+- Write to the **current working directory** (the project being worked on) as `<topic>-prompt-YYYY-MM-DD.md` with today's date. Derive `<topic>` in this order, first match wins:
+  1. `$ARGUMENTS`, if it named a focus.
+  2. The label of the `*-plan-*.md` in the cwd that **this session actually worked on** — strip the `-plan-YYYY-MM-DD.md` suffix and reuse the label verbatim, so the pair matches (`vuln-mitigation-plan-2026-08-03.md` → `vuln-mitigation-prompt-2026-08-03.md`). If several plans were touched, use the newest-dated one; if none was worked on this session, skip to 3 — do not adopt a plan's label just because the file is present.
+  3. The current directory's name.
 - If the cwd is a branch root (e.g. `~/ClaudeOS/personal`) rather than a project dir, write the file there as the fallback.
 - The newest-dated `*-prompt-*.md` for a project is its resume pointer. Before writing the new prompt, **demote the prior same-project prompt to SUPERSEDED**: prepend the banner `STATUS YYYY-MM-DD — SUPERSEDED by <new-prompt-filename>.` (today's date) as its first line. Do **not** delete it — `/prompt-sweep` archives superseded prompts later, with the user's approval. **Never demote a `keep-loose` REUSABLE prompt** (first line `LIFECYCLE: REUSABLE — keep-loose.`) — skip it entirely when choosing the prior prompt.
 
