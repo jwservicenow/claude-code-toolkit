@@ -80,6 +80,9 @@ produce wrong first-pass calls.** Base it on what the file actually says, checki
 (Table A candidates are banner-driven and self-stamped — no full read needed. This mandatory
 read is only for Table B, whose ambiguity is exactly what the read resolves.)
 
+A hold/defer note discovered in a different file does not, by itself, pull a SUPERSEDED file
+into Table B — quote it from that file's own text before it counts.
+
 Below both, list what is being **left in place** with no question and why (ACTIVE within 60 days
 on an open topic; REUSABLE = keep-loose). If both tables are empty, say
 "Nothing to sweep — all prompts are ACTIVE or REUSABLE." and stop.

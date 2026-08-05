@@ -83,6 +83,16 @@ Net: within a topic, the newest file — highest date, then highest letter — i
 resume pointer; every earlier one survives with a `SUPERSEDED` banner until `/prompt-sweep`
 archives it. Across topics, nothing is compared.
 
+## A hold note only binds the file that states it
+
+A SUPERSEDED file is swept on its own `SUPERSEDED by <file>` banner alone — a "not yet
+archived" / "stays in root for now" note found in a *different* file (the plan, or a later
+same-topic prompt) never transfers backward onto that topic's already-superseded predecessors.
+`/prompt-sweep` always collapses a same-topic chain to its single most-recent file, independent
+of the plan's closure/archive status. Only the file that itself carries the hold text — plan or
+terminal prompt — may be deferred; every earlier chain link stays a Table A candidate on its
+banner alone.
+
 ## Dormant topics (ACTIVE is not immortal)
 
 Topic-scoped ACTIVE has one failure mode: an abandoned topic's last prompt is never superseded,
