@@ -95,12 +95,13 @@ which uvx        # copy this absolute path</pre>
 <pre class="short" id="cfg">"mcpServers": {
   "fetch": {
     "command": "/opt/homebrew/bin/uvx",
-    "args": ["mcp-server-fetch", "--ignore-robots-txt"]
+    "args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]
   }
 }</pre>
 <ul>
   <li><code>command</code> must be the <b>absolute</b> uvx path — Desktop ignores your shell <code>$PATH</code>.</li>
   <li><code>--ignore-robots-txt</code> is required (<code>raw.githubusercontent.com/robots.txt</code> disallows <code>/</code>).</li>
+  <li><code>--with mcp&lt;2.0.0</code> is required. Without it, <code>uvx</code> fails to resolve dependencies and Desktop reports <i>“Could not attach to MCP server fetch.”</i></li>
   <li>Fully quit (<span class="kbd">⌘Q</span>) and relaunch. Verify under <b>Connectors → Customize → fetch</b> (LOCAL DEV).</li>
 </ul>
 
