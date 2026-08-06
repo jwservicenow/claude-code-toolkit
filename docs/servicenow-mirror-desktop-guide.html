@@ -77,19 +77,19 @@
   <p class="sub">Make Desktop answer SN product questions <b>only</b> from the official GitHub docs mirror — verifiable, customer-defensible, no fabrication, no silent web-search fallback. &nbsp;·&nbsp; Tested green against the <code>australia</code> branch, 2026-05-29. &nbsp;·&nbsp; <b>v2 — 6 Aug 2026:</b> added the required <code>mcp&lt;2.0.0</code> pin.</p>
 </header>
 
+<div class="callout good">
+  <b>Why this exists.</b> The public docsite (<code>docs.servicenow.com</code>) is a JS app Desktop can't read, and Desktop's native web fetch is sandbox-blocked from the mirror. Left alone, the model "hedges and proceeds" — it web-searches or answers from memory and you get unverifiable claims in front of a customer. This setup forces every answer through a fetchable source with a citable canonical docs.servicenow.com URL.
+</div>
+
 <div class="callout">
-  <b>Already set this up before 6 Aug 2026? Do this one edit.</b>
+  <b>Existing users before 6 Aug 2026 - Do this one edit.</b>
   <p>Open <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> and add <code>"--with", "mcp&lt;2.0.0",</code> to the <b>front</b> of your <code>args</code> list, so it reads:</p>
   <pre class="short" style="border-radius:8px;margin:8px 0">"args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]</pre>
   <p>Then fully quit Claude Desktop (<span class="kbd">⌘Q</span>) and reopen it. No reinstall needed.</p>
   <p class="muted"><b>Why:</b> without the pin, <code>uvx</code> can pull an incompatible <code>mcp</code> 2.x and the connector fails with <i>“Could not attach to MCP server fetch.”</i> If yours works today it is running on a cached build — the pin stops it breaking later.</p>
 </div>
 
-<div class="callout good">
-  <b>Why this exists.</b> The public docsite (<code>docs.servicenow.com</code>) is a JS app Desktop can't read, and Desktop's native web fetch is sandbox-blocked from the mirror. Left alone, the model "hedges and proceeds" — it web-searches or answers from memory and you get unverifiable claims in front of a customer. This setup forces every answer through a fetchable source with a citable canonical docs.servicenow.com URL.
-</div>
-
-<h2><span class="n">1</span> One-time setup</h2>
+<h2><span class="n">1</span> First time setup</h2>
 <p>The mechanism: a <b>custom local fetch MCP connector</b> — a lightweight local tool that retrieves raw files from <b>ServiceNow's official GitHub docs mirror</b> for Claude. Desktop can reach <code>raw.githubusercontent.com</code> only through this connector, not its sandbox-blocked native fetch. Install <code>uv</code>, then point Desktop at <code>uvx</code>.</p>
 
 <h3>Install uv &amp; find uvx</h3>
