@@ -158,7 +158,7 @@ CLAUDE_CONFIG_DIR=$HOME/.claude-personal /Users/YOUR_USERNAME/.local/bin/claude 
 
 **fetch** — allows Claude Code to fetch URLs and web content:
 ```bash
-CLAUDE_CONFIG_DIR=$HOME/.claude-personal /Users/YOUR_USERNAME/.local/bin/claude mcp add fetch -s user -- uvx mcp-server-fetch
+CLAUDE_CONFIG_DIR=$HOME/.claude-personal /Users/YOUR_USERNAME/.local/bin/claude mcp add fetch -s user -- uvx --with 'mcp<2.0.0' mcp-server-fetch
 ```
 
 > **Note:** `uvx` requires the `uv` package manager. Install if needed: `brew install uv`
@@ -187,7 +187,7 @@ CLAUDE_CONFIG_DIR=$HOME/.claude-personal /Users/YOUR_USERNAME/.local/bin/claude 
 ```bash
 CLAUDE_CONFIG_DIR=$HOME/.claude-work /Users/YOUR_USERNAME/.local/bin/claude mcp add filesystem -s user -- npx -y @modelcontextprotocol/server-filesystem /Users/YOUR_USERNAME/ClaudeOS/work /Users/YOUR_USERNAME/Documents/Work "/Users/YOUR_USERNAME/OneDrive - YourCompany"
 
-CLAUDE_CONFIG_DIR=$HOME/.claude-work /Users/YOUR_USERNAME/.local/bin/claude mcp add fetch -s user -- uvx mcp-server-fetch
+CLAUDE_CONFIG_DIR=$HOME/.claude-work /Users/YOUR_USERNAME/.local/bin/claude mcp add fetch -s user -- uvx --with 'mcp<2.0.0' mcp-server-fetch
 ```
 
 > **GitHub for work:** Do NOT connect a personal GitHub token to `claudew` without checking with IT. Your employer may require a company-managed GitHub org.
@@ -392,7 +392,7 @@ Without `-s user`, servers are added at project scope and only load from that sp
 |---|---|
 | `claudep`/`claudew` shows wrong account | Run `/logout` then `/login` inside the session — use correct Chrome profile |
 | MCP servers not loading | Check scope: re-add with `-s user` flag |
-| `fetch` MCP fails | Package is Python-based — use `uvx mcp-server-fetch` not npm |
+| `fetch` MCP fails | Package is Python-based — use `uvx` not npm. Include `--with 'mcp<2.0.0'` (quotes required in a shell) or dependency resolution fails |
 | Browser doesn't open for auth | Copy/paste the URL manually — this is normal for Enterprise SSO |
 | Accidentally ran bare `claude` | Press `2. No, exit` at the workspace trust prompt |
 | MCP config not being picked up | MCP servers belong in `.claude.json`, not `settings.json` |
