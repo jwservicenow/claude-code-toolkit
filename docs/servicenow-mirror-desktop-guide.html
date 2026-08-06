@@ -78,7 +78,11 @@
 </header>
 
 <div class="callout">
-  <b>Already on v1?</b> See <b>Upgrading from v1</b> below — one line to change.
+  <b>Already set this up before 6 Aug 2026? Do this one edit.</b>
+  <p>Open <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> and add <code>"--with", "mcp&lt;2.0.0",</code> to the <b>front</b> of your <code>args</code> list, so it reads:</p>
+  <pre class="short" style="border-radius:8px;margin:8px 0">"args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]</pre>
+  <p>Then fully quit Claude Desktop (<span class="kbd">⌘Q</span>) and reopen it. No reinstall needed.</p>
+  <p class="muted"><b>Why:</b> without the pin, <code>uvx</code> can pull an incompatible <code>mcp</code> 2.x and the connector fails with <i>“Could not attach to MCP server fetch.”</i> If yours works today it is running on a cached build — the pin stops it breaking later.</p>
 </div>
 
 <div class="callout good">
@@ -109,11 +113,6 @@ which uvx</pre>
   <li><code>--with mcp&lt;2.0.0</code> is required. Without it, <code>uvx</code> fails to resolve dependencies and Desktop reports <i>“Could not attach to MCP server fetch.”</i></li>
   <li>Fully quit (<span class="kbd">⌘Q</span>) and relaunch. Verify under <b>Connectors → Customize → fetch</b> (LOCAL DEV).</li>
 </ul>
-
-<h3>Upgrading from v1</h3>
-<p>Replace the <code>"args"</code> line in your config. Leave <code>"command"</code> alone. Quit with <span class="kbd">⌘Q</span> and reopen.</p>
-<div class="blockhead"><span>new args line</span><button class="copybtn" onclick="cp(this,'v1up')">Copy</button></div>
-<pre class="short" id="v1up">"args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]</pre>
 
 <h3>Find it in Connectors</h3>
 <p>Appears under <b>Settings → Connectors → Desktop</b> as <code>fetch</code> (<b>LOCAL DEV</b>).</p>
