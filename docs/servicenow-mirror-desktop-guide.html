@@ -78,11 +78,7 @@
 </header>
 
 <div class="callout">
-  <b>Already set this up before 6 Aug 2026? Do this one edit.</b>
-  <p>Open <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> and add <code>"--with", "mcp&lt;2.0.0",</code> to the <b>front</b> of your <code>args</code> list, so it reads:</p>
-  <pre class="short" style="border-radius:8px;margin:8px 0">"args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]</pre>
-  <p>Then fully quit Claude Desktop (<span class="kbd">⌘Q</span>) and reopen it. No reinstall needed.</p>
-  <p class="muted"><b>Why:</b> without the pin, <code>uvx</code> can pull an incompatible <code>mcp</code> 2.x and the connector fails with <i>“Could not attach to MCP server fetch.”</i> If yours works today it is running on a cached build — the pin stops it breaking later.</p>
+  <b>Already on v1?</b> See <b>Upgrading from v1</b> below — one line to change.
 </div>
 
 <div class="callout good">
@@ -115,17 +111,9 @@ which uvx</pre>
 </ul>
 
 <h3>Upgrading from v1</h3>
-<p>Already had this working before <b>6 Aug 2026</b>? You do <b>not</b> need to reinstall <code>uv</code> or redo the Project. One edit to your existing config:</p>
-<div class="blockhead"><span>replace your existing "args" line with this</span><button class="copybtn" onclick="cp(this,'v1up')">Copy</button></div>
+<p>Replace the <code>"args"</code> line in your config. Leave <code>"command"</code> alone. Quit with <span class="kbd">⌘Q</span> and reopen.</p>
+<div class="blockhead"><span>new args line</span><button class="copybtn" onclick="cp(this,'v1up')">Copy</button></div>
 <pre class="short" id="v1up">"args": ["--with", "mcp&lt;2.0.0", "mcp-server-fetch", "--ignore-robots-txt"]</pre>
-<ul>
-  <li>Leave your <code>"command"</code> line exactly as it is — your uvx path hasn't changed.</li>
-  <li>Fully quit Claude Desktop (<span class="kbd">⌘Q</span>), then reopen. The connector rebuilds on launch.</li>
-  <li>Confirm <code>fetch</code> shows <b>LOCAL DEV</b> with a checkmark under <b>Settings → Connectors</b>.</li>
-</ul>
-<div class="callout">
-  <b>Why bother if mine works?</b> <code>uvx</code> reuses a cached environment, so a v1 setup can keep running on a build that resolved before <code>mcp</code> 2.x shipped. When that cache is rebuilt it will pull the incompatible version and fail with <i>“Could not attach to MCP server fetch”</i> — with nothing on your machine having visibly changed. The pin makes it deterministic.
-</div>
 
 <h3>Find it in Connectors</h3>
 <p>Appears under <b>Settings → Connectors → Desktop</b> as <code>fetch</code> (<b>LOCAL DEV</b>).</p>
