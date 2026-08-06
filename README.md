@@ -21,9 +21,6 @@ Everything here works inside **Claude Code** (the command-line app). Some tools 
 
 **[View the setup guide](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-mirror-desktop-guide.html)** (v2, 6 Aug 2026) or download using curl:
 
-> **Already set this up?** v2 adds a required `"--with", "mcp<2.0.0",` to the front of the `args` list in `claude_desktop_config.json`. Without it the fetch connector can fail with *"Could not attach to MCP server fetch."* Edit, then quit Claude Desktop with ⌘Q and reopen — no reinstall.
-
-
 ```bash
 curl -o ~/Downloads/servicenow-mirror-desktop-guide.html \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/docs/servicenow-mirror-desktop-guide.html
