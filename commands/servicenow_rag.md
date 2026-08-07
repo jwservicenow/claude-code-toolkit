@@ -20,6 +20,18 @@ match; the known-locations list exists because index navigation is unreliable fo
 exactly these files. Only proceed to Step 1 when the target file is NOT named in Known
 direct paths.
 
+NO DIRECTORY LISTINGS — never discover files by listing the repo. Do not call the GitHub
+Contents or tree APIs in any form (`api.github.com/repos/ServiceNow/ServiceNowDocs/contents/…`,
+`.../git/trees/…`, `?recursive=1`), the github.com HTML tree/blob browse pages, or any
+equivalent `mcp__github__*` directory read. This bans the capability, not one URL form — a
+listing by any transport is out of bounds, including one reached indirectly through a search
+result. Listings return thousands of paths you don't need and cost more tokens than the file
+you were after. Discovery has exactly three sanctioned routes, in this order: (1) Known
+direct paths in Step 2; (2) index navigation under the INDEX PAGING CAP, which never
+overrides the pagination floor; (3) the SEARCH FALLBACK LADDER in Step 4. If all three come
+up empty, state the gap and stop — do not fall back to a listing. Fetching a raw content
+file at a known or derived path is not a listing and is always fine.
+
 Steps:
 1. Fetch the publication index:
    https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
