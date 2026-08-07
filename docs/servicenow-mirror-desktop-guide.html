@@ -113,6 +113,8 @@ which uvx</code></pre>
 
 **Known Locations:** Check the Known doc locations section first; build raw URLs from the template and fetch directly, bypassing index navigation.
 
+**Publication Routing:** Match topic to publication before fetching an index — CMDB/CSDM/IRE/MID Server/Service Graph Connectors → servicenow-platform; Discovery/Service Mapping/Event Mgmt/ACC/ITOM Visibility/HLA/Metric Intelligence/SRM → it-operations-management; ITSM/Incident/Change/Problem/Catalog → it-service-management; ITAM/SAM/HAM → it-asset-management; AI Search → platform-administration; Now Assist/AI Agent/Gen AI → intelligent-experiences (but a product's own Now Assist skill routes to that product's publication, e.g. Now Assist for ITOM → it-operations-management, not servicenow-platform). CAUTION: servicenow-platform and it-operations-management are the most-confused pair — CMDB/data-model topics stay in servicenow-platform, discovery/service-mapping/operations topics stay in it-operations-management; each 404s under the other's folder.
+
 **No Directory Listings:** Never discover files by listing the repo. Do not call the GitHub Contents or tree APIs in any form (api.github.com/repos/.../contents/…, .../git/trees/…, ?recursive=1), the github.com HTML tree/blob browse pages, or any equivalent directory read — the capability is banned, not one URL form. Discovery has three sanctioned routes, in order: Known doc locations, index navigation under the Index Paging Cap (never overriding the pagination floor), then the community search fallback. If all three come up empty, state the gap and stop. Fetching a raw file at a known or derived path is not a listing.
 
 **Retrieval Flow:**
