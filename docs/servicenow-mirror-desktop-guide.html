@@ -131,7 +131,7 @@ which uvx</code></pre>
 
 **Past-EOF Stub:** When fetch returns only a ~300-character "no more content" stub, you've exceeded file length—halve the offset and retry, halving again until content returns.
 
-**Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. On either cap: use Known locations, or state the gap and ask for the URL. A sweep of guessed raw file paths is a directory listing by other means and is not a third exit — only Known locations or the gap statement satisfy the cap.
+**Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. On either cap: use Known locations, or state the gap and ask for the URL. That gap statement is the terminal answer — a related capability may be named afterward only if explicitly labelled adjacent, never assembled into a procedure that answers the original question. A sweep of guessed raw file paths is a directory listing by other means and is not a third exit — only Known locations or the gap statement satisfy the cap.
 
 **Recovery:** If a link 404s: (1) check Known doc locations; (2) fetch the bundle index and page for the filename; (3) only if both fail, stop and ask for the URL.
 
