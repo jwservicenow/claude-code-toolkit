@@ -131,11 +131,11 @@ which uvx</code></pre>
 
 **Past-EOF Stub:** When fetch returns only a ~300-character "no more content" stub, you've exceeded file length—halve the offset and retry, halving again until content returns.
 
-**Index Paging Cap:** When navigating an index to locate a file, stop after 3 chunks with no term matches. Don't continue paging; use Known locations or state the gap.
+**Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. On either cap: use Known locations, or state the gap and ask for the URL.
 
 **Recovery:** If a link 404s: (1) check Known doc locations; (2) fetch the bundle index and page for the filename; (3) only if both fail, stop and ask for the URL.
 
-**Citation Integrity:** Cite only documents fetched this session. A path from another document's link list is a pointer, not a source. Preserve citable identifiers (KB numbers, canonical URLs) from your fetches.
+**Citation Integrity:** Cite only documents fetched this session — never a remembered path, even if it looks correct. An unfetched path, whether from a link list or memory, is a pointer, not a source. Preserve citable identifiers (KB numbers, canonical URLs) from your fetches.
 
 **Scope Discipline:** The mirror contains product documentation only, not login-gated Now Support KBs. Before concluding "not in mirror," fetch the relevant bundle index and page it for synonyms (connector, integration, data-mapping, classes, target-tables). A 404 on a guessed path ≠ absence—only index omission proves absence.
 
