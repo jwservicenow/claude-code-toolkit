@@ -6,8 +6,8 @@ Everything here works inside **Claude Code** (the command-line app). Some tools 
 
 | Tool | What it does |
 |------|-------------|
-| [Claude Desktop RAG](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-mirror-desktop-guide.html) **· v2** | Claude Desktop can't read the ServiceNow docsite directly — this fixes it. Wires in a custom MCP fetch server to pull from the GitHub docs mirror, then locks it down with Project Instructions that re-enforces docsite-only answers with citable URLs. |
-| [/servicenow_rag](#servicenow_rag) | Claude Code RAG skill — Fetches from ServiceNow's official GitHub docs mirror first, then KB, Community, and developer sites in order. Grounded answers with citable URLs; AI assumptions flagged explicitly. |
+| [Claude Desktop RAG](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-mirror-desktop-guide.html) **· v2** | Claude Desktop can't read the ServiceNow docsite directly — this fixes it. Wires in a custom MCP fetch server to pull from the [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs), then locks it down with Project Instructions that re-enforces docsite-only answers with citable URLs. |
+| [/servicenow_rag](#servicenow_rag) | Claude Code RAG skill — Fetches from ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) first, then KB, Community, and developer sites in order. Grounded answers with citable URLs; AI assumptions flagged explicitly. |
 | [/newsession](#newsession) | Long chat getting slow or pricey? Turn it into a compact handoff you paste into a fresh session — after a quick check for loose ends worth finishing first |
 | [/newplan](#newplan) | Turn a goal into an approved, written plan — interviews you, asks clarifying questions, provides 3–4 ranked approaches with trade-offs, saved as a plan file; every plan ends with a built-in closure step (status DONE + archive) |
 | [PDI integration - native MCP install](docs/pdi_native_mcp_install_guide.md) | Connect Claude Code to ServiceNow using the platform's ootb MCP — no scripts needed, OAuth 2.1 security profile with PKCE, 17 purpose-built tools |
@@ -33,7 +33,7 @@ Follow the steps inside — about 10 minutes total.
 
 ### `/servicenow_rag`
 
-Claude Code version — Fetches directly from ServiceNow's official GitHub docs mirror before answering. The same plain-text source ServiceNow publishes for AI tools. Supplements with Support site KBs, Community posts, and developer.servicenow.com in priority order. Every answer is grounded in a retrieved source; anything drawn from AI training knowledge is explicitly flagged as an assumption.
+Claude Code version — Fetches directly from ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) before answering. The same plain-text source ServiceNow publishes for AI tools. Supplements with Support site KBs, Community posts, and developer.servicenow.com in priority order. Every answer is grounded in a retrieved source; anything drawn from AI training knowledge is explicitly flagged as an assumption.
 
 
 <details>
