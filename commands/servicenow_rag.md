@@ -47,6 +47,7 @@ Steps:
      ITAM, Software Asset, HAM, SAM                         → it-asset-management
      CSM, Customer workflows                                 → customer-service-management
      Scripting, API, REST, GlideRecord                      → api-reference
+     AI Search, Search administration, Search Suggestions    → platform-administration
      AI Control Tower, Now Assist, Generative AI, Gen AI,
        Now LLM, AI Gateway, AI Agent, AI Governance         → intelligent-experiences
        Note: Now Assist *product-specific skills* live in their product publication,
@@ -142,6 +143,9 @@ Steps:
      license tier, not roles. The only role documented in this stack is sn_aia.admin, in
      intelligent-experiences/install-ai-agents-plugins.md. Don't keep hunting for an
      ITOM-specific role; say it isn't documented.
+   - AI Search (platform-administration/ai-search/, flat, no own index.md — the
+     platform-administration index.md is ~900KB, don't page it): overview-ais.md (landing),
+     explore-ais.md (features/architecture), configuring-ais.md, use-ais.md. Confirmed live 2026-08-07.
    - AI Agent Studio (intelligent-experiences/, flat): ai-agent-studio.md (Studio overview),
      install-ai-agents-plugins.md (Pro Plus / Enterprise Plus + Now Assist license,
      sn_aia.admin role), add-tool-aia.md (tool overview), add-script-ai-agent.md (script
