@@ -72,7 +72,7 @@ footer a{color:var(--accent-dim)}
 </head>
 <body>
 <main>
-  <div class="eyebrow">ServiceNow RAG · Claude Desktop v2</div>
+  <div class="eyebrow">ServiceNow RAG · Claude Desktop v3</div>
   <h1>Setup, 3 steps</h1>
   <p class="sub">Grounds Claude Desktop in the official ServiceNow GitHub mirror instead of web search. macOS/Linux.</p>
 
@@ -131,7 +131,7 @@ which uvx</code></pre>
 
 **Past-EOF Stub:** When fetch returns only a ~300-character "no more content" stub, you've exceeded file length—halve the offset and retry, halving again until content returns.
 
-**Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. On either cap: use Known locations, or state the gap and ask for the URL.
+**Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. On either cap: use Known locations, or state the gap and ask for the URL. A sweep of guessed raw file paths is a directory listing by other means and is not a third exit — only Known locations or the gap statement satisfy the cap.
 
 **Recovery:** If a link 404s: (1) check Known doc locations; (2) fetch the bundle index and page for the filename; (3) only if both fail, stop and ask for the URL.
 
@@ -165,11 +165,17 @@ https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/markdown/&
 - Discovery patterns: flat in it-operations-management/discovery/ (files: c-UsingPatternsForHorizontalDiscovery.md, c_DiscoProcessFlows.md)
 - Metric Intelligence: flat in it-operations-management/metric-intelligence/ (files: operational-metrics.md, exploring-metric-intelligence.md, configuring-metric-intelligence.md)
 - Service Operations Workspace for ITOM: flat in it-operations-management/service-operations-workspace-for-itom-apps/ (files: sow-landing-page-itom.md, explore-sow-itom.md)
-- Now Assist for ITOM: flat in it-operations-management/now-assist-for-it-operations-management/ (files: now-assist-itom.md, now-assist-itom-configure.md, now-assist-itom-use.md)
+- Now Assist for ITOM: flat in it-operations-management/now-assist-for-it-operations-management/ (files: now-assist-itom.md, alert-summary-now-assist.md, now-assist-itom-configure.md, now-assist-itom-use.md, now-assist-itom-ai-agent-workflows.md, install-now-assist-itom.md, activate-now-assist-skills-itom.md, install-now-assist-ai-agents-itom.md, app-now-assist-itom.md). FOLDER-NAME EXCEPTION: the folder spells out the product but filenames abbreviate it — don't guess now-assist-for-itom/, it 404s. KNOWN GAP: none of these pages names an ITOM-specific role (gates on license tier, not role); the only role documented in this stack is sn_aia.admin, in intelligent-experiences/install-ai-agents-plugins.md — don't keep hunting for an ITOM role.
 
 **AI Bundles** — Direct paths:
-- AI Search: flat in platform-administration/ai-search/ (files: overview-ais.md, configuring-ais.md, use-ais.md)
+- AI Search: flat in platform-administration/ai-search/ (files: overview-ais.md, explore-ais.md, configuring-ais.md, integrate-ais.md, use-ais.md, administer-ais.md, reference-ais.md)
 - Now Assist / Agentic: intelligent-experiences/ (files: ai-products.md, sn-ai-implementation-landing.md, in-product-agentic-ai.md)
+
+**ITSM & ITAM Bundles** — index-only, no cached direct paths:
+- it-asset-management/index.md (654,796 B) and it-service-management/index.md (1,039,133 B) are both too large to page sequentially — use bracketing offset jumps per Index Paging Cap, never starting at 0.
+- ITAM is ordered by product family, not alphabetically: SAM ~1,000 · HAM ~257,800 · Cloud Cost ~379,600 · Enterprise Asset ~437,600 · Contract ~609,200 · Procurement ~626,700 · stockroom/asset-operations content ~280,385.
+- ITSM index is alphabetical by application name — bracket from the initial letter: Incident ~516,900 · On-Call ~663,900 · Problem ~690,900 · Release ~724,500 · Service Level Mgmt ~738,500 · Service Portfolio ~913,600 · Walk-up Experience ~941,900 (appointment cluster ~946,005).
+- Neither bundle has cached direct paths here, so the "switch to Known locations" exit does not exist for ITSM/ITAM. If the ~6-read bracketing cap is hit without a match, the only compliant exit is to state the gap: name the index file, list the offsets read, and ask for the URL.
 
 ### Retired-File Routing (404s—Content Moved)
 - c_TopDownDiscovery.md → use prerequisites-service-mapping.md + service-mapping-get-started.md
@@ -201,7 +207,7 @@ Every response follows this structure:
 Everything above uses the australia (GA) branch. For older releases, swap the branch token: zurich, yokohama, or xanadu. Folder layout remains identical.
 
 ---
-Validated: ServiceNow/ServiceNowDocs @ australia, 2026-05-29. Not an official ServiceNow artifact.</code></pre>
+Validated: ServiceNow/ServiceNowDocs @ australia, 2026-08-07. Not an official ServiceNow artifact.</code></pre>
       </details>
     </li>
 
