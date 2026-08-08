@@ -61,15 +61,6 @@ Steps:
      Scripting, API, REST, GlideRecord                      → api-reference
      App Dev, Vibe Coding, App Engine Studio, Creator Studio,
        ServiceNow SDK/CLI, Now Assist for Creator/App Engine → application-development
-     "What is ServiceNow" / Now Platform landing overview    → now-platform
-       CAUTION: three similarly-named publications exist and are NOT interchangeable —
-       now-platform (the general platform landing page), platform-administration
-       (admin-task content, incl. AI Search), and servicenow-platform (CMDB/CSDM/MID
-       Server extend-the-platform content). Confirmed live 2026-08-08:
-       now-platform/now-platform-landing.md is the true top-level "ServiceNow AI
-       Platform" definitional landing; platform-administration/intro-now-platform-landing.md
-       is a narrower admin-task sub-page one level below it (titled "Administer the
-       ServiceNow AI Platform"), not the landing page itself.
      AI Search, Search administration, Search Suggestions    → platform-administration
      AI Control Tower, Now Assist, Generative AI, Gen AI,
        Now LLM, AI Gateway, AI Agent, AI Governance         → intelligent-experiences
@@ -208,10 +199,6 @@ Steps:
      sn_aia.admin role), add-tool-aia.md (tool overview), add-script-ai-agent.md (script
      tools: named inputs, and the mandate to use GlideRecordSecure over GlideRecord and
      addUserEncodedQuery() over addEncodedQuery()). Confirmed live 2026-07-30.
-   - Now Platform landing (now-platform/, flat, separate publication from
-     platform-administration — see the routing-table caution above): now-platform-landing.md
-     (the true top-level "ServiceNow AI Platform" definitional overview). Confirmed live
-     2026-08-08.
    - Now Assist cross-product plumbing (intelligent-experiences/, flat or one subfolder
      deep — distinct from the per-product now-assist-for-{product} folders, which live in
      each product's own publication): exploring-now-assist-platform.md (platform-wide
