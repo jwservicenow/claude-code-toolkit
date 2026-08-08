@@ -59,6 +59,17 @@ Steps:
      ITAM, Software Asset, HAM, SAM                         → it-asset-management
      CSM, Customer workflows                                 → customer-service-management
      Scripting, API, REST, GlideRecord                      → api-reference
+     App Dev, Vibe Coding, App Engine Studio, Creator Studio,
+       ServiceNow SDK/CLI, Now Assist for Creator/App Engine → application-development
+     "What is ServiceNow" / Now Platform landing overview    → now-platform
+       CAUTION: three similarly-named publications exist and are NOT interchangeable —
+       now-platform (the general platform landing page), platform-administration
+       (admin-task content, incl. AI Search), and servicenow-platform (CMDB/CSDM/MID
+       Server extend-the-platform content). Confirmed live 2026-08-08:
+       now-platform/now-platform-landing.md is the true top-level "ServiceNow AI
+       Platform" definitional landing; platform-administration/intro-now-platform-landing.md
+       is a narrower admin-task sub-page one level below it (titled "Administer the
+       ServiceNow AI Platform"), not the landing page itself.
      AI Search, Search administration, Search Suggestions    → platform-administration
      AI Control Tower, Now Assist, Generative AI, Gen AI,
        Now LLM, AI Gateway, AI Agent, AI Governance         → intelligent-experiences
@@ -132,16 +143,48 @@ Steps:
      (or discovery/aws-cloud-discovery.md, discovery/gcp-cloud-discovery.md) → "Useful information"
      section links to discovery-and-service-mapping-patterns/{cloud}-cloud-discovery-patterns.md
      (the full LP-pattern catalog + per-resource child pages + events/tags tables).
-   - Now Assist for {product} (e.g. ITSM): the publication's index.md often misses or
-     decoys this section (e.g. it-service-management surfaces
+   - CORRECTED DEFECT (2026-08-08): Now Assist for ITSM's folder is NOT
+     `now-assist-for-itsm/` — that guess, and the parallel guesses `now-assist-in-itsm/`
+     and `now-assist-for-it-service-management/`, all 404. The real folder is
+     **it-service-management/now-assist-for-it-service-management-itsm/**. The
+     publication's index.md often misses or decoys this section too (it surfaces
      using-now-assist-ai-native-itsm.md — a Simplified-ITSM dashboard feature, NOT the
      gen-AI product). Skip straight to direct paths:
-     {publication}/now-assist-for-{product}/now-assist-itsm.md (landing hub: Explore/
-     Configure/Use links), .../supporting-information-now-assist-itsm.md (dependencies,
-     supported versions, LLM providers), .../configure-now-assist-for-itsm.md (plugin
-     name + config steps). The actual plugin-install procedure always lives at
+     now-assist-for-it-service-management-itsm/exploring-now-assist-itsm.md (landing/
+     overview), .../configure-now-assist-for-itsm.md (plugin name + config steps),
+     .../now-assist-itsm-ai-agents-use-cases.md (AI Agent use cases). The actual
+     plugin-install procedure always lives at
      intelligent-experiences/install-now-assist-feature-plugins.md regardless of which
      publication the product routes to.
+   - Now Assist per-product folder naming is INCONSISTENT across publications — do not
+     generalize one product's pattern to another without a live probe. Confirmed live
+     2026-08-08: ITOM uses no suffix (`now-assist-for-it-operations-management/`,
+     see the FOLDER-NAME EXCEPTION bullet below), ITSM uses an `-itsm` suffix
+     (`now-assist-for-it-service-management-itsm/`, corrected above), HAM uses no
+     suffix (`it-asset-management/now-assist-for-hardware-asset-management/
+     now-assist-ham.md`), and SAM uses a `-sam` suffix
+     (`it-asset-management/now-assist-for-software-asset-management-sam/
+     now-assist-sam.md`).
+   - ITSM direct paths (it-service-management/, harvested 2026-08-08, 24 of 24 confirmed
+     live): the publication landing is r_ITServiceManagement.md (5,375 B); overview
+     files are exploring-itsm.md and itsm-apps-overview.md (richest app-list file).
+     Per-application landing pages are ROOT-LEVEL single-word files, NOT inside the
+     application subfolder: incident.md, change.md, problem.md, request.md,
+     service-catalog.md, oncall-scheduling.md, major-incident.md. Concept/deeper files:
+     incident-management/c_IncidentManagement.md,
+     incident-management/c_IncidentManagementStateModel.md,
+     change-management/exploring-change-management.md (the real Change concept page —
+     there is NO c_ChangeManagement.md; that guess 404s, since change-management uses
+     task-style names), change-management/activate-change-models.md,
+     change-management/c_ChangeStateModel.md,
+     problem-management/c_ProblemManagement.md,
+     problem-management/exploring-problem-management.md,
+     on-call-scheduling/c_OnCallScheduling.md,
+     on-call-scheduling/exploring-on-call-scheduling.md,
+     walk-up-experience/activate-walkup-experience.md,
+     walk-up-experience/configure-walkup-appointments.md (appointment booking).
+     Do not generalize the `c_<Product>.md` filename shape across ITSM — it holds for
+     Incident and Problem and fails for Change.
    - Now Assist for ITOM — FOLDER-NAME EXCEPTION, do not apply the ITSM pattern above.
      The folder spells the product out while the filenames abbreviate it, so the
      obvious guess (now-assist-for-itom/) 404s. Confirmed live 2026-07-30, all under
@@ -157,12 +200,46 @@ Steps:
      ITOM-specific role; say it isn't documented.
    - AI Search (platform-administration/ai-search/, flat, no own index.md — the
      platform-administration index.md is ~900KB, don't page it): overview-ais.md (landing),
-     explore-ais.md (features/architecture), configuring-ais.md, use-ais.md. Confirmed live 2026-08-07.
+     explore-ais.md (features/architecture), configuring-ais.md, use-ais.md,
+     administer-ais.md (admin overview). Confirmed live 2026-08-07, administer-ais.md
+     added 2026-08-08.
    - AI Agent Studio (intelligent-experiences/, flat): ai-agent-studio.md (Studio overview),
      install-ai-agents-plugins.md (Pro Plus / Enterprise Plus + Now Assist license,
      sn_aia.admin role), add-tool-aia.md (tool overview), add-script-ai-agent.md (script
      tools: named inputs, and the mandate to use GlideRecordSecure over GlideRecord and
      addUserEncodedQuery() over addEncodedQuery()). Confirmed live 2026-07-30.
+   - Now Platform landing (now-platform/, flat, separate publication from
+     platform-administration — see the routing-table caution above): now-platform-landing.md
+     (the true top-level "ServiceNow AI Platform" definitional overview). Confirmed live
+     2026-08-08.
+   - Now Assist cross-product plumbing (intelligent-experiences/, flat or one subfolder
+     deep — distinct from the per-product now-assist-for-{product} folders, which live in
+     each product's own publication): exploring-now-assist-platform.md (platform-wide
+     overview), platform-now-assist-landing.md (platform landing),
+     now-assist-center-landing-page.md and exploring-now-assist-center.md (Now Assist
+     Center), generative-ai-controller/exploring-generative-ai-controller.md,
+     ai-control-tower/exploring-ai-control-tower.md,
+     now-assist-skill-kit/exploring-now-assist-skill-kit.md,
+     now-assist-readiness-evaluation/exploring-now-assist-readiness-evaluation.md.
+     Confirmed live 2026-08-08.
+   - application-development (own publication, index.md 624,025 B — treat as index-only
+     like it-service-management and it-asset-management, bracketing offsets required for
+     anything not listed here; no cached direct paths before 2026-08-08):
+     use-ai-capabilities-in-custom-apps.md (AI capabilities in custom apps),
+     create-custom-ai-agent.md (custom AI agent creation in-app), vibe-coding-landing.md
+     and vc-what-is-vibe-coding.md (Vibe Coding), dev-get-start-use-ai-to-build-faster.md
+     (AI-assisted dev getting-started), now-assist-for-creator/now-assist-for-creator-landing.md,
+     now-assist-for-creator/exploring-now-assist-for-creator.md,
+     now-assist-for-creator/sns-now-assist-app-gen-landing.md (Now Assist for Creator —
+     flow/UI generation, ATF troubleshooting agent, app summarization),
+     now-assist-for-app-engine/ai-capabilities-with-now-assist-for-app-engine.md,
+     now-assist-for-app-engine/exploring-now-assist-for-app-generation-enterprise.md
+     (Now Assist for App Engine — record summarization, app generation),
+     app-engine-studio/aes-overview.md, creator-studio/creator-studio-landing.md,
+     servicenow-sdk/servicenow-sdk-landing.md. AI Agent Studio is conceptually Build/
+     App-Dev material but is NOT inside this publication — it lives flat under
+     intelligent-experiences/ (see the AI Agent Studio bullet above); do not move it.
+     Confirmed live 2026-08-08.
 
    Verify-first on gap/absence notes: this mirror backfills weekly, so any "empty" or
    "404" status you infer (including the retired-file map above) is point-in-time, not
