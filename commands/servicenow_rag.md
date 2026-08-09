@@ -88,10 +88,14 @@ Steps:
 
    INDEX PAGING CAP — when paging an index.md to LOCATE a file, stop after 3 chunks with
    no hit on the term or its synonyms. Don't keep walking the index; switch to a known
-   direct path below, or state the gap. This caps index NAVIGATION only — it does not
-   limit fetches of content files, and it never overrides the pagination floor (a
-   LIST/CATALOG/ALL request still pages its content file to EOF) or the requirement to
-   show index evidence before claiming a topic is absent.
+   direct path below, or state the gap. The first read of ANY index.md must never be
+   `start_index` 0 — open at a bracketing offset chosen from the index's known ordering or
+   size. Reading 0 → 15000 → 30000 in sequence is a disqualifying route on any publication,
+   not only the large ones named above, and stays disqualifying even if the total stays
+   inside the cap and even if the answer is eventually found. This caps index NAVIGATION
+   only — it does not limit fetches of content files, and it never overrides the
+   pagination floor (a LIST/CATALOG/ALL request still pages its content file to EOF) or
+   the requirement to show index evidence before claiming a topic is absent.
 
    OFFSET-JUMP — for a known item deep inside a large unindexed content file (e.g.
    r_SupportedApplications.md at ~110k chars), don't page from 0. Jump `start_index`
