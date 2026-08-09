@@ -129,7 +129,9 @@ which uvx</code></pre>
 
 **Offset Jumping:** For known items deep in large files, jump start_index directly to your best-guess neighborhood at full max_length.
 
-**Past-EOF Stub:** When fetch returns only a ~300-character "no more content" stub, you've exceeded file length—halve the offset and retry, halving again until content returns.
+**File Size Bound:** Byte sizes shown in Known doc locations are live counts verified on the validation date — treat a stated size as that file's end. Never issue a start_index at or past a stated size; that read returns a stub and buys nothing. With a size stated, bracket rather than guess: open at roughly half the stated size, then bisect the half that must hold your term, using the file's ordering (alphabetical, sectional) to choose which half — the same bracketing discipline the index entries below use, applied to a content file. With NO size stated you have no end to bracket against, so do not open a first jump above 50,000; go there, and if content continues, double outward (100,000, then 200,000) rather than guessing a large absolute offset. A first jump of 150,000+ into a file of unknown length is never justified. Sizes are approximate and the mirror actively backfills: if a fetch returns real content at or past a stated size, trust the fetch and raise your bound — not the number.
+
+**Past-EOF Stub:** When fetch returns only a ~300-character "no more content" stub, you've exceeded file length—halve the offset and retry, halving again until content returns. If the file has a stated size, do not halve blindly — recompute from that size (open below it and bisect), because you already know where the end is.
 
 **Index Paging Cap:** Stop after 3 sequential chunks with no term matches — hard stop, don't resume under a fresh pretext. Bracketing offset jumps into the index are allowed, capped at ~6 reads total. **The first read of any index file must never be start_index 0.** Open at a bracketing offset chosen from the index's known ordering or size; reading 0 → 15000 → 30000 in sequence is a disqualifying route on any publication, not only large ones, and stays disqualifying even if the total stays inside the ~6-read cap and even if the answer is eventually found. This applies to every index.md in the mirror, whether or not that publication has cached direct paths. On either cap: use Known locations, or state the gap and ask for the URL. That gap statement is the terminal answer — a related capability may be named afterward only if explicitly labelled adjacent, never assembled into a procedure that answers the original question. Do not follow the gap statement with a numbered or sequential "setup path," "how to configure it yourself," or step list assembled from adjacent capabilities — labelling the pieces "documented" or "adjacent" does not exempt a "then," "when X, do Y" procedure from this rule. If adjacent capabilities are named, list them flat with their own citations and stop there — no ordering, no connecting instructions. A sweep of guessed raw file paths is a directory listing by other means and is not a third exit — only Known locations or the gap statement satisfy the cap.
 
@@ -146,17 +148,18 @@ which uvx</code></pre>
 Raw URL template:
 https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/markdown/&lt;path&gt;
 
-**Platform Bundle** — Navigate via servicenow-platform/index.md
+**Platform Bundle** — Navigate via servicenow-platform/index.md (1,255,768 B)
 - CMDB base table dictionary: servicenow-platform/configuration-management-database-cmdb/cmdb-tables-details.md (BASE classes only)
-- IRE (Identify and Reconcile Engine): servicenow-platform/configuration-management-database-cmdb/ire.md (concept); .../c_CMDBIdentifyandReconcile.md (module); .../c_IdentificationRules.md (identification); .../r_ReconciliationRulesPrinciples.md (reconciliation)
+- IRE (Identify and Reconcile Engine): servicenow-platform/configuration-management-database-cmdb/ire.md (concept, 20,317 B); .../c_CMDBIdentifyandReconcile.md (module, 8,184 B); .../c_IdentificationRules.md (identification, 10,775 B); .../r_ReconciliationRulesPrinciples.md (reconciliation)
 - MID Server: flat in servicenow-platform/mid-server/ (entry: r_MIDServerSystemRequirements.md)
 - Service Graph Connectors: servicenow-platform/service-graph-connectors/ (no own index.md, no consistent filename pattern — names vary per vendor, e.g. sgc-ad-integration.md, cmdb-akamai-classes.md, cmdb-integration-aws-sg.md; search servicenow-platform/index.md for the vendor name)
 - API SGC: cmdb folder (patterns: api-sgc-{vendor}-tables.md, api-sgc-{vendor}.md)
 - IRE Scripting API: api-reference/server-api-reference/c_IdentEngineScriptAPI.md
 - Glide Server APIs (consolidated): api-reference/scripts/p_GlideServerAPIs.md
-- CSDM: flat in servicenow-platform/common-service-data-model-csdm/ (no own index.md; files: csdm-landing-page.md, csdm-content-frame-exploring.md, configure-csdm.md)
+- CSDM: flat in servicenow-platform/common-service-data-model-csdm/ (no own index.md; files: csdm-landing-page.md (10,095 B), csdm-content-frame-exploring.md, configure-csdm.md)
 
-**ITOM Bundle** — Use direct paths (index is ~1.2 MB and impractical):
+**ITOM Bundle** — Use direct paths (index is 1,176,331 B and impractical):
+- ITOM Visibility: it-operations-management/itom-visibility/r_SupportedApplications.md (110,288 B)
 - ACC: flat in it-operations-management/agent-client-collector/ (files: acc-sys-requirements.md, acc-install-windows.md, acc-configuring-without-mid.md)
 - Service Mapping: flat in it-operations-management/service-mapping/ (files: c_ServiceMappingOverview.md, using-service-mapping.md, service-mapping-reference.md, prerequisites-service-mapping.md, r_EntryPointsforBizSvcDef.md)
 - Event Management: flat in it-operations-management/event-management/ (files: c_EM.md, c_EMAlertRule.md, c_EMConfiguration.md)
@@ -166,20 +169,20 @@ https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/markdown/&
 - Azure Change Processing: it-operations-management/discovery/azure-change-processing.md (cloud change/event ingestion — a Discovery file, not a servicenow-platform one; see routing CAUTION above)
 - Metric Intelligence: flat in it-operations-management/metric-intelligence/ (files: operational-metrics.md, exploring-metric-intelligence.md, configuring-metric-intelligence.md)
 - Service Operations Workspace for ITOM: flat in it-operations-management/service-operations-workspace-for-itom-apps/ (files: sow-landing-page-itom.md, explore-sow-itom.md)
-- Now Assist for ITOM: flat in it-operations-management/now-assist-for-it-operations-management/ (files: now-assist-itom.md, alert-summary-now-assist.md, now-assist-itom-configure.md, now-assist-itom-use.md, now-assist-itom-ai-agent-workflows.md, install-now-assist-itom.md, activate-now-assist-skills-itom.md, install-now-assist-ai-agents-itom.md, app-now-assist-itom.md). FOLDER-NAME EXCEPTION: the folder spells out the product but filenames abbreviate it — don't guess now-assist-for-itom/, it 404s. KNOWN GAP: none of these pages names an ITOM-specific role (gates on license tier, not role); the only role documented in this stack is sn_aia.admin, in intelligent-experiences/install-ai-agents-plugins.md — don't keep hunting for an ITOM role.
+- Now Assist for ITOM: flat in it-operations-management/now-assist-for-it-operations-management/ (files: now-assist-itom.md (9,062 B), alert-summary-now-assist.md, now-assist-itom-configure.md, now-assist-itom-use.md, now-assist-itom-ai-agent-workflows.md, install-now-assist-itom.md, activate-now-assist-skills-itom.md, install-now-assist-ai-agents-itom.md, app-now-assist-itom.md). FOLDER-NAME EXCEPTION: the folder spells out the product but filenames abbreviate it — don't guess now-assist-for-itom/, it 404s. KNOWN GAP: none of these pages names an ITOM-specific role (gates on license tier, not role); the only role documented in this stack is sn_aia.admin, in intelligent-experiences/install-ai-agents-plugins.md — don't keep hunting for an ITOM role.
 
 **AI Bundles** — Direct paths:
-- AI Search: flat in platform-administration/ai-search/ (files: overview-ais.md, explore-ais.md, configuring-ais.md, integrate-ais.md, use-ais.md, administer-ais.md, reference-ais.md)
+- AI Search: flat in platform-administration/ai-search/ (files: overview-ais.md (3,880 B), explore-ais.md, configuring-ais.md, integrate-ais.md, use-ais.md, administer-ais.md, reference-ais.md)
 - Now Assist / Agentic: intelligent-experiences/ (files: ai-products.md, sn-ai-implementation-landing.md, in-product-agentic-ai.md)
 - Now Assist cross-product plumbing: intelligent-experiences/ (added 2026-08-08, distinct from the per-product now-assist-for-{product} folders below — files: exploring-now-assist-platform.md, platform-now-assist-landing.md, now-assist-center-landing-page.md, exploring-now-assist-center.md, generative-ai-controller/exploring-generative-ai-controller.md, ai-control-tower/exploring-ai-control-tower.md, now-assist-skill-kit/exploring-now-assist-skill-kit.md, now-assist-readiness-evaluation/exploring-now-assist-readiness-evaluation.md)
 
 **Application Development Bundle** — Custom-app build topics (added 2026-08-08). Publication is application-development; it is NOT covered by the intelligent-experiences AI routing — see CUSTOM-APP AI SPLIT above:
-- AI capabilities inside a custom app: application-development/use-ai-capabilities-in-custom-apps.md
+- AI capabilities inside a custom app: application-development/use-ai-capabilities-in-custom-apps.md (6,910 B)
 - Now Assist for Creator (app generation in Studio): flat in application-development/now-assist-for-creator/ (files: now-assist-for-creator-landing.md, exploring-now-assist-for-creator.md, sns-now-assist-app-gen-landing.md)
-- Everything else in this publication is UNCACHED — including ATF/automated testing, which has no direct path here by design. Reach it by bracketing application-development/index.md (~624 KB, never from offset 0) per the Index Paging Cap, or state the gap.
+- Everything else in this publication is UNCACHED — including ATF/automated testing, which has no direct path here by design. Reach it by bracketing application-development/index.md (624,025 B, never from offset 0) per the Index Paging Cap, or state the gap.
 
 **ITSM Bundle** — Landing + per-application direct paths cached (2026-08-08):
-- Publication landing: it-service-management/r_ITServiceManagement.md
+- Publication landing: it-service-management/r_ITServiceManagement.md (5,375 B)
 - Overview: it-service-management/exploring-itsm.md, itsm-apps-overview.md
 - Per-application landing pages are ROOT-LEVEL files, not inside the app subfolder: incident.md, change.md, problem.md, request.md, service-catalog.md, oncall-scheduling.md
 - Change concept — there is no c_ChangeManagement.md, that guess 404s: change-management/exploring-change-management.md
@@ -224,7 +227,7 @@ Every response follows this structure:
 Everything above uses the australia (GA) branch. For older releases, swap the branch token: zurich, yokohama, or xanadu. Folder layout remains identical.
 
 ---
-Validated: ServiceNow/ServiceNowDocs @ australia, 2026-08-07. Not an official ServiceNow artifact.</code></pre>
+Validated: ServiceNow/ServiceNowDocs @ australia, 2026-08-08. Not an official ServiceNow artifact.</code></pre>
       </details>
     </li>
 
