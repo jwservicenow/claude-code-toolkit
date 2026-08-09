@@ -113,11 +113,17 @@ Steps:
    the half that must hold your term, using the file's ordering (alphabetical, sectional) to
    choose which half — the same bracketing discipline the index entries use, applied to a
    content file. With NO size stated you have no end to bracket against, so do not open a
-   first jump above 50,000; go there, and if content continues, double outward (100,000, then
-   200,000) rather than guessing a large absolute offset. A first jump of 150,000+ into a file
-   of unknown length is never justified. Sizes are approximate and the mirror actively
-   backfills: if a fetch returns real content at or past a stated size, trust the fetch and
-   raise your bound — not the number.
+   first jump above 50,000; go there, and if content continues, double once to 100,000. **Stop
+   doubling there.** A full-length read at offset N confirms content only to N + the length you
+   requested; past that boundary you are guessing, and on an unsized file every guess past it is
+   a coin flip against EOF. From 100,000 on, advance to the confirmed boundary itself (100,000 +
+   your window) and step forward one window at a time until a read returns fewer bytes than you
+   requested — that short read *is* the end of the file, and the answer to a deep-tail question
+   is usually inside it. Never issue a `start_index` more than one window past the deepest
+   offset that returned full-length content. A jump to 150,000 or 200,000 into a file of unknown
+   length is never justified, including as the next rung of a doubling ladder. Sizes are
+   approximate and the mirror actively backfills: if a fetch returns real content at or past a
+   stated size, trust the fetch and raise your bound — not the number.
 
    Known direct paths (skip index navigation for these — same mirror, confirmed live,
    saves paging a 1MB+ index for content the index can't reliably surface anyway):
