@@ -106,6 +106,19 @@ Steps:
    further stub, then bracket between the last offset that returned content and the first
    that returned a stub.
 
+   FILE SIZE BOUND — byte sizes shown in the Known direct paths below are live counts
+   verified on the validation date; treat a stated size as that file's end. Never issue a
+   `start_index` at or past a stated size; that read returns a stub and buys nothing. With a
+   size stated, bracket rather than guess: open at roughly half the stated size, then bisect
+   the half that must hold your term, using the file's ordering (alphabetical, sectional) to
+   choose which half — the same bracketing discipline the index entries use, applied to a
+   content file. With NO size stated you have no end to bracket against, so do not open a
+   first jump above 50,000; go there, and if content continues, double outward (100,000, then
+   200,000) rather than guessing a large absolute offset. A first jump of 150,000+ into a file
+   of unknown length is never justified. Sizes are approximate and the mirror actively
+   backfills: if a fetch returns real content at or past a stated size, trust the fetch and
+   raise your bound — not the number.
+
    Known direct paths (skip index navigation for these — same mirror, confirmed live,
    saves paging a 1MB+ index for content the index can't reliably surface anyway):
    - CMDB/CSDM have no own index.md; locate via servicenow-platform/index.md, but these
