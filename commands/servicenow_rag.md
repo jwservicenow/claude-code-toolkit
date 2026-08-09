@@ -138,6 +138,20 @@ Steps:
    approximate and the mirror actively backfills: if a fetch returns real content at or past a
    stated size, trust the fetch and raise your bound — not the number.
 
+   TRUNCATED-READ RE-FETCH — a fetch that returned less than the whole file has NOT been
+   read. If the bytes you received do not answer the question, the next action is another
+   `mcp__fetch__fetch` of the SAME file at `start_index` = the offset you opened at plus the
+   bytes you got back, at full `max_length`. It is not a web search, not a Store or community
+   page, and not a statement that the topic isn't documented. Keep stepping until a read comes
+   back shorter than you requested — that short read is EOF. Never shrink `max_length` to save
+   tokens on a content file you are reading for an answer: a self-imposed 6,000 B cap on a
+   16,605 B file is the single most common cause of a wrong "not documented" in this flow.
+   Shrink only to recover from a JSON/size error, and page the remainder when you do. Any
+   narration of the form "the file is longer than my read window", "the response was
+   truncated", or "the rest was cut off" is a trigger to re-fetch, not a finding to report.
+   You may state that a fact is absent from a file only after reading that file to EOF, and
+   you must say which offsets you covered.
+
    Known direct paths (skip index navigation for these — same mirror, confirmed live,
    saves paging a 1MB+ index for content the index can't reliably surface anyway):
    - CMDB/CSDM have no own index.md; locate via servicenow-platform/index.md, but these
@@ -175,6 +189,15 @@ Steps:
      (or discovery/aws-cloud-discovery.md, discovery/gcp-cloud-discovery.md) → "Useful information"
      section links to discovery-and-service-mapping-patterns/{cloud}-cloud-discovery-patterns.md
      (the full LP-pattern catalog + per-resource child pages + events/tags tables).
+   - Azure Discovery vs Service Graph Connector ("which method covers which resource"):
+     the per-resource comparison table exists in TWO publications, and the
+     servicenow-platform copy is the one index navigation misses. Both are direct:
+     it-operations-management/discovery/azure-discovery-methods.md (Patterns vs SGC vs
+     target CI class, per Azure resource type) and
+     servicenow-platform/service-graph-connectors/azure-discovery-methods-platcap.md
+     (second copy, 13,817 chars, confirmed live 2026-08-09). Do NOT page
+     servicenow-platform/index.md hunting for the platcap file — it does not surface there.
+     A cross-publication Discovery-vs-SGC question needs both sides; one alone is incomplete.
    - CORRECTED DEFECT (2026-08-08): Now Assist for ITSM's folder is NOT
      `now-assist-for-itsm/` — that guess, and the parallel guesses `now-assist-in-itsm/`
      and `now-assist-for-it-service-management/`, all 404. The real folder is
