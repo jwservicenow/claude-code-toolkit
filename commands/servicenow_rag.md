@@ -139,15 +139,32 @@ Steps:
    stated size, trust the fetch and raise your bound — not the number.
 
    TRUNCATED-READ RE-FETCH — a fetch that returned less than the whole file has NOT been
-   read. If the bytes you received do not answer the question, the next action is another
-   `mcp__fetch__fetch` of the SAME file at `start_index` = the offset you opened at plus the
-   bytes you got back, at full `max_length`. It is not a web search, not a Store or community
-   page, and not a statement that the topic isn't documented. Keep stepping until a read comes
-   back shorter than you requested — that short read is EOF. Never shrink `max_length` to save
-   tokens on a content file you are reading for an answer: a self-imposed 6,000 B cap on a
-   16,605 B file is the single most common cause of a wrong "not documented" in this flow.
-   Shrink only to recover from a JSON/size error, and page the remainder when you do. Any
-   narration of the form "the file is longer than my read window", "the response was
+   read. Truncation is arithmetic, not judgment: if the bytes you got back equal (or come
+   within a few of) the `max_length` you requested, the file continued past your window.
+   That holds whether or not you believe you already have the answer.
+
+   MINIMUM WINDOW — on a mirror CONTENT file, a first read uses `max_length` of at least
+   30,000, or the file's stated size when one is listed, whichever is smaller. 3,000 /
+   6,000 / 8,000 / 10,000 are not permitted on a content read: a self-imposed 8,000 B cap
+   on a 16,605 B file is the single most common cause of a wrong "not documented" in this
+   flow. Shrink only to recover from a JSON/size error, and page the remainder when you
+   do. This floor does not apply to `index.md` or `llms.txt` — those stay under INDEX
+   PAGING CAP and its bracketing discipline.
+
+   RE-FETCH — after a truncated read the next action is another `mcp__fetch__fetch` of the
+   SAME file at `start_index` = the offset you opened at plus the bytes you got back, at
+   full `max_length`. It is not a web search, not a Store or community page, and not a
+   statement that the topic isn't documented. Keep stepping until a read comes back
+   shorter than you requested — that short read is EOF.
+
+   WHEN YOU MAY STOP SHORT — only when the question asks for one specific fact, you hold
+   that exact fact, and the file is not the sole source for it. If the question asks what
+   something provides, lists, contains, supports, or differs by — any enumeration, table,
+   comparison matrix, or feature set — read to EOF before answering. A partial read of a
+   table proves neither that you saw every relevant row nor that a row is absent. When you
+   do stop short, say so and give the offsets you covered.
+
+   Any narration of the form "the file is longer than my read window", "the response was
    truncated", or "the rest was cut off" is a trigger to re-fetch, not a finding to report.
    You may state that a fact is absent from a file only after reading that file to EOF, and
    you must say which offsets you covered.
