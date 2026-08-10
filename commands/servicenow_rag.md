@@ -143,13 +143,17 @@ Steps:
    within a few of) the `max_length` you requested, the file continued past your window.
    That holds whether or not you believe you already have the answer.
 
-   MINIMUM WINDOW — on a mirror CONTENT file, a first read uses `max_length` of at least
-   30,000, or the file's stated size when one is listed, whichever is smaller. 3,000 /
-   6,000 / 8,000 / 10,000 are not permitted on a content read: a self-imposed 8,000 B cap
-   on a 16,605 B file is the single most common cause of a wrong "not documented" in this
-   flow. Shrink only to recover from a JSON/size error, and page the remainder when you
-   do. This floor does not apply to `index.md` or `llms.txt` — those stay under INDEX
-   PAGING CAP and its bracketing discipline.
+   MINIMUM WINDOW — every fetch of a mirror CONTENT file uses `max_length` of at least
+   30,000, or the file's stated size when one is listed, whichever is smaller. This is a
+   precondition on the call, not a judgment about the file: before you send a fetch, if
+   the path is not `index.md` or `llms.txt`, the `max_length` field reads 30,000 or more
+   or the call is malformed. No smaller read is legitimate because you were only checking
+   relevance, peeking at a candidate, triaging, or expecting a short page — a peek at
+   8,000 B of a 16,605 B file is the single most common cause of a wrong "not documented"
+   in this flow, and asking for the whole file costs nothing. The floor binds on the
+   second and third read of a file as much as the first. Shrink only to recover from a
+   JSON/size error, and page the remainder when you do. `index.md` and `llms.txt` are
+   exempt — those stay under INDEX PAGING CAP and its bracketing discipline.
 
    RE-FETCH — after a truncated read the next action is another `mcp__fetch__fetch` of the
    SAME file at `start_index` = the offset you opened at plus the bytes you got back, at
