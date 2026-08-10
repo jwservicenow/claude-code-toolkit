@@ -143,8 +143,11 @@ Steps:
    within a few of) the `max_length` you requested, the file continued past your window.
    That holds whether or not you believe you already have the answer.
 
-   MINIMUM WINDOW — every fetch of a mirror CONTENT file uses `max_length` of at least
-   30,000, or the file's stated size when one is listed, whichever is smaller. This is a
+   MINIMUM WINDOW — every fetch of a CONTENT file uses `max_length` of at least
+   30,000, or the file's stated size when one is listed, whichever is smaller. CONTENT
+   means any page you fetch to read what it says — mirror markdown, a Store listing, a
+   community thread, a docs.servicenow.com page — not the mirror alone; a capped read of
+   a Store page is the same defect as a capped read of a mirror file. This is a
    precondition on the call, not a judgment about the file: before you send a fetch, if
    the path is not `index.md` or `llms.txt`, the `max_length` field reads 30,000 or more
    or the call is malformed. No smaller read is legitimate because you were only checking
@@ -152,8 +155,8 @@ Steps:
    8,000 B of a 16,605 B file is the single most common cause of a wrong "not documented"
    in this flow, and asking for the whole file costs nothing. The floor binds on the
    second and third read of a file as much as the first. Shrink only to recover from a
-   JSON/size error, and page the remainder when you do. `index.md` and `llms.txt` are
-   exempt — those stay under INDEX PAGING CAP and its bracketing discipline.
+   JSON/size error, and page the remainder when you do. `index.md` and `llms.txt` are the
+   only exempt paths — those stay under INDEX PAGING CAP and its bracketing discipline.
 
    RE-FETCH — after a truncated read the next action is another `mcp__fetch__fetch` of the
    SAME file at `start_index` = the offset you opened at plus the bytes you got back, at
