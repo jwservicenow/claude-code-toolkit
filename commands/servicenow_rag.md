@@ -102,8 +102,22 @@ Steps:
    out) are too big to page from the top — the topic you want may sit past offset 200k.
    Don't page sequentially from 0. Instead: WebSearch the topic to find its landing-page
    slug (e.g. `ham-landing-page`), then fetch the index with a `start_index` near that
-   region to pull the relevant sub-tree, or fetch the landing-page file directly and follow
-   its in-page links. Page sequentially only for small/medium publications.
+   region to pull the relevant sub-tree. Page sequentially only for small/medium
+   publications.
+
+   SEARCH IS FOR OFFSETS, NOT FOR FILES — this WebSearch exists to pick a `start_index`
+   into the index, and nothing else. A slug, path, or URL that came from search results is
+   an offset hint, not a retrieval target: you may not fetch it as a file, and you may not
+   treat "search found the page" as having located it. The next fetch after this search is
+   always `{publication}/index.md` at the offset the search suggested. Only a path the
+   index itself returns is fetchable.
+
+   INDEX FLOOR — the two-index-read floor in NO DIRECTORY LISTINGS binds here too, and it
+   counts index reads only. Before any search of any kind is allowed to end your search for
+   the file — pre-index offset search included — you must have read `index.md` at TWO
+   different offsets without the term, the second bracketing the first. Zero index reads is
+   never a compliant route to a mirror file, however large the publication and however
+   confident the search result looks.
 
    INDEX PAGING CAP — when paging an index.md to LOCATE a file, stop after 3 chunks with
    no hit on the term or its synonyms. Don't keep walking the index; switch to a known
