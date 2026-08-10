@@ -42,7 +42,12 @@ listing by any transport is out of bounds, including one reached indirectly thro
 result. Listings return thousands of paths you don't need and cost more tokens than the file
 you were after. Discovery has exactly three sanctioned routes, in this order: (1) Known
 direct paths in Step 2; (2) index navigation under the INDEX PAGING CAP, which never
-overrides the pagination floor; (3) the SEARCH FALLBACK LADDER in Step 4. If all three come
+overrides the pagination floor; (3) the SEARCH FALLBACK LADDER in Step 4. Route 2 has a
+floor as well as a cap: the SEARCH FALLBACK LADDER is not available until at least TWO index
+reads at different offsets have come back without the term. One read that misses does not
+exhaust index navigation — the second must bracket the miss (if the first overshot, go
+earlier; if it undershot, go later), not repeat it. A 404 on a guessed path is not an index
+read and does not count toward the two. If all three come
 up empty, state the gap and stop — do not fall back to a listing. Fetching a raw content
 file at a known or derived path is not a listing and is always fine.
 
