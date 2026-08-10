@@ -99,22 +99,28 @@ attached.</p>
 <p><strong>1. The two assistants need different models.</strong> The Desktop assistant hits its
 accuracy ceiling at Sonnet with medium thinking — $0.108 per question — and spending 2.4× more on
 Opus buys nothing. The Code assistant does not reach that ceiling until Opus, $0.350 per question.</p>
-<p><strong>2. Thinking level is not a reliable lever.</strong> In three of four medium-vs-high
+<p><strong>2. Thinking level is not a reliable lever.</strong> In four of five medium-vs-high
 comparisons it changed accuracy by zero or slightly negative, while costing 8–44% more. It helped
 in exactly one place — the assistant that was already failing — and even there it made the model
-more <em>careful</em>, not more <em>capable</em>.</p>
+more <em>careful</em>, not more <em>capable</em>. (The fifth comparison is the AZ question, where
+medium already succeeded and high bought nothing for +40% cost.)</p>
 <p><strong>3. The Code assistant's gap is a retrieval bug, not a model deficiency.</strong> It
 truncates one documentation page at 6,000 bytes and never reaches the paragraph that answers the
-question. Fixing that instruction is almost certainly cheaper than buying a bigger model.</p>
+question. Fixing that instruction is almost certainly cheaper than buying a bigger model.
+<strong>That fix has since shipped and been verified on both arms</strong> — see the update under
+"What I'd do differently." The Code recommendation below is therefore the pre-fix answer and is due
+a re-measure.</p>
 </div>
 
 <div class="cards">
   <div class="card"><div class="k">Runs graded</div><div class="v">30</div>
     <div class="d">All leak-gate clean. Zero voids, zero re-fires.</div></div>
   <div class="card"><div class="k">Desktop recommendation</div><div class="v">$0.108</div>
-    <div class="d">Sonnet 5, medium thinking — per question, at the accuracy ceiling.</div></div>
+    <div class="d">Sonnet 5, medium thinking — at the accuracy ceiling on single-publication
+    questions. Provisional: drops to 0.50 on a cross-publication one.</div></div>
   <div class="card"><div class="k">Code recommendation</div><div class="v">$0.350</div>
-    <div class="d">Opus 5, medium thinking — the only Code cell reaching 1.00.</div></div>
+    <div class="d">Opus 5, medium thinking — the only Code cell reaching 1.00, and the only cell
+    passing all four questions. Pre-truncation-fix; due a re-measure.</div></div>
   <div class="card"><div class="k">Total measured spend</div><div class="v">$6.74</div>
     <div class="d">List price, 34 runs. $4.94 at Sonnet intro rates.</div></div>
 </div>
@@ -378,6 +384,28 @@ knob to turn.</li>
 <p><strong>The Desktop arm is flat at ceiling from Sonnet-medium up.</strong> Four of five cells
 score a perfect 1.00 and the accuracy column simply stops moving. Everything above Sonnet-medium is
 money spent on no measurable improvement.</p>
+<div class="note bad">
+<p><strong>AZ amendment (2026-08-09) — read that flat top as narrower than it looks.</strong> A
+fourth question was fired at five cells (<code>az-question-results-2026-08-09.md</code>): Azure
+Discovery vs the Service Graph Connector, which spans two publications instead of one. The two
+curves <strong>cross</strong>.</p>
+<div class="scroll"><table>
+<thead><tr><th>Cell</th><th>3-question mean</th><th>AZ</th><th>Δ</th></tr></thead>
+<tbody>
+<tr><td>Haiku, desktop</td><td class="num partial">0.67</td><td class="num partial">0.50</td><td class="num">−0.17</td></tr>
+<tr><td><strong>Sonnet-medium, desktop</strong></td><td class="num pass">1.00</td><td class="num partial">0.50</td><td class="num fail"><strong>−0.50</strong></td></tr>
+<tr><td>Sonnet-medium, code</td><td class="num fail">0.33</td><td class="num pass">1.00</td><td class="num pass"><strong>+0.67</strong></td></tr>
+<tr><td>Sonnet-high, code</td><td class="num partial">0.83</td><td class="num pass">1.00</td><td class="num">+0.17</td></tr>
+<tr><td>Opus-medium, code</td><td class="num pass">1.00</td><td class="num pass">1.00</td><td class="num">0.00</td></tr>
+</tbody></table></div>
+<p>So the table above reads <strong>"Desktop is flat on single-publication questions"</strong> — it
+is not flat generally. Desktop Sonnet-medium also cost <strong>$0.392</strong> on AZ, 3.6× its own
+$0.108 floor price, and still scored 0.50; blended over all four questions it is $0.179/q at 0.88.
+Its floor price is a property of easy questions, not of the cell. Sonnet-high, Opus-medium and
+Opus-high were never fired at AZ on Desktop, so whether the drop is arm-wide or specific to that
+cell is <strong>unknown</strong> — two runs, ~$0.50, would settle it. The Code floor
+<strong>holds</strong>: Opus-medium is the only cell passing all four, $0.410/q blended.</p>
+</div>
 <p><strong>The Code arm climbs the entire way and never gets a flat top.</strong> It needs Opus to
 reach what the Desktop arm reaches with Sonnet, at 3.2× the price.</p>
 
@@ -459,14 +487,30 @@ that a page fetched under a byte cap which does not yield the answer gets re-fet
 rather than being declared exhausted. Three of the four question-K misses across the entire grid
 trace to that one behaviour. If that lands, the Code arm's curve needs re-measuring from scratch,
 and Opus may stop being necessary.
-<br><br><strong>Update 2026-08-09 — that change landed.</strong> A <code>TRUNCATED-READ RE-FETCH</code>
-rule is now in both instruction sets (commit <code>b71e4ae</code>,
-<code>jwservicenow/claude-toolkit</code>), along with the missing
-<code>azure-discovery-methods-platcap.md</code> known location. Nothing on this page has been
-re-measured against it — the recommendations still describe the pre-amendment instructions.
-Re-firing question K on Code and AZ on Desktop (~$0.50–0.90) is what would tell us whether Opus is
-still needed on the Code arm. The Desktop half of the fix is inert until the updated instruction
-block is pasted into the Claude Desktop Project Instructions.</li>
+<br><br><strong>Update 2026-08-09 — that change landed, and it is now closed in evidence on both
+arms.</strong> A <code>TRUNCATED-READ RE-FETCH</code> rule went into both instruction sets at commit
+<code>b71e4ae</code> (<code>jwservicenow/claude-toolkit</code>), along with the missing
+<code>azure-discovery-methods-platcap.md</code> known location, and was then hardened across six
+further commits through <code>2befe76</code> — the operative one being a <strong>30,000-character
+minimum window restated as a precondition on every content fetch</strong>, not a judgment about the
+file.
+<br><br><strong>Code arm closed</strong> — run <code>S-M-K-code-fix3</code> (instructions @
+<code>e394ffd</code>): zero truncated reads, zero errors, leak gate clean, same content result as
+the run before it. Two intermediate re-fires were needed first; <code>7b14568</code> passed on
+content but leaked on compliance because the rule was scoped to "a first read" and read as
+exhaustive.
+<br><br><strong>Desktop arm closed</strong> — runs <code>S-M-AWS-tail-fix2</code> and
+<code>S-M-GCP-route-fix2</code> (published guide @ <code>5fc9d52</code>), n=2 on identical
+instructions, one with the target path handed over and one without. Both stepped a genuinely
+oversized file to EOF and were diffed against a mechanical offset key built by direct curl
+download; fabrication check negative.
+<br><br><strong>What this does to the recommendations on this page:</strong> the Code arm's 3.2×
+premium was diagnosed here as paying Opus to be forgiving of that bug. The bug is now fixed in
+instruction and verified in evidence, so <strong>the Code curve genuinely does need re-measuring
+from scratch, and Opus may no longer be necessary.</strong> No cell on this page has been re-scored
+against the amended instructions — every accuracy and cost figure above describes the
+pre-amendment text. The Desktop half remains inert until the updated block is pasted into the
+Claude Desktop Project Instructions; the HTML is the publishing vehicle, not the runtime.</li>
 <li><strong>Run n ≥ 3 on the cells that matter.</strong> At n=1 a single ungrounded sentence moves a
 cell mean by 0.17 — the same size as the entire Opus thinking effect. The four replicates we do
 have were the only reason the thinking gate could be trusted at all.</li>

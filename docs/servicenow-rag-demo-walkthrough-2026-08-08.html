@@ -600,7 +600,7 @@
         <tr><td><strong>Search Fallback Ladder</strong></td><td>A search-engine bot challenge (CAPTCHA) caused the model to silently drop its domain scope and answer from off-domain results.</td><td><span class="badge ok">Proven</span></td></tr>
         <tr><td><strong>Known-locations precedence</strong></td><td>Model defaulted to paging a 1.2 MB bundle index instead of using a known direct path.</td><td><span class="badge ok">Proven arm-wide</span></td></tr>
         <tr><td><strong>Citation integrity</strong></td><td>A citation was attached to a document that was never actually retrieved that session.</td><td><span class="badge warn">Conditional</span></td></tr>
-        <tr><td><strong>Offset-jump / past-EOF stub</strong></td><td>Finding content 91% into a 110 KB file cost ~7 sequential fetches from the top.</td><td><span class="badge warn">Open — real but under-calibrated</span></td></tr>
+        <tr><td><strong>Offset-jump / past-EOF stub</strong></td><td>Finding content 91% into a 110 KB file cost ~7 sequential fetches from the top.</td><td><span class="badge warn">Open — real but under-calibrated</span><br><small>Superseded 2026-08-09: the unknown-size doubling ladder was replaced with confirmed-boundary window-stepping (30,000-char minimum window + re-fetch to EOF), verified on both arms.</small></td></tr>
         <tr><td><strong>Verify-first on gap notes</strong></td><td>Stale "this file is empty" notes routed the model away from 139 KB of now-live content.</td><td><span class="badge ok">Fixed</span></td></tr>
         <tr><td><strong>Citation URL construction</strong></td><td>Derived citation URLs used the wrong host and omitted <code>.html</code> — every constructed link was broken.</td><td><span class="badge ok">Fixed</span></td></tr>
         <tr><td><strong>Index paging cap + gap statement</strong></td><td>Unbounded index crawling on 1 MB+ files, or a fabricated "here's how to set it up" procedure after failing to find one.</td><td><span class="badge ok">Fixed, 8 iterations</span></td></tr>
@@ -620,6 +620,13 @@
   <div class="section-num">07 — In Progress: Coverage Expansion</div>
   <h2>Today's work — a 7-topic, 36-question grader matrix</h2>
   <p class="lead">The letter-keyed A–P question list is being replaced with a topic-organized matrix, expanding ITSM and AI coverage on both surfaces. Plan ratified with Jim 2026-08-08; execution starts next session.</p>
+
+  <div class="finding">
+    <div class="f-head"><span class="f-title">Status update — 2026-08-10</span></div>
+    <p>Coverage expansion shipped on both surfaces: ITSM per-application direct paths, ITAM, AI Search, Now Assist for ITOM, <code>intelligent-experiences</code> cross-product plumbing, and Application Development, plus a fix for a real routing defect where Now Assist for Creator questions were answered from the App Engine docs. A publication routing table was added to the Desktop guide, which is now <strong>v3</strong>.</p>
+    <p>Separately, a <strong>model × thinking sweep</strong> ran 30 graded runs across three models and two thinking levels on both surfaces, plus a fourth cross-publication question at five cells — see <code>docs/mirror-testing/model-thinking-sweep-writeup-2026-08-09.html</code>. Headline: Desktop is at its accuracy ceiling on Sonnet-medium, Code needs Opus-medium, and thinking level is not a reliable accuracy lever. The Code arm's disadvantage was traced to the truncation defect below, which has since been fixed and verified on both arms — so the Code recommendation is due a re-measure.</p>
+    <p>Phase 5 of the roadmap below — the full 36-question matrix at n=3 — has <strong>not</strong> run.</p>
+  </div>
 
   <div class="topic-grid">
     <div class="topic-card"><div class="tc-head"><span class="tc-name">1 · Platform</span><span class="tc-count">≥5 Q</span></div><div class="tc-domains">CMDB, CSDM, IRE, Service Graph Connectors, Now Platform landing, Service Reliability Management</div></div>
