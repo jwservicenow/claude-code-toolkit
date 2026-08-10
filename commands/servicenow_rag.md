@@ -51,6 +51,15 @@ read and does not count toward the two. If all three come
 up empty, state the gap and stop — do not fall back to a listing. Fetching a raw content
 file at a known or derived path is not a listing and is always fine.
 
+PATH PROVENANCE — a mirror file may be fetched only if its path came from one of exactly two
+origins: the Known direct paths list in Step 2, or a link returned by an `index.md` you
+actually read this session. Every other origin is unfetchable however plausible it looks — a
+slug or URL in search results, a naming-pattern guess, a path recalled from a previous session
+or from training, a path inferred from another file's URL. This is a property of where the path
+came from, not of how many index reads preceded it: satisfying the INDEX FLOOR does not make a
+search-derived path fetchable, and no number of missed index reads ever promotes one. If the
+only path you hold has an unsanctioned origin, you have not located the file — say so.
+
 Steps:
 1. Fetch the publication index:
    https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
@@ -129,6 +138,17 @@ Steps:
    only — it does not limit fetches of content files, and it never overrides the
    pagination floor (a LIST/CATALOG/ALL request still pages its content file to EOF) or
    the requirement to show index evidence before claiming a topic is absent.
+
+   WHEN THE BRACKET MISSES — two or more index reads that come back without the term
+   license exactly two moves, and no others. First, widen: re-read between the two offsets
+   you hold, or past the outer one, at full `max_length` — a miss at 180,000 and one at
+   430,000 leave ~250,000 chars unread between them, and the term sits in that gap far more
+   often than it is genuinely absent. Second, once the INDEX PAGING CAP is reached, stop
+   locating: the file is UNLOCATED and you report that gap in the answer. The SEARCH
+   FALLBACK LADDER in Step 4 may still run, but it supplies community evidence and
+   citations only — it never converts into a mirror path to fetch. An answer that names the
+   gap is correct; an answer built from a file you were not entitled to fetch is not, even
+   when its content turns out to be right.
 
    OFFSET-JUMP — for a known item deep inside a large unindexed content file (e.g.
    r_SupportedApplications.md at ~110k chars), don't page from 0. Jump `start_index`
