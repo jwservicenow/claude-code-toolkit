@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model × Thinking Sweep — ServiceNow RAG Accuracy vs Cost</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a21; --panel2:#1b202a; --edge:#262d39;
+    --ink:#dfe4ec; --ink2:#a7b0bf; --ink3:#7d8798;
+    --accent:#5eb0ef; --good:#4fbf7f; --warn:#e0b054; --bad:#e0685f; --mid:#b98be0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    padding:0 20px 90px}
+  .wrap{max-width:920px;margin:0 auto}
+  header{padding:54px 0 26px;border-bottom:1px solid var(--edge);margin-bottom:34px}
+  h1{font-size:31px;line-height:1.25;margin:0 0 14px;letter-spacing:-.3px}
+  .sub{color:var(--ink2);font-size:15px;margin:0}
+  .sub b{color:var(--ink);font-weight:600}
+  h2{font-size:23px;margin:52px 0 6px;padding-top:26px;border-top:1px solid var(--edge);letter-spacing:-.2px}
+  h3{font-size:18px;margin:34px 0 8px;color:var(--accent)}
+  h4{font-size:15px;margin:24px 0 6px;color:var(--ink);text-transform:uppercase;letter-spacing:.6px}
+  p{margin:12px 0}
+  ul,ol{margin:12px 0;padding-left:22px} li{margin:7px 0}
+  code{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;
+    padding:1px 5px;font-size:13.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#9fd4ff}
+  strong{color:#fff}
+  em{color:var(--ink2)}
+  .lede{background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--accent);
+    border-radius:8px;padding:18px 22px;margin:26px 0}
+  .lede p:first-child{margin-top:0} .lede p:last-child{margin-bottom:0}
+  .note{background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--warn);
+    border-radius:8px;padding:16px 20px;margin:22px 0;font-size:15px}
+  .note.bad{border-left-color:var(--bad)}
+  .note.good{border-left-color:var(--good)}
+  .note h4{margin-top:0}
+  .scroll{overflow-x:auto;margin:20px 0;border:1px solid var(--edge);border-radius:8px}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--edge);vertical-align:top}
+  th{background:var(--panel2);color:var(--ink2);font-weight:600;font-size:12.5px;
+    text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#1a1f28}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pass{color:var(--good);font-weight:600}
+  .partial{color:var(--warn);font-weight:600}
+  .fail{color:var(--bad);font-weight:600}
+  .best{background:#16261d !important}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:24px 0}
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:8px;padding:16px 18px}
+  .card .k{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);margin-bottom:6px}
+  .card .v{font-size:25px;font-weight:650;letter-spacing:-.5px;color:#fff}
+  .card .d{font-size:13.5px;color:var(--ink2);margin-top:6px;line-height:1.5}
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--edge);
+    color:var(--ink3);font-size:13.5px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Which model, and how much thinking, should a documentation-RAG assistant use?</h1>
+  <p class="sub"><b>A measured answer · 2026-08-09</b><br>
+  Jim Wells · ServiceNow ITOM practice · 30 graded runs, priced from their own token records<br>
+  Raw data: <code>model-thinking-sweep-results-2026-08-09.md</code> · Method: <code>model-thinking-sweep-plan-2026-08-09.md</code></p>
+</header>
+
+<h3 style="margin-top:0">Takeaway</h3>
+
+<div class="lede">
+<p><strong>Desktop RAG (published Project Instructions)</strong><br>
+Use Sonnet, thinking medium. Opus costs more and answers no better — don't bother. Haiku is fine
+for quick triage but never cite it in anything customer-facing. Roughly 460 questions/month on a
+$50 allowance. Weak spot: questions that compare two products or span two doc areas — it can miss
+the part that actually distinguishes them.</p>
+<p><strong>Claude Code RAG (<code>/servicenow_rag</code>)</strong><br>
+Use Opus, thinking medium. Sonnet is not enough here — it gets things wrong, not just thin. Leave
+thinking on medium; high costs 40% more for nothing. Roughly 140 questions/month on $50.</p>
+<p><strong>Both groups, one habit:</strong> if the answer says a page was cut off, longer than its
+window, or that something "isn't documented" — don't accept it. Tell it to re-read the file deeper.
+That's our single biggest source of wrong answers, and it's the one thing a user can catch in the
+moment.</p>
+</div>
+
+<h3>The short version</h3>
+
+<p>We run two assistants that answer ServiceNow product questions by retrieving from the official
+documentation mirror. We did not know which underlying model either one needed, or whether turning
+up the model's "thinking" setting made the answers better. Both questions have a real monthly bill
+attached.</p>
+
+<p>So we ran the grid: three models × two thinking levels × three questions × both assistants —
+30 measured runs, each graded against written ground truth and priced from its own token records.</p>
+
+<div class="lede">
+<p><strong>1. The two assistants need different models.</strong> The Desktop assistant hits its
+accuracy ceiling at Sonnet with medium thinking — $0.108 per question — and spending 2.4× more on
+Opus buys nothing. The Code assistant does not reach that ceiling until Opus, $0.350 per question.</p>
+<p><strong>2. Thinking level is not a reliable lever.</strong> In three of four medium-vs-high
+comparisons it changed accuracy by zero or slightly negative, while costing 8–44% more. It helped
+in exactly one place — the assistant that was already failing — and even there it made the model
+more <em>careful</em>, not more <em>capable</em>.</p>
+<p><strong>3. The Code assistant's gap is a retrieval bug, not a model deficiency.</strong> It
+truncates one documentation page at 6,000 bytes and never reaches the paragraph that answers the
+question. Fixing that instruction is almost certainly cheaper than buying a bigger model.</p>
+</div>
+
+<div class="cards">
+  <div class="card"><div class="k">Runs graded</div><div class="v">30</div>
+    <div class="d">All leak-gate clean. Zero voids, zero re-fires.</div></div>
+  <div class="card"><div class="k">Desktop recommendation</div><div class="v">$0.108</div>
+    <div class="d">Sonnet 5, medium thinking — per question, at the accuracy ceiling.</div></div>
+  <div class="card"><div class="k">Code recommendation</div><div class="v">$0.350</div>
+    <div class="d">Opus 5, medium thinking — the only Code cell reaching 1.00.</div></div>
+  <div class="card"><div class="k">Total measured spend</div><div class="v">$6.74</div>
+    <div class="d">List price, 34 runs. $4.94 at Sonnet intro rates.</div></div>
+</div>
+
+<h2>1 · Approach — what was built and why</h2>
+
+<h3>The question, before any mechanism</h3>
+<p>We maintain two assistants that answer ServiceNow questions from a mirror of the official
+product documentation. They exist so that answers are <em>retrieved and cited</em> rather than
+recalled from a model's training — which matters because much of what we produce ends up in front
+of customer technical teams and has to be traceable to a source.</p>
+<p>Each assistant is driven by a long block of written instructions telling it where to look, in
+what order, what to do when the docs don't cover something, and how to label anything that came
+from a community forum rather than official documentation. <strong>Those instructions are the
+product. The underlying model is a setting.</strong></p>
+<p>This sweep answers which setting to pick: which model, at which thinking level, for which
+assistant — chosen on accuracy per dollar rather than on instinct.</p>
+
+<h3>The two assistants ("arms")</h3>
+<p><strong>The Desktop arm</strong> is the assistant published as Project Instructions for Claude
+Desktop. It has exactly one retrieval tool: a raw HTTP fetch. It reads the mirror directly, and
+when it wants to search the open web it fetches a search engine's lightweight page — which
+frequently returns a bot-challenge screen instead of results. Its instruction block is the live
+published guide, 18 KB of text.</p>
+<p><strong>The Code arm</strong> is the <code>/servicenow_rag</code> slash command used in Claude
+Code. It has the same fetch tool <em>plus</em> a real web-search tool, and its instructions include
+a multi-step fallback ladder for when the mirror comes up short. Its instruction block is 364
+lines.</p>
+<p>You would reasonably expect the Code arm to do better — it has strictly more retrieval
+capability. It does not, and section 3 explains why.</p>
+
+<div class="note">
+<h4>Stated fidelity deviation</h4>
+<p style="margin-bottom:0">The Code arm was measured as a subagent whose system prompt is the
+<code>/servicenow_rag</code> command text carried verbatim — not as a literal slash-command call on
+the main thread. This was necessary: a slash command has no per-run thinking setting and no
+guaranteed run record, and both are required to measure anything. The instruction text is
+byte-identical; the execution context is not. The Desktop arm uses the same technique (published
+guide text → subagent), so the two arms stay methodologically symmetric.</p>
+</div>
+
+<h3>The grid — and why it is five cells, not six</h3>
+<p>Three models — Haiku 4.5, Sonnet 5, Opus 5 — at two thinking levels, medium and high. That would
+be six cells. It is five, because <strong>Haiku 4.5 does not support a thinking-effort
+setting.</strong></p>
+<p>We confirmed this by reading the shipping Claude Code binary rather than the documentation: the
+capability check hard-codes Haiku 4.5 to unsupported, and — importantly — an unsupported level is
+<em>silently downgraded</em>, not rejected. A "Haiku high" cell would have been an unlabelled
+duplicate of "Haiku medium," producing a fake data point that looked real. So the Haiku row is one
+cell, Haiku contributes to the model axis and the cost curve but <strong>not</strong> to the
+thinking verdict, and this document says so wherever that verdict appears.</p>
+<p>Thinking-<em>off</em> was not tested — a deliberate scope call. The practical choice in front of
+us is medium versus high, not whether to reason at all.</p>
+<p>5 cells × 3 questions × 2 arms = <strong>30 runs</strong>.</p>
+
+<h3>The three questions, and what each is for</h3>
+<p>Three, not one, because a single question cannot distinguish the ways an assistant fails. Three,
+not ten, because each run costs real money and the marginal question was not worth more than the
+marginal cell.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>ID</th><th>Question</th><th>What it tests</th></tr></thead>
+<tbody>
+<tr><td><strong>K</strong></td>
+<td>"What features and functionality is provided by the plugin Event Management Core?"</td>
+<td>A <strong>naming trap</strong>. The app literally called Event Management Core
+(<code>sn_em_ai</code>) has one documented line — <em>"Enables you to track and monitor alerts in
+the ServiceNow Agent Workspace"</em> — buried in a dependency table the assistant isn't routed to.
+Right next to it sits the main Event Management app (<code>com.glideapp.itom.snac</code>) with pages
+of features. Answering with the big, impressive, <em>wrong</em> feature list looks like a great
+answer. Separates assistants that retrieve from assistants that pattern-match.</td></tr>
+<tr><td><strong>J</strong></td>
+<td>"How to setup Now Assist for ITOM?"</td>
+<td>Deep, multi-hop procedural. The answer spans four documentation pages; a prior run needed eight
+fetches to assemble it. Where raw model capability should show loudest.</td></tr>
+<tr><td><strong>BUILD-4</strong></td>
+<td>A real Studio error: <em>"Sorry, there was a problem on my side trying to complete this
+request."</em></td>
+<td>A <strong>known documentation gap</strong> — the mirror documents that error string nowhere.
+The right answer says so, then gives what <em>is</em> documented. Tests stop-and-state discipline.
+A weak assistant fails this differently than it fails J: it invents a root cause.</td></tr>
+</tbody></table></div>
+
+<h3>How the thinking level was actually set</h3>
+<p>Each arm got two variant definition files, identical in every byte except a single frontmatter
+field: <code>effort: medium</code> or <code>effort: high</code>.</p>
+<p>This mattered more than it sounds. The obvious alternative is to write "think hard about this"
+into the question. That would have been wrong — the entire purpose of this harness is measuring how
+well an assistant follows its <em>written instructions</em>, so injecting extra instruction text
+into the task contaminates exactly the thing being graded. The frontmatter field changes the
+model's reasoning budget while leaving the instruction block byte-identical across cells, which is
+what makes a medium-vs-high comparison mean anything.</p>
+<p>The field name, its accepted values, and Haiku's lack of support were all verified against the
+shipping binary (Claude Code 2.1.226) rather than assumed from documentation.</p>
+
+<h3>Why cost was measured by a separate script</h3>
+<p>The grader is fixture-pinned — six frozen run records prove it behaves identically every time.
+Adding token-and-dollar columns would have forced re-verifying all six fixtures for a metric that
+has nothing to do with retrieval grading. So cost lives in a separate read-only script reading the
+same run records. <strong>The grader was never modified.</strong></p>
+
+<h2>2 · Testing technique — how the measurement was made trustworthy</h2>
+<p>This is the section that separates a real result from a plausible-sounding one.</p>
+
+<h3>The grader reads the machine record, not the model's account of itself</h3>
+<p>The grader reads each run's sidecar — the harness's own log of every tool call the model made,
+with the arguments it passed and the bytes it got back. It never reads the model's prose.</p>
+<p>That distinction is the whole ballgame. An assistant writing <em>"I fetched 6 files from the
+mirror"</em> is not evidence it fetched 6 files. Several runs in this sweep printed a tidy
+self-reported metrics block at the end of their answer; not one of those numbers was used.</p>
+
+<div class="note bad">
+<h4>This is how we caught the central defect</h4>
+<p style="margin-bottom:0">Two Code-arm runs <em>stated</em> they had checked the relevant page and
+found nothing. The record shows they fetched that page with a 6,000-byte cap on a 16,605-byte file.
+They had not checked it. They had checked the first third of it.</p>
+</div>
+
+<h3>The leak gate</h3>
+<p>Each arm is restricted to a specific tool set — Desktop to fetch only, Code to fetch plus web
+search. If a run reaches for anything else, the grader VOIDs it. A voided run is
+<strong>re-fired, never patched</strong> — you cannot clean up a run that touched a tool it
+shouldn't have, because you cannot know what it learned from it.</p>
+<p class="pass" style="font-size:15px">All 30 runs came back clean. Zero VOIDs, zero re-fires.</p>
+<p>There is also a hard gate on fabricated citations: any run inventing a documentation URL absent
+from the bytes it actually retrieved is an automatic FAIL regardless of how good the prose is.
+Every citation that looked like it might have come from memory rather than a fetch was checked
+against the run's retrieved bytes. <strong>None were fabricated.</strong></p>
+
+<h3>Fixture pinning, before and after</h3>
+<p>Six frozen run records are pinned by checksum; re-grading them asserts the outputs are
+unchanged. It passed <strong>before</strong> the sweep and <strong>again after</strong> — so grader
+drift mid-sweep would have been caught rather than published as 30 rows of quietly inconsistent
+scores. The cost script has the same kind of pin: one fixture prices at $0.3080, before and after
+the one change made to it.</p>
+
+<h3>The one mid-sweep change, and why it was safe</h3>
+<p>The Haiku runs came back priced as "model not in pricing table." The run records report
+<code>claude-haiku-4-5-20251001</code>; the pricing table's key is <code>claude-haiku-4-5</code>;
+exact string match missed. The fix changed the lookup to match on the longest table key the model
+id starts with. Rates untouched, grader untouched, and the fixture pin confirmed the exact-match
+path still produced an identical number. Approved before it was applied.</p>
+
+<h3>The accuracy rubric</h3>
+<p>Three buckets, judged on the answer text against written ground truth. Deliberately coarse —
+this is a judgment call applied against a written standard, not an automated score, and pretending
+otherwise with a 0–100 scale would be false precision.</p>
+<ul>
+<li><span class="pass">PASS</span> — reaches the ground truth's substance, grounded in retrieved
+content, no fabrication. On BUILD-4, a correct <em>stop-and-state</em> — "the docs don't cover
+this, here's what they do cover" — <strong>is a PASS</strong>. A deliberate call: correctly
+reporting a gap is the behaviour we want, not a consolation prize.</li>
+<li><span class="partial">PARTIAL</span> — substantively correct but incomplete, or correct with an
+ungrounded aside.</li>
+<li><span class="fail">FAIL</span> — wrong, fabricated, or (on BUILD-4) inventing coverage that
+doesn't exist.</li>
+</ul>
+<p>Scored PASS = 1.0, PARTIAL = 0.5, FAIL = 0 for the cell means.</p>
+
+<div class="note bad">
+<h4>We found a defect in our own ground truth</h4>
+<p>BUILD-4's ground truth carried a FAIL condition saying that naming the plugin id
+<code>sn_now_creator</code> as documentation-sourced was an automatic failure, because a re-check
+had found that string nowhere in the mirror.</p>
+<p><strong>That re-check was wrong.</strong> <code>sn_now_creator</code> <em>is</em> in the mirror,
+in the install page's procedure, step 4. The earlier check missed it because raw documentation
+markdown escapes underscores — the file literally contains <code>sn\_now\_creator</code>, so a
+search for <code>sn_now_creator</code> returns zero hits. The fetch tool strips those escapes
+before the model sees the text, so an assistant reading that page reads the real plugin id and is
+correctly citing official documentation. Our grep tested a string the file does not contain, and
+concluded the file does not contain the plugin.</p>
+<p>Re-verified live 2026-08-09 across all five relevant files with escapes stripped:
+<code>sn_now_creator</code> appears once. <code>sn_gen_ai_controller</code> and the error code
+<code>MISSING_DEPENDENCY</code> genuinely appear nowhere — so those halves of the condition stand.</p>
+<p><strong>One run's verdict changes: <code>O-H-B4-code</code> moves from FAIL to PASS.</strong> It
+cited the plugin correctly and we would have marked it wrong. The ground-truth file itself has not
+yet been edited; until it lands, the results doc is the authority.</p>
+<p style="margin-bottom:0">Worth stating plainly rather than quietly fixing, because it is a live
+methodological lesson: <strong>the harness's own reference data needs the same verification
+discipline as the runs it grades.</strong> A grading rule that has never been re-derived is an
+assumption wearing a uniform.</p>
+</div>
+
+<h3>How cost was measured</h3>
+<p>Per-turn token counts come straight from each run's own usage records — input, cache-read,
+cache-write (5-minute and 1-hour rates handled separately, since they price differently), and
+output — multiplied by that model's published rates. Sonnet 5 is inside an introductory pricing
+window through 2026-08-31, so both list and introductory prices were computed throughout, and
+<strong>every recommendation here is made on list price</strong>, so it survives the intro rate
+expiring.</p>
+
+<div class="note">
+<h4>A known data defect biases all costs low</h4>
+<p style="margin-bottom:0">Some run records report a stale output-token count — one 2,022-character
+final answer records 3 output tokens; a pinned fixture's 4,426-character answer records 7. The cost
+script reads the field correctly; the recorded value is wrong. Every dollar figure here undercounts
+output. Relative comparisons between cells hold as long as the bias is uniform, which we have not
+verified. <strong>Treat absolute dollars as a floor.</strong></p>
+</div>
+
+<h3>The pilot gate — proving the thinking knob was turning, not just declared</h3>
+<p>Before spending the remaining runs, one cell went end-to-end to prove "medium" and "high"
+actually produce different behaviour. Confirming the setting <em>exists</em> is not the same as
+confirming it <em>does something</em>.</p>
+<p>The first attempt used question K and found nothing — the axis was flat. That was the right
+thing to discover at 3 runs rather than 30, and the response was not to declare success: it was to
+stop, and re-gate on the harder question J with two runs per level on both arms.</p>
+<p>On J the separation was clean. Measured as thinking blocks per assistant turn, medium ran
+0.33–0.75 and high ran 0.80–1.00, with <strong>no overlap across 8 runs on both arms</strong>. The
+knob turns.</p>
+<p>Two honest caveats. First, the reasoning <em>text</em> is stripped from run records (signature
+only, zero characters), so depth is genuinely unobservable and blocks-per-turn is a proxy. Raw
+block counts alone are confounded by turn count, which is why the ratio is used; output tokens
+overlap between levels and discriminate nothing.</p>
+<p>Second — and this matters for reading the verdict — <strong>the metric saturates.</strong> It
+separated on Sonnet on question J. On Opus, and on the easier questions, it pins near 1.00 at both
+levels and tells you nothing. Haiku sits at exactly 1.00 on every single run, consistent with a
+fixed reasoning level you cannot set. <strong>The thinking verdict is question-difficulty
+dependent.</strong> On a question that doesn't strain the model, the axis is null and no amount of
+measurement will make it otherwise.</p>
+
+<h3>What was deliberately excluded</h3>
+<p><strong>Quote fidelity</strong> — whether a run's quotations match the source byte-for-byte —
+was measured, calibrated, and closed as <strong>permanently report-only</strong> on 2026-08-09. It
+is not a verdict input in this sweep and should not be re-opened as one.</p>
+
+<h3>Known limits of the method</h3>
+<ul>
+<li><strong>n = 1 per cell per question.</strong> Four replicates exist on question J only. One
+borderline judgment can move a cell mean by 0.17.</li>
+<li><strong>Three questions is a narrow sample</strong>, and question K carries an outsized share of
+the signal — most Code-arm failures are the same question failing repeatedly.</li>
+<li><strong>The mirror is a moving target.</strong> Ground truth was spot-checked live during this
+sweep — which is how the <code>sn_now_creator</code> defect surfaced.</li>
+<li><strong>Cross-arm cost is not summable.</strong> The Code arm's web-search hops bill differently
+from mirror fetches.</li>
+<li><strong>The thinking axis rests on two models, not three</strong>, because Haiku has no effort
+knob to turn.</li>
+<li><strong>Absolute dollar figures are biased low</strong> by the output-token defect above.</li>
+</ul>
+
+<h2>3 · Results — what came out</h2>
+
+<h3>The curve</h3>
+<div class="scroll"><table>
+<thead><tr><th>Cell</th><th>Desktop accuracy</th><th>Desktop $/question</th>
+<th>Code accuracy</th><th>Code $/question</th></tr></thead>
+<tbody>
+<tr><td><strong>Haiku 4.5</strong></td><td class="num partial">0.67</td><td class="num">$0.028</td>
+    <td class="num fail">0.17</td><td class="num">$0.108</td></tr>
+<tr class="best"><td><strong>Sonnet 5, medium</strong></td><td class="num pass">1.00</td>
+    <td class="num"><strong>$0.108</strong></td><td class="num fail">0.33</td><td class="num">$0.217</td></tr>
+<tr><td><strong>Sonnet 5, high</strong></td><td class="num pass">1.00</td><td class="num">$0.156</td>
+    <td class="num partial">0.83</td><td class="num">$0.294</td></tr>
+<tr class="best"><td><strong>Opus 5, medium</strong></td><td class="num pass">1.00</td><td class="num">$0.218</td>
+    <td class="num pass">1.00</td><td class="num"><strong>$0.350</strong></td></tr>
+<tr><td><strong>Opus 5, high</strong></td><td class="num pass">1.00</td><td class="num">$0.255</td>
+    <td class="num partial">0.83</td><td class="num">$0.379</td></tr>
+</tbody></table></div>
+
+<p><strong>The Desktop arm is flat at ceiling from Sonnet-medium up.</strong> Four of five cells
+score a perfect 1.00 and the accuracy column simply stops moving. Everything above Sonnet-medium is
+money spent on no measurable improvement.</p>
+<p><strong>The Code arm climbs the entire way and never gets a flat top.</strong> It needs Opus to
+reach what the Desktop arm reaches with Sonnet, at 3.2× the price.</p>
+
+<h3>Why the better-equipped assistant did worse</h3>
+<div class="note bad">
+<p>This is the surprise, and it deserves stating rather than burying: <strong>the arm with strictly
+more retrieval capability scored worse at every model size.</strong> The Code arm has real web
+search; the Desktop arm has to scrape a search page and usually gets a bot challenge. And the Code
+arm lost.</p>
+<p>The mechanism is specific and unglamorous. Question K's answer lives in one line of a dependency
+table on a 16,605-byte page, under a heading about two-thirds down. The Code arm's instructions lead
+it to fetch that page with a byte cap — 6,000 bytes in the Sonnet runs. It reads the first third,
+doesn't find the line, and concludes the documentation doesn't cover the plugin. It then fills the
+gap from web search and a store listing, and — in the weaker cells — hands back the neighbouring
+product's impressive feature list as though it were the answer.</p>
+<p style="margin-bottom:0">The Desktop guide does not have that habit. <strong>Haiku on the Desktop
+arm answered question K correctly in two fetches for three cents</strong> — beating every Code-arm
+cell including Opus-high at $0.496. That is not Haiku outperforming Opus. That is one instruction
+set routing correctly and the other truncating.</p>
+</div>
+
+<h3>The thinking verdict</h3>
+<p><strong>Thinking level is not a reliable accuracy lever.</strong> Computed from Sonnet and Opus
+only, since Haiku's level cannot be set.</p>
+<div class="scroll"><table>
+<thead><tr><th>Holding model constant</th><th>medium</th><th>high</th><th>Δ accuracy</th><th>Δ cost</th></tr></thead>
+<tbody>
+<tr><td>Sonnet, Desktop</td><td class="num">1.00</td><td class="num">1.00</td>
+    <td class="num"><strong>0.00</strong></td><td class="num">+44%</td></tr>
+<tr><td>Opus, Desktop</td><td class="num">1.00</td><td class="num">1.00</td>
+    <td class="num"><strong>0.00</strong></td><td class="num">+17%</td></tr>
+<tr><td>Sonnet, Code</td><td class="num">0.33</td><td class="num">0.83</td>
+    <td class="num pass"><strong>+0.50</strong></td><td class="num">+36%</td></tr>
+<tr><td>Opus, Code</td><td class="num">1.00</td><td class="num">0.83</td>
+    <td class="num fail"><strong>−0.17</strong></td><td class="num">+8%</td></tr>
+</tbody></table></div>
+
+<p>Three of four comparisons show no gain or a small loss, at 8–44% extra cost.</p>
+<p>The one large gain is instructive rather than encouraging. High thinking on the Sonnet Code arm
+rescued the BUILD-4 answer (the medium run routed to the wrong documentation folder and lost the
+deprecation notice; the high run did neither) and softened the K answer from FAIL to PARTIAL — the
+high-thinking run explicitly flagged all its substitute content as unverified and advised against
+citing it, where the medium run had asserted that two different products "describe the same
+product." <strong>More thinking made the model more careful about what it claimed. It did not make
+it fetch more of the file.</strong> The underlying retrieval defect was untouched.</p>
+<p>The Opus-Code regression from 1.00 to 0.83 is one run flipping on one ungrounded aside at n=1.
+It is not evidence that thinking hurts; it is evidence that the axis sits inside the noise band at
+this sample size.</p>
+<p class="lede" style="font-size:15px"><strong>Practical guidance:</strong> do not set high thinking
+as a default. Set it when a specific arm is underperforming, and then verify it actually moved
+something.</p>
+
+<h3>The floor, and the recommendation</h3>
+<div class="cards">
+  <div class="card" style="border-left:3px solid var(--good)">
+    <div class="k">Desktop arm → recommended</div><div class="v">Sonnet 5 · medium</div>
+    <div class="d"><strong>$0.108/question</strong> at 1.00 accuracy — the cheapest cell reaching
+    the ceiling. Opus-high costs 136% more for exactly zero gain.</div></div>
+  <div class="card" style="border-left:3px solid var(--good)">
+    <div class="k">Code arm → recommended</div><div class="v">Opus 5 · medium</div>
+    <div class="d"><strong>$0.350/question</strong> — the only Code cell reaching 1.00, and 3.2× the
+    Desktop recommendation.</div></div>
+  <div class="card" style="border-left:3px solid var(--warn)">
+    <div class="k">Desktop budget variant</div><div class="v">Haiku 4.5</div>
+    <div class="d"><strong>$0.028/question</strong>, 3.9× cheaper, scoring 0.67 — and both misses
+    are PARTIALs (thin) rather than FAILs (wrong). Defensible for bulk triage; not for
+    customer-facing work.</div></div>
+</div>
+
+<p>On the Code arm the honest framing is that <strong>you are paying 3.2× the Desktop
+recommendation to make a big model forgiving of a retrieval bug.</strong> Sonnet-high gets to 0.83
+for $0.294 and half-misses the same question. Neither is a fix.</p>
+
+<h3>What I'd do differently</h3>
+<ol>
+<li><strong>Fix the truncation before buying the model.</strong> The highest-value change out of
+this sweep is not a model setting — it is amending the <code>servicenow_rag</code> instructions so
+that a page fetched under a byte cap which does not yield the answer gets re-fetched further in,
+rather than being declared exhausted. Three of the four question-K misses across the entire grid
+trace to that one behaviour. If that lands, the Code arm's curve needs re-measuring from scratch,
+and Opus may stop being necessary.
+<br><br><strong>Update 2026-08-09 — that change landed.</strong> A <code>TRUNCATED-READ RE-FETCH</code>
+rule is now in both instruction sets (commit <code>b71e4ae</code>,
+<code>jwservicenow/claude-toolkit</code>), along with the missing
+<code>azure-discovery-methods-platcap.md</code> known location. Nothing on this page has been
+re-measured against it — the recommendations still describe the pre-amendment instructions.
+Re-firing question K on Code and AZ on Desktop (~$0.50–0.90) is what would tell us whether Opus is
+still needed on the Code arm. The Desktop half of the fix is inert until the updated instruction
+block is pasted into the Claude Desktop Project Instructions.</li>
+<li><strong>Run n ≥ 3 on the cells that matter.</strong> At n=1 a single ungrounded sentence moves a
+cell mean by 0.17 — the same size as the entire Opus thinking effect. The four replicates we do
+have were the only reason the thinking gate could be trusted at all.</li>
+<li><strong>Pick harder questions for the thinking axis specifically.</strong> The axis is null on
+questions that don't strain the model — we learned that by burning a pilot on question K and
+finding nothing. Gate the thinking axis on the hardest question first, not the cheapest.</li>
+<li><strong>Re-derive ground truth as part of the sweep, not before it.</strong> The
+<code>sn_now_creator</code> defect had been sitting in the reference data since 2026-08-08 and would
+have silently mis-graded a correct answer as a failure.</li>
+</ol>
+
+<footer>
+<p><strong>Provenance.</strong> Every figure traces to a scored run in
+<code>model-thinking-sweep-results-2026-08-09.md</code>, which carries the 30-row run table with
+per-run hop counts, turn counts, thinking-block counts, dollar costs and grading reasons, plus four
+gate replicates. Ground truth is <code>desktop-v4-ground-truth-2026-07-29.md</code> (§K, §J,
+§BUILD-4), with the §BUILD-4 correction documented in the results file. Method and rationale are in
+<code>model-thinking-sweep-plan-2026-08-09.md</code>.</p>
+<p>Total measured spend: <strong>$6.74 at list price</strong> ($4.94 at Sonnet introductory rates)
+across 34 runs. Generated 2026-08-09, US Mountain Time.</p>
+</footer>
+
+</div>
+</body>
+</html>

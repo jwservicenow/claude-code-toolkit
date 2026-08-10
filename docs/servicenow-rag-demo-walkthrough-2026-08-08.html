@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceNow RAG — Development &amp; Performance Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --surface-2: #1e232b;
+    --surface-3: #262c36;
+    --border: #2b323d;
+    --text: #e6e9ee;
+    --text-dim: #9aa3b2;
+    --text-mute: #6b7484;
+    --accent: #58c4f0;
+    --accent-soft: #17303b;
+    --ok: #7ad4a3;
+    --ok-soft: #16281f;
+    --warn: #e8c766;
+    --warn-soft: #2c2513;
+    --bad: #f0966a;
+    --bad-soft: #2e1c14;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Top nav ---- */
+  nav.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(15,18,22,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  nav.topnav .brand {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    margin-right: 18px;
+    flex-shrink: 0;
+  }
+  nav.topnav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12.5px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  nav.topnav a:hover { color: var(--text); background: var(--surface-2); }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 0 24px 80px; }
+
+  section { padding: 56px 0 8px; border-top: 1px solid var(--border); }
+  section:first-of-type { border-top: none; }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 32px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: 23px;
+    margin: 0 0 18px;
+    letter-spacing: -0.01em;
+  }
+  h3 { font-size: 16px; margin: 28px 0 10px; color: var(--text); }
+  p { color: var(--text-dim); margin: 0 0 14px; }
+  p.lead { color: var(--text); font-size: 16px; max-width: 780px; }
+  .subtitle { color: var(--text-dim); font-size: 15px; margin-bottom: 28px; }
+  a.inline { color: var(--accent); }
+  code {
+    font-family: var(--mono);
+    background: var(--surface-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--text);
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding: 64px 24px 40px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .hero .kicker {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: 42px; max-width: 760px; }
+  .hero p.lead { font-size: 17px; max-width: 700px; }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .hero-meta div { font-size: 12.5px; color: var(--text-mute); }
+  .hero-meta strong { display: block; color: var(--text); font-size: 13.5px; font-weight: 600; }
+
+  /* ---- Stat tiles ---- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 22px 0 8px;
+  }
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .stat-tile .num {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-tile .num.accent { color: var(--accent); }
+  .stat-tile .num.ok { color: var(--ok); }
+  .stat-tile .label {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+
+  /* ---- Cards / grid ---- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card h4 {
+    margin: 0 0 8px;
+    font-size: 14.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p { margin: 0; font-size: 13.5px; }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .badge.bad { background: var(--bad-soft); color: var(--bad); }
+  .badge.accent { background: var(--accent-soft); color: var(--accent); }
+
+  /* ---- Timeline ---- */
+  .timeline { position: relative; margin: 24px 0; padding-left: 28px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 22px; }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -28px;
+    top: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .tl-item .tl-date {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tl-item h4 { margin: 4px 0 4px; font-size: 15px; color: var(--text); }
+  .tl-item p { margin: 0; font-size: 13.5px; }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-mute); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td { color: var(--text-dim); }
+  td.mono, th.mono { font-family: var(--mono); }
+  td strong { color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px 16px; overflow-x: auto; }
+
+  /* ---- Flow diagram ---- */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    flex: 1;
+    min-width: 150px;
+    position: relative;
+  }
+  .flow-step .fs-n {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .flow-step .fs-t { font-size: 13.5px; color: var(--text); font-weight: 600; margin: 4px 0 4px; }
+  .flow-step .fs-d { font-size: 12px; color: var(--text-mute); line-height: 1.4; }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--text-mute);
+    padding: 0 6px;
+    font-size: 16px;
+  }
+
+  /* ---- Chart ---- */
+  .viz-root { color-scheme: dark; }
+  .chart-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px 8px;
+    margin: 20px 0;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .chart-legend .lg-item { display: flex; align-items: center; gap: 6px; }
+  .chart-legend .lg-swatch { width: 10px; height: 10px; border-radius: 2px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .bar-row .bar-label { width: 34px; font-family: var(--mono); font-size: 12.5px; color: var(--text); flex-shrink: 0; }
+  .bar-track { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .bar-line { display: flex; align-items: center; gap: 8px; height: 16px; }
+  .bar-fill { height: 10px; border-radius: 3px; min-width: 3px; }
+  .bar-fill.v4 { background: var(--series-1); }
+  .bar-fill.v3 { background: var(--series-2); }
+  .bar-val { font-family: var(--mono); font-size: 11px; color: var(--text-mute); white-space: nowrap; }
+  .chart-note { font-size: 11.5px; color: var(--text-mute); padding: 10px 0 14px; }
+
+  /* ---- Finding callouts ---- */
+  .finding {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .finding.warn { border-left-color: var(--warn); }
+  .finding.bad { border-left-color: var(--bad); }
+  .finding.ok { border-left-color: var(--ok); }
+  .finding .f-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .finding .f-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .finding p { margin: 0; font-size: 13.5px; }
+  .finding code { font-size: 12px; }
+
+  /* ---- Topic pills ---- */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .topic-card .tc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .topic-card .tc-name { font-weight: 700; font-size: 14px; color: var(--accent); }
+  .topic-card .tc-count { font-family: var(--mono); font-size: 11px; color: var(--text-mute); }
+  .topic-card .tc-domains { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ---- Quote / working agreement ---- */
+  .principle-list { display: grid; gap: 10px; margin: 18px 0; }
+  .principle {
+    display: flex;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    align-items: baseline;
+  }
+  .principle .p-num { font-family: var(--mono); color: var(--accent); font-size: 12px; flex-shrink: 0; width: 18px; }
+  .principle .p-text { font-size: 13.5px; color: var(--text-dim); }
+  .principle .p-text strong { color: var(--text); }
+
+  /* ---- Footer ---- */
+  footer {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+    color: var(--text-mute);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  ul.clean { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 13.5px; }
+  ul.clean li { margin-bottom: 6px; }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 30px; }
+    nav.topnav { padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="brand">ServiceNow RAG</span>
+  <a href="#objectives">Objectives</a>
+  <a href="#origin">Origin</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#methodology">Methodology</a>
+  <a href="#performance">Performance</a>
+  <a href="#reliability">Reliability</a>
+  <a href="#expansion">Coverage Expansion</a>
+  <a href="#roadmap">Roadmap</a>
+</nav>
+
+<div class="hero">
+  <div class="kicker">Demo Walkthrough — 2026-08-08</div>
+  <h1>ServiceNow RAG: Development &amp; Performance</h1>
+  <p class="lead">A retrieval-grounded ServiceNow answer engine for Claude Desktop and Claude Code — built, broken, measured, and fixed in the open. This walkthrough covers what it does, how it was tested, what it costs, and what's shipping next.</p>
+  <div class="hero-meta">
+    <div><strong>~5+ weeks</strong>active development</div>
+    <div><strong>2 surfaces</strong>Desktop + Code</div>
+    <div><strong>39 cold runs</strong>scored evaluation suite</div>
+    <div><strong>~2,200 → 6</strong>mirror defect files fixed</div>
+    <div><strong>82%</strong>token cost cut via caching</div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ OBJECTIVES ============ -->
+<section id="objectives">
+  <div class="section-num">01 — Objectives</div>
+  <h2>Why this exists</h2>
+  <p class="lead">Claude assistants answering ServiceNow technical questions from training memory risk being confidently wrong — plugin names, table names, and role requirements drift every release. The objective was to force every answer to be traceable to a real, citable source.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🎯 Ground answers in real docs</h4>
+      <p>Retrieve from ServiceNow's official GitHub documentation mirror before responding, instead of answering from AI training memory. Every claim carries a citable <code>docs.servicenow.com</code> URL.</p>
+    </div>
+    <div class="card">
+      <h4>🖥️ Two working surfaces</h4>
+      <p>A production tool, not a one-off: <code>/servicenow_rag</code> for Claude Code, and a parallel Project Instructions setup for Claude Desktop — both installable by any colleague via a shared internal repo.</p>
+    </div>
+    <div class="card">
+      <h4>📐 Prove it, don't assert it</h4>
+      <p>Build a repeatable, scored testing framework — fixed questions, ground truth, PASS/PARTIAL/FAIL rubrics — so "did the instructions get better?" is a measurement, not a judgment call.</p>
+    </div>
+    <div class="card">
+      <h4>🔍 Fix what's broken upstream</h4>
+      <p>Where the framework surfaces a real defect in the documentation mirror itself, escalate it with reproducible evidence and verify the fix — not work around it silently.</p>
+    </div>
+  </div>
+
+  <div class="finding ok">
+    <div class="f-head"><span class="f-title">Guiding principle</span><span class="badge accent">Carried into this session</span></div>
+    <p>This RAG path is now critical, company-wide functionality. The standing rule for all new work: <strong>verify, never infer</strong>. No path, folder name, or behavior ships on a pattern or a memory — it gets a live probe and the result is recorded.</p>
+  </div>
+</section>
+
+<!-- ============ ORIGIN ============ -->
+<section id="origin">
+  <div class="section-num">02 — Origin Story</div>
+  <h2>The defect that started the testing discipline</h2>
+  <p class="lead">Before instruction tuning began, exhaustive integrity sweeps across four documentation bundles (ITOM, ITAM, ITSM, Platform — ~8,400 files) found a silent, mirror-wide failure mode.</p>
+
+  <div class="stat-grid">
+    <div class="stat-tile"><div class="num bad">20–32%</div><div class="label">of files per bundle returned HTTP 200 with zero bytes of content</div></div>
+    <div class="stat-tile"><div class="num">~2,200</div><div class="label">empty files found across ~8,400 swept</div></div>
+    <div class="stat-tile"><div class="num ok">→ 6</div><div class="label">empty files remaining after the mirror team's fix, re-verified live</div></div>
+    <div class="stat-tile"><div class="num">0</div><div class="label">error signal — retrieval tools had no way to detect the failure themselves</div></div>
+  </div>
+
+  <div class="finding bad">
+    <div class="f-head"><span class="f-title">Why this matters more than a normal 404</span></div>
+    <p>A 404 is a clean signal a fetcher can react to. An HTTP 200 with empty content looks like success — a retrieval tool has no error to catch, so it improvises. That's a direct hallucination trap, and it's the exact failure class this whole testing program exists to catch before it reaches a customer answer.</p>
+  </div>
+
+  <p>Escalated to ServiceNow's mirror documentation team with reproducible evidence; root-caused as a build bug and republished. Verified with a full before/after re-sweep — not taken on faith. Two smaller structural issues (content misfiled under the wrong bundle; oversized monolithic indexes) remain open with the mirror team.</p>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture">
+  <div class="section-num">03 — Architecture</div>
+  <h2>How a question becomes a cited answer</h2>
+  <p class="lead">Same retrieval discipline, two surfaces. Claude Code uses a slash command with its own fetch tool; Claude Desktop uses Project Instructions plus a local fetch MCP connector — the only tool either surface is allowed to use for retrieval.</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="fs-n">01</div>
+      <div class="fs-t">Route the publication</div>
+      <div class="fs-d">Match topic to the correct doc bundle before fetching anything — e.g. CMDB → servicenow-platform, Discovery → it-operations-management.</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-n">02</div>
+      <div class="fs-t">Known-locations first</div>
+      <div class="fs-d">Check a curated list of confirmed-live direct paths before paging any index — skips megabyte-scale bundle indexes entirely when possible.</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-n">03</div>
+      <div class="fs-t">Bounded index navigation</div>
+      <div class="fs-d">If no known path exists, page the bundle index under a hard cap — 3 chunks with no match, or a bracketing search — never an unbounded crawl.</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-n">04</div>
+      <div class="fs-t">Fetch &amp; cite</div>
+      <div class="fs-d">Fetch the target file directly from the raw mirror. Cite only the canonical <code>docs.servicenow.com</code> URL from the file's own frontmatter — never a remembered or guessed path.</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-n">05</div>
+      <div class="fs-t">Community as tier 2</div>
+      <div class="fs-d">Scoped <code>site:</code> search of ServiceNow Community as corroboration only — flagged "peer-authored," never overriding a documented API signature.</div>
+    </div>
+  </div>
+
+  <h3>Hard boundaries — enforced, not suggested</h3>
+  <div class="card-grid">
+    <div class="card"><h4>🚫 No directory listings</h4><p>The GitHub Contents/tree API, repo browse pages, and any equivalent bulk-discovery route are banned outright — discovery has exactly three sanctioned paths, and a directory listing isn't one of them.</p></div>
+    <div class="card"><h4>🔒 Citation integrity</h4><p>Only a document actually fetched <em>this session</em> may be cited. A path harvested from another page's link list is a pointer, not a source, until it's fetched itself.</p></div>
+    <div class="card"><h4>🧭 Sole retrieval tool</h4><p>Both surfaces are restriction-verified to a single fetch tool — no web search substitutes for mirror retrieval, no Bash, no filesystem read.</p></div>
+  </div>
+</section>
+
+<!-- ============ METHODOLOGY ============ -->
+<section id="methodology">
+  <div class="section-num">04 — Testing Methodology</div>
+  <h2>A scored harness, not a vibe check</h2>
+  <p class="lead">Every instruction change is evaluated the same way: fixed questions, live-derived ground truth, an explicit PASS/PARTIAL/FAIL rubric per question, run cold and in triplicate.</p>
+
+  <div class="stat-grid">
+    <div class="stat-tile"><div class="num accent">39</div><div class="label">cold, serial evaluation runs in the last full baseline cycle</div></div>
+    <div class="stat-tile"><div class="num">9→16</div><div class="label">scored questions, each isolating one specific retrieval mechanism</div></div>
+    <div class="stat-tile"><div class="num">n=3</div><div class="label">replicates per question — a single run can't tell a real pass from a lucky one</div></div>
+    <div class="stat-tile"><div class="num ok">132.7M</div><div class="label">tokens measured across the window, 95% served from cache</div></div>
+  </div>
+
+  <h3>Why replicates matter — the suite has caught intermittent failures before</h3>
+  <p>Question A split PASS/PARTIAL/PASS across three <em>identical</em> runs. A known-locations regression fired in 1 of 3 replicates. A citation-fidelity issue appeared in 2 of 3. A single-shot test would have called every one of those "settled" and been wrong.</p>
+
+  <h3>Components of the harness</h3>
+  <ul class="clean">
+    <li><strong>Graded question set</strong> — each question isolates one mechanism (offset-jump recovery, citation integrity, index paging cap, directory-listing ban, gap-statement discipline).</li>
+    <li><strong>Ground truth</strong> — verified live: exact byte counts, exact attribute names, and confirmed <em>absences</em>, not assumed ones.</li>
+    <li><strong>Explicit rubrics</strong> — anchored to observable conditions ("lands on file X, pulls companion file Y"), not subjective quality.</li>
+    <li><strong>A version-independent design</strong> — a new instruction revision is graded by pointing a new arm at the same suite; nothing about "what good looks like" is re-derived.</li>
+  </ul>
+
+  <div class="finding">
+    <div class="f-head"><span class="f-title">Cost efficiency</span><span class="badge ok">82% saved</span></div>
+    <p>Prompt caching served 95% of all tokens. List-price equivalent for the full window: ~$109; the same workload without caching would have cost ~$596. That efficiency is what made 39 cold runs plus a full re-baseline affordable in a two-day cycle.</p>
+  </div>
+</section>
+
+<!-- ============ PERFORMANCE ============ -->
+<section id="performance">
+  <div class="section-num">05 — Performance Results</div>
+  <h2>Instruction v4 vs. v3 — accuracy held, cost dropped</h2>
+  <p class="lead">Four regression questions (A–D) ran identically in both instruction versions. Same accuracy on three of four; retrieval cost — measured in fetch "hops," i.e. tool calls to reach the answer — dropped sharply on two.</p>
+
+  <div class="chart-wrap viz-root">
+    <div class="chart-legend">
+      <div class="lg-item"><span class="lg-swatch" style="background:var(--series-1)"></span>v4 (current)</div>
+      <div class="lg-item"><span class="lg-swatch" style="background:var(--series-2)"></span>v3 (prior)</div>
+    </div>
+
+    <!-- Q A -->
+    <div class="bar-row">
+      <div class="bar-label">A</div>
+      <div class="bar-track">
+        <div class="bar-line"><div class="bar-fill v4" style="width:35.3%"></div><span class="bar-val">v4 median 6 hops</span></div>
+        <div class="bar-line"><div class="bar-fill v3" style="width:29.4%"></div><span class="bar-val">v3 median 5 hops</span></div>
+      </div>
+    </div>
+    <!-- Q B -->
+    <div class="bar-row">
+      <div class="bar-label">B</div>
+      <div class="bar-track">
+        <div class="bar-line"><div class="bar-fill v4" style="width:29.4%"></div><span class="bar-val">v4 median 5 hops</span></div>
+        <div class="bar-line"><div class="bar-fill v3" style="width:70.6%"></div><span class="bar-val">v3 median 12 hops</span></div>
+      </div>
+    </div>
+    <!-- Q C -->
+    <div class="bar-row">
+      <div class="bar-label">C</div>
+      <div class="bar-track">
+        <div class="bar-line"><div class="bar-fill v4" style="width:23.5%"></div><span class="bar-val">v4 median 4 hops</span></div>
+        <div class="bar-line"><div class="bar-fill v3" style="width:52.9%"></div><span class="bar-val">v3 median 9 hops</span></div>
+      </div>
+    </div>
+    <!-- Q D -->
+    <div class="bar-row">
+      <div class="bar-label">D</div>
+      <div class="bar-track">
+        <div class="bar-line"><div class="bar-fill v4" style="width:23.5%"></div><span class="bar-val">v4 median 4 hops</span></div>
+        <div class="bar-line"><div class="bar-fill v3" style="width:17.6%"></div><span class="bar-val">v3 median 3 hops</span></div>
+      </div>
+    </div>
+
+    <div class="chart-note">Hops = tool calls (fetches) to reach a scored answer, median of 3 replicates per question per arm. Bar length indexed to the suite's largest median (v3-B, 12 hops). All 8 question-arm pairs scored 3/3 PASS or better — no accuracy tradeoff behind the cost numbers. Source: <code>desktop-v4-test-script-2026-07-29.md</code> §7 summary table.</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card"><h4>📉 B — largest gap in the suite</h4><p>v4 cost 4/4/5 hops vs. v3's 9/12/15 — v3 pays 2–3× the hops for the identical verdict. Both arms independently caught a stale "file is empty" note and routed around it.</p></div>
+    <div class="card"><h4>📉 C — absence proven cheaply</h4><p>v4 states the gap in 1–2 mirror hops; v3 proves the same absence by brute-force sweeping up to 8 files. Same conclusion, very different cost.</p></div>
+    <div class="card"><h4>⚖️ A / D — no regression, honestly reported</h4><p>A is a statistical tie; D is the one question where v3 is marginally cheaper (3 vs 4 hops) on a small single-heading file. Reported as-is — the results aren't cherry-picked to only show wins.</p></div>
+  </div>
+
+  <div class="finding warn">
+    <div class="f-head"><span class="f-title">Counter-intuitive finding worth repeating live</span></div>
+    <p>Instruction length does <strong>not</strong> predict retrieval cost. The current instruction set is 12% longer than its predecessor yet cheaper in fetch hops on three of four regression questions. "Trim it to make it faster" was tested directly and the hypothesis <strong>inverted</strong>.</p>
+  </div>
+</section>
+
+<!-- ============ RELIABILITY MECHANISMS ============ -->
+<section id="reliability">
+  <div class="section-num">06 — Reliability Mechanisms</div>
+  <h2>What each fix actually closes</h2>
+  <p class="lead">Every mechanism below was added to fix one observed failure mode, then proven or left open by measurement — not by inspection.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mechanism</th><th>Problem it fixes</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Search Fallback Ladder</strong></td><td>A search-engine bot challenge (CAPTCHA) caused the model to silently drop its domain scope and answer from off-domain results.</td><td><span class="badge ok">Proven</span></td></tr>
+        <tr><td><strong>Known-locations precedence</strong></td><td>Model defaulted to paging a 1.2 MB bundle index instead of using a known direct path.</td><td><span class="badge ok">Proven arm-wide</span></td></tr>
+        <tr><td><strong>Citation integrity</strong></td><td>A citation was attached to a document that was never actually retrieved that session.</td><td><span class="badge warn">Conditional</span></td></tr>
+        <tr><td><strong>Offset-jump / past-EOF stub</strong></td><td>Finding content 91% into a 110 KB file cost ~7 sequential fetches from the top.</td><td><span class="badge warn">Open — real but under-calibrated</span></td></tr>
+        <tr><td><strong>Verify-first on gap notes</strong></td><td>Stale "this file is empty" notes routed the model away from 139 KB of now-live content.</td><td><span class="badge ok">Fixed</span></td></tr>
+        <tr><td><strong>Citation URL construction</strong></td><td>Derived citation URLs used the wrong host and omitted <code>.html</code> — every constructed link was broken.</td><td><span class="badge ok">Fixed</span></td></tr>
+        <tr><td><strong>Index paging cap + gap statement</strong></td><td>Unbounded index crawling on 1 MB+ files, or a fabricated "here's how to set it up" procedure after failing to find one.</td><td><span class="badge ok">Fixed, 8 iterations</span></td></tr>
+        <tr><td><strong>Directory-listing ban</strong></td><td>Bulk repo-tree discovery used as a shortcut around known-locations and index navigation.</td><td><span class="badge ok">Fixed</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="finding">
+    <div class="f-head"><span class="f-title">Honest reporting standard</span></div>
+    <p>Not every mechanism is declared a win. Citation integrity is reported <em>conditional</em> — clean on one question class, violated on another — with the counter-example named rather than smoothed over. Offset-jump is reported as a real improvement whose net cost, measured against baseline, is still a cost, not yet a win.</p>
+  </div>
+</section>
+
+<!-- ============ THIS SESSION: COVERAGE EXPANSION ============ -->
+<section id="expansion">
+  <div class="section-num">07 — In Progress: Coverage Expansion</div>
+  <h2>Today's work — a 7-topic, 36-question grader matrix</h2>
+  <p class="lead">The letter-keyed A–P question list is being replaced with a topic-organized matrix, expanding ITSM and AI coverage on both surfaces. Plan ratified with Jim 2026-08-08; execution starts next session.</p>
+
+  <div class="topic-grid">
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">1 · Platform</span><span class="tc-count">≥5 Q</span></div><div class="tc-domains">CMDB, CSDM, IRE, Service Graph Connectors, Now Platform landing, Service Reliability Management</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">2 · ITOM</span><span class="tc-count">6 Q existing</span></div><div class="tc-domains">MID Server, Discovery, Service Mapping, Event Management, ACC, HLA, Metric Intelligence, AIOps Leap</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">3 · ITSM</span><span class="tc-count">2→5 Q · pilot</span></div><div class="tc-domains">Incident, Change, Problem, Service Catalog, On-Call, Walk-up — first topic through the pipeline</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">4 · AI / Now Assist</span><span class="tc-count">1→5 Q</span></div><div class="tc-domains">Now Assist (all products), AI Search, AI Agents, intelligent-experiences</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">5 · ITAM</span><span class="tc-count">2→5 Q</span></div><div class="tc-domains">HAM, SAM, stockroom, disposal, contracts, procurement</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">6 · Build / App Dev</span><span class="tc-count">0→5 Q</span></div><div class="tc-domains">App development, AI capabilities in custom apps, AI Agent Studio tooling, scripting &amp; API reference</div></div>
+    <div class="topic-card"><div class="tc-head"><span class="tc-name">7 · Edge Cases</span><span class="tc-count">4→5 Q</span></div><div class="tc-domains">Citation integrity, offset-jump, index paging cap, directory-listing ban, community pass, gap-statement discipline</div></div>
+  </div>
+
+  <h3>Live defects found during today's scoping — before anything shipped</h3>
+  <div class="finding bad">
+    <div class="f-head"><span class="f-title">Known Now-Assist-for-ITSM path is wrong</span><span class="badge bad">404 confirmed live</span></div>
+    <p>The documented pattern <code>now-assist-for-itsm/now-assist-itsm.md</code> 404s. The real folder, confirmed from the live index, is <code>now-assist-for-it-service-management-itsm/</code>. This has been a live fabrication source in the production command.</p>
+  </div>
+  <div class="finding warn">
+    <div class="f-head"><span class="f-title">A whole publication is missing from routing</span><span class="badge warn">Gap in both surfaces</span></div>
+    <p><code>application-development</code> is a real, live publication (624,025-byte index) and holds one of five newly-targeted paths — but neither surface's routing table mentions it today.</p>
+  </div>
+  <div class="finding ok">
+    <div class="f-head"><span class="f-title">Cross-publication taxonomy verified, not assumed</span><span class="badge ok">Confirmed by design</span></div>
+    <p>MID Server lives under <code>servicenow-platform/</code> (404s under <code>it-operations-management/</code>) yet is grouped under topic ITOM; Service Reliability Management is the reverse. Verified live both ways — the topic list intentionally tests the mirror's most-confused publication pair rather than avoiding it.</p>
+  </div>
+
+  <h3>Working agreement locked in for this phase</h3>
+  <div class="principle-list">
+    <div class="principle"><span class="p-num">01</span><span class="p-text"><strong>Verify, never infer</strong> — every path gets a live HTTP probe before it enters either surface or any ground truth.</span></div>
+    <div class="principle"><span class="p-num">02</span><span class="p-text"><strong>Search quality beats testing cost</strong> on every non-critical call — this is the tie-breaker, not run count.</span></div>
+    <div class="principle"><span class="p-num">03</span><span class="p-text"><strong>Community sources the question, the mirror sources the answer</strong> — the 20 net-new questions are drafted from real ServiceNow Community threads; ground truth never touches community content.</span></div>
+    <div class="principle"><span class="p-num">04</span><span class="p-text"><strong>n=3 on all 36 questions</strong> — 108 scored runs, ~118 with pre-ship baselines. A single run cannot distinguish a real pass from a lucky one.</span></div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap">
+  <div class="section-num">08 — Roadmap</div>
+  <h2>What's next</h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">Phase 1 — Pilot</div>
+      <h4>ITSM end-to-end</h4>
+      <p>Harvest live ITSM paths, write its 5 questions from Community threads, derive full ground truth on 2 deep questions — locks the template before it repeats across 6 more topics.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Phase 2 — Remaining topics</div>
+      <h4>Platform, AI, ITAM, Build, Edge</h4>
+      <p>Same process applied per topic, each batch approved before it's used for scoring.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Phase 3 — Pre-ship baseline</div>
+      <h4>Attribution before shipping</h4>
+      <p>n=1 baseline run on every question that targets a newly-added path — the only evidence that the coverage change itself caused an improvement.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Phase 4 — Ship</div>
+      <h4>Both surfaces, measured cap</h4>
+      <p>Code command grows freely; the Desktop instruction block's size ceiling is measured empirically, not guessed — additions ranked by value, stopped where a migrated question would regress.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Phase 5 — Score</div>
+      <h4>Full matrix, full ledger</h4>
+      <p>n=3 across all 36 questions, verdicts recorded topic-by-topic so a session break never loses more than the batch in flight.</p>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="f-head"><span class="f-title">Goal verification — what "done" means</span></div>
+    <p>All 36 questions carry a recorded verdict · all 5 newly-targeted paths appear as an actual fetch in a run sidecar, not just in question wording · the harness exits green on a live-served instruction set · no previously-passing question regresses. Coverage bought at the cost of adherence does not count as done.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  ServiceNow RAG — Search Routing Project · Prepared for internal demo, 2026-08-08 · Source artifacts: <code>servicenow_rag_plan.md</code>, <code>status-report-2026-07-30.md</code>, <code>desktop-v4-test-script-2026-07-29.md</code>, <code>performance-review-summary-2026-07-02.md</code>, <code>rag-coverage-topic-matrix-plan-2026-08-08.md</code> · Not an official ServiceNow artifact.
+</footer>
+
+</body>
+</html>
