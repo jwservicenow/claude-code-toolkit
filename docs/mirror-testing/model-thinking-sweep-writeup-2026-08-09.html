@@ -68,7 +68,28 @@
   Raw data: <code>model-thinking-sweep-results-2026-08-09.md</code> · Method: <code>model-thinking-sweep-plan-2026-08-09.md</code></p>
 </header>
 
-<h3 style="margin-top:0">Takeaway</h3>
+<h3 style="margin-top:0">The floor, and the recommendation</h3>
+<div class="cards">
+  <div class="card" style="border-left:3px solid var(--good)">
+    <div class="k">Desktop arm → recommended</div><div class="v">Sonnet 5 · medium</div>
+    <div class="d"><strong>$0.108/question</strong> at 1.00 accuracy — the cheapest cell reaching
+    the ceiling. Opus-high costs 136% more for exactly zero gain.</div></div>
+  <div class="card" style="border-left:3px solid var(--good)">
+    <div class="k">Code arm → recommended</div><div class="v">Opus 5 · medium</div>
+    <div class="d"><strong>$0.350/question</strong> — the only Code cell reaching 1.00, and 3.2× the
+    Desktop recommendation.</div></div>
+  <div class="card" style="border-left:3px solid var(--warn)">
+    <div class="k">Desktop budget variant</div><div class="v">Haiku 4.5</div>
+    <div class="d"><strong>$0.028/question</strong>, 3.9× cheaper, scoring 0.67 — and both misses
+    are PARTIALs (thin) rather than FAILs (wrong). Defensible for bulk triage; not for
+    customer-facing work.</div></div>
+</div>
+
+<p>On the Code arm the honest framing is that <strong>you are paying 3.2× the Desktop
+recommendation to make a big model forgiving of a retrieval bug.</strong> Sonnet-high gets to 0.83
+for $0.294 and half-misses the same question. Neither is a fix.</p>
+
+<h3>Takeaway</h3>
 
 <div class="lede">
 <p><strong>Desktop RAG (published Project Instructions)</strong><br>
@@ -457,27 +478,6 @@ this sample size.</p>
 <p class="lede" style="font-size:15px"><strong>Practical guidance:</strong> do not set high thinking
 as a default. Set it when a specific arm is underperforming, and then verify it actually moved
 something.</p>
-
-<h3>The floor, and the recommendation</h3>
-<div class="cards">
-  <div class="card" style="border-left:3px solid var(--good)">
-    <div class="k">Desktop arm → recommended</div><div class="v">Sonnet 5 · medium</div>
-    <div class="d"><strong>$0.108/question</strong> at 1.00 accuracy — the cheapest cell reaching
-    the ceiling. Opus-high costs 136% more for exactly zero gain.</div></div>
-  <div class="card" style="border-left:3px solid var(--good)">
-    <div class="k">Code arm → recommended</div><div class="v">Opus 5 · medium</div>
-    <div class="d"><strong>$0.350/question</strong> — the only Code cell reaching 1.00, and 3.2× the
-    Desktop recommendation.</div></div>
-  <div class="card" style="border-left:3px solid var(--warn)">
-    <div class="k">Desktop budget variant</div><div class="v">Haiku 4.5</div>
-    <div class="d"><strong>$0.028/question</strong>, 3.9× cheaper, scoring 0.67 — and both misses
-    are PARTIALs (thin) rather than FAILs (wrong). Defensible for bulk triage; not for
-    customer-facing work.</div></div>
-</div>
-
-<p>On the Code arm the honest framing is that <strong>you are paying 3.2× the Desktop
-recommendation to make a big model forgiving of a retrieval bug.</strong> Sonnet-high gets to 0.83
-for $0.294 and half-misses the same question. Neither is a fix.</p>
 
 <h3>What I'd do differently</h3>
 <ol>
