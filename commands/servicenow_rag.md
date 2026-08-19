@@ -152,6 +152,18 @@ Steps:
    first read at the fraction the topic's position in the publication implies, not at a
    round number.
 
+   INDEX WINDOW — read a probed index at `max_length` 45,000. Not smaller: 28,000 x 3
+   reads covers 84,000 characters, and a single product block in a large publication
+   index runs longer than that (the ACC block spans ~125,000), so a correctly bracketed
+   route still falls short of its target and reports a false gap. Not larger: a read
+   above ~45,000 exceeds the harness output cap and comes back as an error, not as
+   content — the fetch itself succeeded, so this is invisible to you and
+   indistinguishable from a short read. Measured live 2026-08-19: 45,000 returns full
+   content, 90,000 returns the cap error. A read that returns an error, or a
+   suspiciously small result for a large `max_length`, is a FAILED read, not a miss:
+   re-issue it at 45,000 and do not count it against the INDEX PAGING CAP. Only a read
+   that returns content counts.
+
    A cap-exhausted miss is never evidence of absence. If the INDEX PAGING CAP is reached
    without any read landing in the last 15% of a measured index, the file is UNLOCATED
    for want of coverage — say that, and do not report the topic as undocumented.
