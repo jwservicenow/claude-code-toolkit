@@ -152,6 +152,17 @@ Steps:
    first read at the fraction the topic's position in the publication implies, not at a
    round number.
 
+   TAIL FIRST — on a probed index, the FIRST read opens at the START of the last 15% of
+   the measured length, not deeper, unless the topic is known to sit elsewhere. On the
+   1.18MB ITOM index that is offset ~1,003,000: first reads at 760,000 or 880,000 sit in
+   the middle third and can only miss, and a first read at 1,140,000 skips the front of
+   the tail entirely. Page forward from there CONTIGUOUSLY — each next read opens where
+   the previous one ended (`start_index` + `max_length`), never at a fresh guess — so the
+   reads sweep an unbroken span instead of leaving holes between them. Three 45,000 reads
+   cover 135,000 chars and the last 15% of a 1.18MB index is ~177,000, so a contiguous
+   sweep plus the single TAIL BEFORE UNLOCATED read below covers the tail end to end; a
+   scattered one cannot, however well each individual offset is reasoned.
+
    INDEX WINDOW — read a probed index at `max_length` 45,000. Not smaller: 28,000 x 3
    reads covers 84,000 characters, and a single product block in a large publication
    index runs longer than that (the ACC block spans ~125,000), so a correctly bracketed
@@ -164,9 +175,18 @@ Steps:
    re-issue it at 45,000 and do not count it against the INDEX PAGING CAP. Only a read
    that returns content counts.
 
-   A cap-exhausted miss is never evidence of absence. If the INDEX PAGING CAP is reached
-   without any read landing in the last 15% of a measured index, the file is UNLOCATED
-   for want of coverage — say that, and do not report the topic as undocumented.
+   TAIL BEFORE UNLOCATED — never report a file UNLOCATED while unread bytes remain
+   between your deepest content-returning read and the measured EOF. Reads that stop at
+   1,138,000 against an EOF probed at ~1,180,000 leave ~42,000 chars unread in the
+   highest-probability region of the file; stopping there is a coverage failure, not a
+   finding. Issue ONE read that RESUMES at the end of your deepest read — `start_index`
+   equals that read's start plus its `max_length`, not the midpoint of the unread gap and
+   not a fresh guess — so the sweep stays contiguous and nothing between the two is
+   skipped. That single read is exempt from the INDEX PAGING CAP; it is the only exempt
+   read, it may be taken only once per index, and the cap binds normally on every read
+   before and after it. Once the tail read is spent and the term is still missing, the
+   file is UNLOCATED for want of coverage — say that, and do not report the topic as
+   undocumented. A cap-exhausted miss is never evidence of absence.
 
    INDEX PAGING CAP — when paging an index.md to LOCATE a file, stop after 3 chunks with
    no hit on the term or its synonyms. Don't keep walking the index; switch to a known
@@ -177,14 +197,19 @@ Steps:
    inside the cap and even if the answer is eventually found. This caps index NAVIGATION
    only — it does not limit fetches of content files, and it never overrides the
    pagination floor (a LIST/CATALOG/ALL request still pages its content file to EOF) or
-   the requirement to show index evidence before claiming a topic is absent.
+   the requirement to show index evidence before claiming a topic is absent. The cap is a
+   precondition on the call, not a target to notice afterward: count the index reads that
+   returned content before every new index fetch, and if three already have, the only
+   legitimate next fetch is the single TAIL BEFORE UNLOCATED read, a known direct path, or
+   none. A fourth counted index read is malformed. Failed reads re-issued under INDEX
+   WINDOW and probes under INDEX LENGTH PROBE are not counted.
 
    WHEN THE BRACKET MISSES — two or more index reads that come back without the term
    license exactly two moves, and no others. First, widen: re-read between the two offsets
    you hold, or past the outer one, at full `max_length` — a miss at 180,000 and one at
    430,000 leave ~250,000 chars unread between them, and the term sits in that gap far more
-   often than it is genuinely absent. Second, once the INDEX PAGING CAP is reached, stop
-   locating: the file is UNLOCATED and you report that gap in the answer. The SEARCH
+   often than it is genuinely absent. Second, once the INDEX PAGING CAP is reached AND
+   TAIL BEFORE UNLOCATED is satisfied, stop locating: the file is UNLOCATED and you report that gap in the answer. The SEARCH
    FALLBACK LADDER in Step 4 may still run, but it supplies community evidence and
    citations only — it never converts into a mirror path to fetch. An answer that names the
    gap is correct; an answer built from a file you were not entitled to fetch is not, even
@@ -224,7 +249,15 @@ Steps:
    That holds whether or not you believe you already have the answer.
 
    MINIMUM WINDOW — every fetch of a CONTENT file uses `max_length` of at least
-   30,000, or the file's stated size when one is listed, whichever is smaller. CONTENT
+   30,000, or the file's stated size plus 5,000 when one is listed, whichever is smaller.
+   The 5,000 margin is a staleness probe: stated sizes are live counts from the validation
+   date, and a file that has grown since returns content past its stated end. The test is
+   arithmetic and it runs against what you REQUESTED, never against the stated size — if
+   the bytes returned come back at (or within a few of) the `max_length` you asked for,
+   the file continued past your window: treat the stated size as stale, re-read at 30,000
+   or more, and use the longer result. A read that returns FEWER bytes than you requested
+   reached EOF and is complete, even when the count lands exactly on the stated size; that
+   is the normal case for an accurate size and it triggers nothing. CONTENT
    means any page you fetch to read what it says — mirror markdown, a Store listing, a
    community thread — not the mirror alone; a capped read of a Store page is the same
    defect as a capped read of a mirror file. This is a precondition on the call, not a
