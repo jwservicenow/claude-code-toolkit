@@ -128,6 +128,34 @@ Steps:
    never a compliant route to a mirror file, however large the publication and however
    confident the search result looks.
 
+   INDEX LENGTH PROBE — before paging any publication index.md, measure its true length
+   first. A read whose `start_index` is past EOF returns a ~250-byte "No more content
+   available" stub; a read inside the file returns content. Two to four reads at
+   `max_length` 300 binary-search the end: probe high (2,000,000), halve on a stub,
+   widen on content, and stop once you hold one offset that returns content and one
+   within ~50,000 of it that returns a stub. Each probe costs ~300 bytes. Probes are NOT
+   index reads: they do not count against the INDEX PAGING CAP, they do not satisfy the
+   INDEX FLOOR, and they are exempt from MINIMUM WINDOW only because `index.md` and
+   `llms.txt` are already exempt. Never probe a CONTENT file this way — the 30,000 floor
+   binds there without exception.
+
+   Once probed, the index HAS a stated size, so FILE SIZE BOUND's bracketing branch
+   applies and its doubling branch does not. In particular the "never issue a
+   `start_index` more than one window past the deepest offset that returned full-length
+   content" limit does not bind on a probed index: that limit exists to keep you from
+   guessing against an unknown EOF, and you are no longer guessing.
+
+   Bracket by FRACTION of the measured length, never by absolute offset. In a large
+   publication index the product subdirectories cluster in the LAST 15%: on the 1.18MB
+   ITOM index the agent-client-collector block begins at 0.87x length, so offsets of
+   12,000 / 180,000 / 400,000 all sit in the first third and can only miss. Choose the
+   first read at the fraction the topic's position in the publication implies, not at a
+   round number.
+
+   A cap-exhausted miss is never evidence of absence. If the INDEX PAGING CAP is reached
+   without any read landing in the last 15% of a measured index, the file is UNLOCATED
+   for want of coverage — say that, and do not report the topic as undocumented.
+
    INDEX PAGING CAP — when paging an index.md to LOCATE a file, stop after 3 chunks with
    no hit on the term or its synonyms. Don't keep walking the index; switch to a known
    direct path below, or state the gap. The first read of ANY index.md must never be
@@ -248,9 +276,20 @@ Steps:
      r_SupportedApplications.md lists the same applications but gives only the display
      label and pattern name — it contains ZERO cmdb_ci_* strings and can never answer a
      "what is the table name" question. Don't stop there.
-   - ACC (it-operations-management/agent-client-collector/, flat): acc-sys-requirements.md,
-     acc-install-windows.md, acc-configuring-without-mid.md. Supported-OS matrix is a HARD
-     GAP — not in the mirror, punt to the ServiceNow Store page + login-gated KB.
+   - ACC (it-operations-management/agent-client-collector/, flat — the ACC block begins at
+     0.87x the length of the 1.18MB ITOM index, so ordinary index paging will not reach it;
+     go direct): acc-sys-requirements.md (6,193), acc-install-windows.md,
+     acc-configuring-without-mid.md, acc-yml-options.md (9,783 — the acc.yml configuration
+     option reference).
+     Checks and policies span FOUR files; pick by which product layer is asked about:
+     checks-policies.md (10,156 — the concept: what a check is, what a policy is, how they
+     bind to devices; start here for a general "ACC checks and policies" question),
+     acc-visibility-checks-policies.md (13,457 — the ACC for Visibility default check and
+     policy catalog plus its business rule), acc-framework-checks-policies.md (1,931 — the
+     ACC Framework default checks, a short list; not the ACC-VC catalog),
+     acc-custom-checks.md (4,507 — adapting a community Sensu check into a plugin).
+     Sizes confirmed live 2026-08-19. Supported-OS matrix is a HARD GAP — not in the
+     mirror, punt to the ServiceNow Store page + login-gated KB.
    - Cloud discovery patterns (Azure/AWS/GCP resource-level pattern catalogs, e.g. "what
      Azure/AWS/GCP discovery patterns exist"): NOT under service-mapping/ or servicenow-platform/
      despite the routing table above — actual folder is
