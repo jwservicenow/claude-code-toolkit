@@ -160,7 +160,7 @@ Steps:
    the previous one ended (`start_index` + `max_length`), never at a fresh guess — so the
    reads sweep an unbroken span instead of leaving holes between them. Three 45,000 reads
    cover 135,000 chars and the last 15% of a 1.18MB index is ~177,000, so a contiguous
-   sweep plus the single TAIL BEFORE UNLOCATED read below covers the tail end to end; a
+   sweep plus the single TAIL BEFORE LEAVING read below covers the tail end to end; a
    scattered one cannot, however well each individual offset is reasoned.
 
    INDEX WINDOW — read a probed index at `max_length` 45,000. Not smaller: 28,000 x 3
@@ -175,11 +175,16 @@ Steps:
    re-issue it at 45,000 and do not count it against the INDEX PAGING CAP. Only a read
    that returns content counts.
 
-   TAIL BEFORE UNLOCATED — never report a file UNLOCATED while unread bytes remain
-   between your deepest content-returning read and the measured EOF. Reads that stop at
-   1,138,000 against an EOF probed at ~1,180,000 leave ~42,000 chars unread in the
-   highest-probability region of the file; stopping there is a coverage failure, not a
-   finding. Issue ONE read that RESUMES at the end of your deepest read — `start_index`
+   TAIL BEFORE LEAVING — never LEAVE a probed index while unread bytes remain between
+   your deepest content-returning read and the measured EOF. Reporting UNLOCATED is one way
+   of leaving; so is switching to a known direct path, so is answering the question from a
+   file you already hold, and so is deciding the topic is adequately covered by an adjacent
+   page. All of them are exits, and the coverage precondition binds on every one of them
+   equally. An answer assembled from substitute files while the tail sits unread is a
+   coverage failure wearing the costume of a finding — it is worse than an UNLOCATED report,
+   because it looks like success. Reads that stop at 1,138,000 against an EOF probed at
+   ~1,180,000 leave ~42,000 chars unread in the highest-probability region of the file;
+   stopping there is a coverage failure, not a finding. Issue ONE read that RESUMES at the end of your deepest read — `start_index`
    equals that read's start plus its `max_length`, not the midpoint of the unread gap and
    not a fresh guess — so the sweep stays contiguous and nothing between the two is
    skipped. That single read is exempt from the INDEX PAGING CAP; it is the only exempt
@@ -200,16 +205,22 @@ Steps:
    the requirement to show index evidence before claiming a topic is absent. The cap is a
    precondition on the call, not a target to notice afterward: count the index reads that
    returned content before every new index fetch, and if three already have, the only
-   legitimate next fetch is the single TAIL BEFORE UNLOCATED read, a known direct path, or
+   legitimate next fetch is the single TAIL BEFORE LEAVING read, a known direct path, or
    none. A fourth counted index read is malformed. Failed reads re-issued under INDEX
-   WINDOW and probes under INDEX LENGTH PROBE are not counted.
+   WINDOW and probes under INDEX LENGTH PROBE are not counted. The cap is also a FLOOR once
+   a tail sweep has begun. If TAIL FIRST has opened a contiguous sweep and the term has NOT
+   been found, you spend the remaining counted reads before you may leave the index —
+   stopping at one or two reads with the cap unspent is malformed in the same way a fourth
+   read is. Finding the term ends the sweep immediately and the floor does not apply; the
+   floor governs only the case where you have not found it and are tempted to leave early.
+   Two reads that missed are not evidence the file is elsewhere. They are two reads.
 
    WHEN THE BRACKET MISSES — two or more index reads that come back without the term
    license exactly two moves, and no others. First, widen: re-read between the two offsets
    you hold, or past the outer one, at full `max_length` — a miss at 180,000 and one at
    430,000 leave ~250,000 chars unread between them, and the term sits in that gap far more
    often than it is genuinely absent. Second, once the INDEX PAGING CAP is reached AND
-   TAIL BEFORE UNLOCATED is satisfied, stop locating: the file is UNLOCATED and you report that gap in the answer. The SEARCH
+   TAIL BEFORE LEAVING is satisfied, stop locating: the file is UNLOCATED and you report that gap in the answer. The SEARCH
    FALLBACK LADDER in Step 4 may still run, but it supplies community evidence and
    citations only — it never converts into a mirror path to fetch. An answer that names the
    gap is correct; an answer built from a file you were not entitled to fetch is not, even
