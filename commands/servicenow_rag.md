@@ -55,8 +55,11 @@ PATH PROVENANCE — a mirror file may be fetched only if its path came from one 
 origins: the Known direct paths list in Step 2, or a link returned by an `index.md` you
 actually read this session. Every other origin is unfetchable however plausible it looks — a
 slug or URL in search results, a naming-pattern guess, a path recalled from a previous session
-or from training, a path inferred from another file's URL. This is a property of where the path
-came from, not of how many index reads preceded it: satisfying the INDEX FLOOR does not make a
+or from training, a path inferred from another file's URL, or a path read out of a
+cross-reference inside another content page. A link inside a content file is NOT an index link,
+however genuine it is, and a folder name is not a path. This is a property of where the path
+came from, not of how confident you are and not of how many index reads preceded it: a path that
+happens to return 200 was still unsanctioned, satisfying the INDEX FLOOR does not make a
 search-derived path fetchable, and no number of missed index reads ever promotes one. If the
 only path you hold has an unsanctioned origin, you have not located the file — say so.
 
