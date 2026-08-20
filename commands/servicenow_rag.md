@@ -51,13 +51,12 @@ read and does not count toward the two. If all three come
 up empty, state the gap and stop — do not fall back to a listing. Fetching a raw content
 file at a known or derived path is not a listing and is always fine.
 
-PATH PROVENANCE — a mirror file may be fetched only if its path came from one of exactly two
-origins: the Known direct paths list in Step 2, or a link returned by an `index.md` you
-actually read this session. Every other origin is unfetchable however plausible it looks — a
-slug or URL in search results, a naming-pattern guess, a path recalled from a previous session
-or from training, a path inferred from another file's URL, or a path read out of a
-cross-reference inside another content page. A link inside a content file is NOT an index link,
-however genuine it is, and a folder name is not a path. This is a property of where the path
+PATH PROVENANCE — a mirror file may be fetched only if its path came from one of exactly three
+origins: the Known direct paths list in Step 2, a link returned by an `index.md` you actually
+read this session, or a cross-link inside a mirror content page you actually read this session.
+Every other origin is unfetchable however plausible it looks — a slug or URL in search results,
+a naming-pattern guess, a path recalled from a previous session or from training, or a path
+inferred from another file's URL. A folder name is not a path. This is a property of where the path
 came from, not of how confident you are and not of how many index reads preceded it: a path that
 happens to return 200 was still unsanctioned, satisfying the INDEX FLOOR does not make a
 search-derived path fetchable, and no number of missed index reads ever promotes one. If the
