@@ -7,9 +7,15 @@ Everything here works inside **Claude Code** (the command-line app). Some tools 
 | Tool | What it does |
 |------|-------------|
 | [Claude Desktop RAG](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-mirror-desktop-guide.html) **· v3** | Claude Desktop can't read the ServiceNow docsite directly — this fixes it. Wires in a custom MCP fetch server to pull from the [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs), then locks it down with Project Instructions that re-enforces docsite-only answers with citable URLs. |
-| [/servicenow_rag](#servicenow_rag) | Claude Code RAG skill — Fetches from ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) first, then KB, Community, and developer sites in order. Grounded answers with citable URLs; AI assumptions flagged explicitly. |
-| [/newsession](#newsession) | Long chat getting slow or pricey? Turn it into a compact handoff you paste into a fresh session — after a quick check for loose ends worth finishing first |
+| [/servicenow_rag](#servicenow_rag) | Claude Code RAG skill — Navigates ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) from its published index down to the exact topic file, then supplements with a scoped ServiceNow Community search. Answers are cited to real docs.servicenow.com URLs; it won't invent a doc path, and says so when the docs don't cover something. |
+| [/newsession](#newsession) | Long chat getting slow or pricey? Turn it into a compact handoff you paste into a fresh session — goal, decisions, constraints, next action, written straight to your project folder |
 | [/newplan](#newplan) | Turn a goal into an approved, written plan — interviews you, asks clarifying questions, provides 3–4 ranked approaches with trade-offs, saved as a plan file; every plan ends with a built-in closure step (status DONE + archive) |
+| [/security-audit](#security-audit) | Scans the whole codebase for OWASP Top 10 patterns, dependency CVEs, hardcoded secrets, weak auth, and risky config — an audit of everything, not just your pending diff |
+| [/ai-security](#ai-security) | Security review for AI/LLM systems and agents — prompt injection (direct and indirect), agent tool abuse, guardrail resistance, model inversion and data-poisoning exposure, mapped to MITRE ATLAS |
+| [/deps-audit](#deps-audit) | Dependency health check — known vulnerabilities, outdated and unused packages, license compliance. Detects your package manager (npm/yarn/pnpm, pip/poetry, …) and ranks what to fix first |
+| [/prompt-sweep](#prompt-sweep) | Housekeeping backstop — finds retired `/newsession` handoff files and, with your consent, files the superseded ones into each project's own `archive/`. Never touches an active prompt, never deletes |
+| [RAG demo walkthrough](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-rag-demo-walkthrough-2026-08-08.html) | Annotated end-to-end run of `/servicenow_rag` against a real question — what it fetches, in what order, and why |
+| [Mirror retrieval testing](docs/mirror-testing/) | Test artifacts and mirror-side recommendations from evaluating the ServiceNow docs mirror as an AI retrieval source, plus the [model × thinking-effort benchmark](https://jwservicenow.github.io/claude-toolkit/docs/mirror-testing/model-thinking-sweep-writeup-2026-08-09.html) behind the model guidance |
 | [PDI integration - native MCP install](docs/pdi_native_mcp_install_guide.md) | Connect Claude Code to ServiceNow using the platform's ootb MCP — no scripts needed, OAuth 2.1 security profile with PKCE, 17 purpose-built tools |
 | [Status bar](#status-bar-customization) | Show model, context size, usage bar, and session cost at the bottom of Claude Code session UI |
 | [Using Multiple Claude Subscriptions on Mac](docs/dual-subscription-setup.md) | Run ServiceNow's Enterprise account and your personal Claude account on the same Mac without them mixing — separate configs, separate sessions |
@@ -33,7 +39,7 @@ Follow the steps inside — about 10 minutes total.
 
 ### `/servicenow_rag`
 
-Claude Code version — Fetches directly from ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) before answering. The same plain-text source ServiceNow publishes for AI tools. Supplements with Support site KBs, Community posts, and developer.servicenow.com in priority order. Every answer is grounded in a retrieved source; anything drawn from AI training knowledge is explicitly flagged as an assumption.
+Claude Code version — Retrieves from ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) before answering: the same plain-text source ServiceNow publishes for AI tools. It navigates the mirror's own index down to the exact topic file, reads that file to the end, then adds a scoped ServiceNow Community pass for the operational detail the docs omit. Every answer is grounded in a page it actually retrieved and cited to a real `docs.servicenow.com` URL — and where the documentation genuinely doesn't cover something, it says so instead of filling the gap from training knowledge.
 
 
 <details>
@@ -41,14 +47,13 @@ Claude Code version — Fetches directly from ServiceNow's official [GitHub docs
 
 ServiceNow publishes a copy of their documentation as plain text files on GitHub at `ServiceNow/ServiceNowDocs`, specifically so AI tools can read it. This command goes straight to that source:
 
-1. Looks up the right documentation bundle from ServiceNow's published index.
-2. Finds the specific topic file in that bundle and reads it — citing the real docs.servicenow.com URL.
-3. Supplements with Now Support KB (~90% trusted) — known issues, gotchas, platform-specific behavior.
-4. Supplements with ServiceNow Community (~80% trusted) — real-world workarounds and operational context.
-5. Supplements with developer.servicenow.com (~90% trusted) — APIs, scripting references, how-to guides.
-6. Supplements with the official @servicenow YouTube channel (reference only) — surfaces video links, content not fetchable.
-7. Falls back to the same sources if the mirror has nothing — flagged clearly so you know what's grounded vs. assumed.
-8. Stops and tells you if retrieval fails entirely. Any training-knowledge gap is explicitly flagged as an assumption.
+1. Reads the mirror's published `llms.txt` index to pick the right documentation bundle, and derives the current release family from it rather than assuming one.
+2. Fetches that bundle's `index.md` and pages through it to locate the specific topic file.
+3. Fetches the topic file and reads it to the end — no answering off a truncated first screen.
+4. Supplements with a `site:`-scoped ServiceNow Community search for the operational gotchas and real-world behavior the docs leave out.
+5. Cites the real `docs.servicenow.com` URL from the file's own front matter, paired with the doc's last-updated date.
+
+Two guardrails do most of the work. It can only fetch a doc path that came from a sanctioned origin — its verified known-path list, a link in an index it actually read, or a cross-link inside a page it actually read — so it can't quietly invent a plausible-looking path. And when retrieval genuinely comes up empty it stops and says so, rather than sliding into a substitute answer from training knowledge.
 
 </details>
 
@@ -72,7 +77,9 @@ If Claude fetches from GitHub before answering, it's working. If it answers imme
 
 ### `/newsession`
 
-Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it does two things: first it scans the session for loose ends and asks whether any are better finished *now* than handed off; then it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history. Re-run it on a later day and the previous handoff is kept and marked *superseded* (not deleted), so you keep a trail; re-run it the **same day** and it overwrites, so same-day edits don't pile up files.
+Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history.
+
+It doesn't interview you first. Unfinished work goes into the handoff's *Next action* and *Deferred* sections; the only thing it stops to flag is something genuinely urgent that would break if the session flushed without it. Previous handoffs are kept and marked *superseded*, never deleted, so you keep a trail — a same-day re-run gets a letter suffix (`…-08-20b.md`, then `…-08-20c.md`) rather than overwriting. `/newsession fast` writes the file silently and prints nothing at all.
 
 Optionally pass a filename and the next session will be shaped around that file:
 ```
@@ -109,6 +116,74 @@ curl -o ~/.claude/skills/newplan/SKILL.md \
 ```
 
 Restart Claude Code. Then type `/newplan`.
+
+---
+
+### `/security-audit`
+
+Type `/security-audit` and it scans the entire project — OWASP Top 10 patterns, known CVEs in your dependencies, hardcoded secrets, authentication and authorization weaknesses, and risky configuration. Broader than a code review of your pending changes: it audits the whole codebase and hands back findings ranked by severity.
+
+**Install**
+
+```bash
+mkdir -p ~/.claude/skills/security-audit
+curl -o ~/.claude/skills/security-audit/SKILL.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/security-audit/SKILL.md
+```
+
+Restart Claude Code. Then type `/security-audit`.
+
+---
+
+### `/ai-security`
+
+The model-and-agent layer, which a normal application scan misses entirely. Type `/ai-security` and it assesses LLM-based systems for prompt injection (both direct and indirect, via retrieved content), agent tool abuse, guardrail and blocklist resistance, and model inversion or data-poisoning exposure — mapped to MITRE ATLAS so findings line up with a recognized framework.
+
+Use it alongside `/security-audit` (application layer) and `/deps-audit` (supply chain), not instead of them.
+
+**Install**
+
+```bash
+mkdir -p ~/.claude/skills/ai-security
+curl -o ~/.claude/skills/ai-security/SKILL.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/SKILL.md
+```
+
+Restart Claude Code. Then type `/ai-security`.
+
+---
+
+### `/deps-audit`
+
+Type `/deps-audit` for a health check on everything your project pulls in: known security vulnerabilities, packages that have fallen behind, dependencies nothing imports any more, and license compliance. It works out which package manager you're on (npm/yarn/pnpm, pip/poetry, and others) and produces a prioritized report rather than a raw dump.
+
+**Install**
+
+```bash
+mkdir -p ~/.claude/skills/deps-audit
+curl -o ~/.claude/skills/deps-audit/SKILL.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/deps-audit/SKILL.md
+```
+
+Restart Claude Code. Then type `/deps-audit`.
+
+---
+
+### `/prompt-sweep`
+
+Housekeeping for anyone using `/newsession` regularly. Handoff files accumulate — each new one supersedes the last, but the old ones stay put on purpose so you keep a trail. Run `/prompt-sweep` every month or so and it finds the retired ones and, with your approval (per file, or approve-all), files them into each project's own `archive/`.
+
+It won't touch a prompt that's still active, won't move anything between unrelated projects, and never deletes.
+
+**Install**
+
+```bash
+mkdir -p ~/.claude/skills/prompt-sweep
+curl -o ~/.claude/skills/prompt-sweep/SKILL.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/SKILL.md
+```
+
+Restart Claude Code. Then type `/prompt-sweep`.
 
 ---
 

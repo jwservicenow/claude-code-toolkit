@@ -11,7 +11,10 @@ assistant can answer ServiceNow technical questions from that mirror, and recomm
 improvements where retrieval breaks down.
 
 The cross-bundle rollup lives in [`SUMMARY.md`](SUMMARY.md). The post-republish before/after
-verification (June 25, 2026) lives in [`RESWEEP-2026-06-25.md`](RESWEEP-2026-06-25.md).
+verification (June 25, 2026) lives in [`RESWEEP-2026-06-25.md`](RESWEEP-2026-06-25.md). The
+[model × thinking-effort benchmark](https://jwservicenow.github.io/claude-toolkit/docs/mirror-testing/model-thinking-sweep-writeup-2026-08-09.html)
+(August 9, 2026) measures which model and thinking level actually retrieve correctly, and what
+each costs per question.
 
 ## Layout
 
@@ -24,6 +27,11 @@ mirror-testing/
   itsm/      ITSM testing
   platform/  servicenow-platform bundle testing (CMDB, CSDM, Service Catalog,
              Knowledge Management, MID Server, Dependency Views)
+
+  SUMMARY.md                             cross-bundle rollup
+  RESWEEP-2026-06-25.md                  post-republish before/after verification
+  model-thinking-sweep-writeup-*.html    model x thinking-effort benchmark
+  TEST-PLAN-TEMPLATE.md                  blank scaffold for a new bundle
 ```
 
 Each bundle folder follows the same convention:
