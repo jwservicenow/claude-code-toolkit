@@ -236,6 +236,13 @@ Steps:
    never a compliant route to a mirror file, however large the publication and however
    confident the search result looks.
 
+   The floor binds on ENTRY as well as on exit: before your FIRST content fetch inside a
+   publication, you must either hold a Known direct paths entry for that exact file, or have
+   read that publication's `index.md` this session. Reading `llms.txt` does not satisfy this —
+   `llms.txt` is the entry point, not an index, and it returns no file paths. A run that goes
+   from `llms.txt` straight to a content file has taken zero index reads and every path it
+   holds is a guess, however plausible the folder and filename look together.
+
    INDEX LENGTH PROBE — before paging any publication index.md, measure its true length
    first. A read whose `start_index` is past EOF returns a ~250-byte "No more content
    available" stub; a read inside the file returns content. Two to four reads at
