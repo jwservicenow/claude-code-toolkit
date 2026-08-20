@@ -180,7 +180,13 @@ Steps:
    of leaving; so is switching to a known direct path, so is answering the question from a
    file you already hold, and so is deciding the topic is adequately covered by an adjacent
    page. All of them are exits, and the coverage precondition binds on every one of them
-   equally. An answer assembled from substitute files while the tail sits unread is a
+   equally. This bars leaving without having located the term — it does not apply once the
+   term or its link has actually been found inside a read: locating the target ends the
+   search, and unread bytes past that point are irrelevant, the same carve-out INDEX PAGING
+   CAP states for the floor ("finding the term ends the sweep immediately"). The coverage
+   requirement binds only when you are leaving without the term found — reporting UNLOCATED,
+   switching to a known direct path because the sweep gave up, or answering from a
+   substitute/adjacent file in place of the real target. An answer assembled from substitute files while the tail sits unread is a
    coverage failure wearing the costume of a finding — it is worse than an UNLOCATED report,
    because it looks like success. Reads that stop at 1,138,000 against an EOF probed at
    ~1,180,000 leave ~42,000 chars unread in the highest-probability region of the file;
@@ -337,6 +343,13 @@ Steps:
      go direct): acc-sys-requirements.md (6,193), acc-install-windows.md,
      acc-configuring-without-mid.md, acc-yml-options.md (9,783 — the acc.yml configuration
      option reference).
+     hla-acc-log-policies.md (8,849 — confirmed live 2026-08-19 — creating an ACC Log Policy
+     under ACC Log Analytics (ACC-L), a separate Store-installed app from the
+     checks-and-policies family below. This is the file for "how do I create an ACC log
+     policy" / "ACC log policy" questions. Do NOT start at checks-policies.md for these —
+     that file covers ACC's own check/policy concept [All > ACC > Checks/Policies], not
+     ACC-L's Log Policies [All > ACC Log Analytics > ACC Log Policies]. The two are easy to
+     conflate because both answer to "ACC ... policy.")
      Checks and policies span FOUR files; pick by which product layer is asked about:
      checks-policies.md (10,156 — the concept: what a check is, what a policy is, how they
      bind to devices; start here for a general "ACC checks and policies" question),
