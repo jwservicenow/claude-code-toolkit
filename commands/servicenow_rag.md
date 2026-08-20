@@ -65,7 +65,22 @@ only path you hold has an unsanctioned origin, you have not located the file —
 
 Steps:
 1. Fetch the publication index:
-   https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/australia/llms.txt
+   https://raw.githubusercontent.com/ServiceNow/ServiceNowDocs/{branch}/llms.txt
+   For {branch} see BRANCH DERIVATION below. On a first query with nothing cached, fetch the
+   `australia` copy to read its latest-release line, then re-fetch on the family it names.
+
+   WHAT llms.txt IS AUTHORITATIVE FOR — it is the mandatory entry point and the authority on
+   WHICH FAMILY IS LATEST. It is NOT a complete or clean publication inventory and must never
+   be used as one. Measured 2026-08-20 on `australia`: llms.txt lists 51 publications while the
+   live `markdown/` tree holds 56 directories. Six live publications are absent from it
+   (`roles-by-product`, `vocabulary`, and the four `delta-*-australia` upgrade guides), and one
+   entry it does list is dead in both directions — `product-directory` 404s as an index AND as
+   a directory. "Not in llms.txt" is therefore never evidence a publication does not exist;
+   probe the path before saying so.
+
+   The routing table below has TWO jobs because of that: it disambiguates where llms.txt's
+   one-line descriptions cannot, AND it carries the publications llms.txt omits.
+
    Match the question to the right publication using this routing table (folder name → publication):
      CMDB, CSDM, IRE, MID Server, Service Graph Connectors  → servicenow-platform
      Discovery, Service Mapping, Event Management, ACC,
@@ -83,9 +98,15 @@ Steps:
            mid-server, service-graph-connectors, now-assist-for-configuration-management-database-cmdb
          it-operations-management: agent-client-collector, discovery,
            discovery-and-service-mapping-patterns, event-management, health-log-analytics,
-           itom-visibility, metric-intelligence, now-assist-for-it-operations-management,
-           service-mapping, service-observability, service-reliability-management,
+           itom-visibility, metric-intelligence, service-mapping, service-observability,
+           service-reliability-management,
            aiops-leap-learning-enhanced-automation-playbooks
+           NOTE: `now-assist-for-it-operations-management/` was in this list until the
+           17 August 2026 refresh and is GONE as a folder — every path under it 404s,
+           re-probed 2026-08-20. TRAP: the old folder name now names a flat FILE
+           (`it-operations-management/now-assist-for-it-operations-management.md`), so the
+           name still resolves — as a page, never as a directory. Appending a filename to it
+           always 404s. See the ITOM Now Assist bullet in Step 2 for the current layout.
      ITSM, Incident, Change, Problem, Service Catalog        → it-service-management
      ITAM, Software Asset, HAM, SAM                         → it-asset-management
      CSM, Customer workflows                                 → customer-service-management
@@ -100,13 +121,97 @@ Steps:
        Now Assist for ITOM → it-operations-management (NOT servicenow-platform — that
        routing was wrong and cost two 404s + a timeout on 2026-07-30; see the ITOM
        direct paths in Step 2), Now Assist for CSM → customer-service-management
-   If uncertain, pick the best match from the full list in llms.txt.
-   Default branch is australia (current GA). Use xanadu/yokohama/zurich if the question specifies.
+       There is NO "now-assist" publication of its own; that guess has no folder to land in.
+     -- rows below carry publications llms.txt OMITS; they are not optional extras --
+     Role lists per product ("what roles does X need")       → roles-by-product
+     Term/synonym normalization, doc-site vocabulary         → vocabulary
+     Upgrade delta, "what changed between {family} and now"  → delta-{family}-australia
+       (delta-washingtondc-australia, delta-xanadu-australia, delta-yokohama-australia,
+        delta-zurich-australia — all live, none listed in llms.txt)
+     Store app release notes      → branch `store`,  publication store-release-notes
+     Mobile release notes         → branch `mobile`, publication mobile-release-notes
+     Release notes tied to no release family → branch `other`, publication other-release-notes
+       (the three above are SIBLING BRANCHES, see below — not folders on a family branch)
+     DEAD, never route here: product-directory — listed in llms.txt, 404 as index AND as
+       directory, confirmed 2026-08-20.
+   If uncertain, prefer a publication llms.txt lists — but do not stop there. The rows above
+   for roles-by-product, vocabulary and the delta guides exist precisely because llms.txt
+   omits them, and a topic matching one of those rows routes there regardless.
+
+   BRANCH DERIVATION — do not hardcode the family. llms.txt states the current one in prose,
+   byte-identical in `llms.txt` and `llms_template.txt`: read the "<family> is the latest
+   release" line and use that family as the branch for every fetch this session. The mirror
+   keeps only THREE family branches — four during an early-access window — and DELETES THE
+   OLDEST AT GA, so a family that answered last month can be gone today; that is why the
+   hardcoded default was removed. Live as of 2026-08-20: australia (latest), zurich, yokohama,
+   xanadu. Use an older family only when the question names it, and if that family 404s say
+   the mirror no longer carries it rather than silently answering from the latest. If the
+   latest-release line cannot be parsed, fall back to `australia` and SAY that you fell back.
+
+   SIBLING BRANCHES — release-notes content lives OUTSIDE the four family branches, on its own
+   branches, each with its own README, llms.txt and markdown tree: `store`
+   (store-release-notes, index 606,749 B), `mobile` (mobile-release-notes, 179,458 B), `other`
+   (other-release-notes, 15,991 B). `nofamily` holds `using-this-site` and `accessibility` but
+   its llms.txt Documents section is EMPTY, so enter that branch by direct path, not via
+   llms.txt. `main` is an unrendered template — never a retrieval target. A Store or mobile
+   release-notes question is not a mirror gap, it is a branch you have not switched to. This is
+   narrower than "Store content is in the mirror": Store RELEASE NOTES are; Store app listings
+   still are not.
+
+   BRANCH REPAIR — the mirror's own contract is that all inter-publication links are absolute
+   raw URLs, which is the documented basis for "copy links verbatim, never construct". That
+   contract has a known leak: the llms.txt files on `store`, `mobile` and `other` emit every
+   document link under branch `globalcodefreeze`, which DOES NOT EXIST. Verified 2026-08-20 -
+   `globalcodefreeze/markdown/store-release-notes/index.md` 404s while the same path on
+   `store` returns 200. So: if a link's `{branch}` segment differs from the branch whose
+   llms.txt you fetched, substitute the branch you are on and fetch that. This is the ONLY
+   sanctioned edit to a verbatim link — everything after `{branch}/` is still copied character
+   for character, never guessed. The `australia` llms.txt is clean (all 51 links say australia)
+   so family arms are unaffected today; check anyway rather than assuming.
 
 2. Fetch that publication's index.md. Take the index URL from the llms.txt link list —
    do NOT build it from the folder name. The real path includes a `markdown/` segment:
    `.../{branch}/markdown/{publication}/index.md` (e.g. markdown/intelligent-experiences/index.md).
    Constructing `.../{branch}/{publication}/index.md` without `markdown/` returns 404.
+
+   URL PATTERN, MAX DEPTH 2 — the mirror documents its own layout, and it is shallow: every
+   content file is `markdown/{publication}/{file}.md` or
+   `markdown/{publication}/{product}/{file}.md`, and NOTHING is deeper. Measured 2026-08-20:
+   the ITOM index resolves to 156 depth-1 paths and 2,878 depth-2 paths, zero deeper. A path
+   carrying two subdirectories between publication and file is malformed by construction; do
+   not fetch it. This is also WHY TAIL FIRST works: a publication index lists its flat depth-1
+   files first and its product SUBDIRECTORIES after them, so product blocks cluster in the
+   tail. Tail-first is a consequence of the documented structure, not a heuristic.
+
+   ROUTE ON DESCRIPTIONS, MATCH FILENAMES TOO — every entry in a publication index carries a
+   one-line description after ` -- `, and entries are nested to show hierarchy. Measured on the
+   ITOM index: 3,034 of 3,034 link lines carry one. That description is the strongest routing
+   signal the mirror offers — read it and route on what it SAYS, rather than guessing from the
+   shape of a filename.
+   But never route on description text ALONE, because descriptions are being rewritten under a
+   rebrand while filenames are not. The 17 August 2026 refresh renamed "Now Assist" to
+   "ServiceNow Otto" in TITLES AND DESCRIPTIONS ONLY — 32 occurrences in the ITOM index, 67 in
+   the application-development index — while every filename still reads `now-assist`. Examples
+   verbatim: "Install the ServiceNow Otto for IT Operations Management (ITOM) application"
+   points at `install-now-assist-itom.md`; "Applications installed with ServiceNow Otto for
+   ITOM" points at `app-now-assist-itom.md`. So `now assist` = `otto` is a LOCAL SYNONYM you
+   apply yourself: a user asking about Now Assist is asking about pages the index now describes
+   as Otto, and searching index text for "now assist" will MISS them. Search the index for BOTH
+   terms and match the `now-assist` filename stem as well. The mirror's own synonym table does
+   NOT cover this — see SYNONYM TABLE below.
+
+   SYNONYM TABLE — the mirror publishes its own query-normalization table at
+   `markdown/vocabulary/sn-docs-synonym-terms-enus.md` (11,329 B, 234 term groups, generated
+   2026-08-17). It maps a canonical term to its synonyms, abbreviations and common
+   misspellings — `itom` to it operations management, `disco` to discovery, `ais` to ai search,
+   `midserver` to mid server, `cmbd` to cmdb — and states its own contract to AI readers: treat
+   any synonym as equivalent to the canonical term, and prefer the canonical term in the
+   answer. Use it to normalize the user's wording BEFORE choosing search terms for an index.
+   Two caveats. `vocabulary/` has NO `index.md` (404, the same shape as the CMDB folder), so
+   fetch the file by direct path. And the table LAGS the mirror's own rebrands — it carries
+   `now assist | nowassist` plus three product variants but NO `otto` entry at all, despite
+   the rename landing the same day it was generated. It is a floor on synonyms, not a ceiling.
+
    Request the verbatim raw content — every line and every URL.
    Do not summarize or infer. Extract exact file paths from the returned links only.
    Large multi-app publications (e.g. it-asset-management ≈ 270k chars: SAM, then HAM, SaaS,
@@ -337,9 +442,11 @@ Steps:
      service-mapping-get-started.md (supplementary overview, weaker evidence);
      c_SMMapping.md → service-mapping-get-started.md.
    - Service Mapping application CI classes (cmdb_ci_appl_* table names):
-     prerequisites-service-mapping.md carries the per-application class table.
-     r_SupportedApplications.md lists the same applications but gives only the display
-     label and pattern name — it contains ZERO cmdb_ci_* strings and can never answer a
+     service-mapping/prerequisites-service-mapping.md carries the per-application class table.
+     r_SupportedApplications.md MOVED in the 17 August 2026 refresh: it is now
+     it-operations-management/itom-visibility/r_SupportedApplications.md, and the old
+     service-mapping/ copy 404s (re-probed 2026-08-20). It lists the same applications but
+     gives only the display label and pattern name — it contains ZERO cmdb_ci_* strings and can never answer a
      "what is the table name" question. Don't stop there.
    - ACC (it-operations-management/agent-client-collector/, flat — the ACC block begins at
      0.87x the length of the 1.18MB ITOM index, so ordinary index paging will not reach it;
@@ -367,10 +474,24 @@ Steps:
      despite the routing table above — actual folder is
      it-operations-management/discovery-and-service-mapping-patterns/, undiscoverable by
      paging the servicenow-platform or it-operations-management indexes or the Service Mapping
-     reference page. Reach it via the cloud's landing page instead: discovery/azure-cloud-discovery.md
-     (or discovery/aws-cloud-discovery.md, discovery/gcp-cloud-discovery.md) → "Useful information"
-     section links to discovery-and-service-mapping-patterns/{cloud}-cloud-discovery-patterns.md
-     (the full LP-pattern catalog + per-resource child pages + events/tags tables).
+     reference page. The old "fetch discovery/{cloud}-cloud-discovery.md, follow its Useful
+     information section to the catalog" route now works for ONE cloud only — the 17 August 2026
+     refresh unified the cloud-discovery docs. Re-probed 2026-08-20, it is per-cloud:
+       AZURE — both halves live. discovery/azure-cloud-discovery.md, then its "Useful
+         information" section links to
+         discovery-and-service-mapping-patterns/azure-cloud-discovery-patterns.md (200).
+       GCP — the landing page is GONE (discovery/gcp-cloud-discovery.md 404s) but the catalog
+         is directly fetchable:
+         discovery-and-service-mapping-patterns/gcp-cloud-discovery-patterns.md (200). Go
+         straight there; do not hunt for a landing page that no longer exists.
+       AWS — NEITHER half exists. discovery/aws-cloud-discovery.md 404s, and so do both
+         aws-cloud-discovery-patterns.md and amazon-aws-cloud-discovery-patterns.md. AWS
+         resource coverage is now spread across three FLAT discovery/ files:
+         cloud-discovery-setup.md, cloud-discovery-methods-comparison.md and
+         cloud-discovery-reference.md. Use those, and say the per-resource AWS pattern catalog
+         has no single page — never report AWS discovery as undocumented.
+     The catalog files carry the full LP-pattern catalog + per-resource child pages +
+     events/tags tables.
    - Azure Discovery vs Service Graph Connector ("which method covers which resource"):
      the per-resource comparison table exists in TWO publications, and the
      servicenow-platform copy is the one index navigation misses. Both are direct:
@@ -395,8 +516,9 @@ Steps:
      publication the product routes to.
    - Now Assist per-product folder naming is INCONSISTENT across publications — do not
      generalize one product's pattern to another without a live probe. Confirmed live
-     2026-08-08: ITOM uses no suffix (`now-assist-for-it-operations-management/`,
-     see the FOLDER-NAME EXCEPTION bullet below), ITSM uses an `-itsm` suffix
+     2026-08-08 and re-probed 2026-08-20: ITOM has NO Now Assist folder at all any more — its
+     content went flat and dispersed on 17 August 2026, see the ITOM Now Assist bullet below.
+     ITSM uses an `-itsm` suffix
      (`now-assist-for-it-service-management-itsm/`, corrected above), HAM uses no
      suffix (`it-asset-management/now-assist-for-hardware-asset-management/
      now-assist-ham.md`), and SAM uses a `-sam` suffix
@@ -422,15 +544,26 @@ Steps:
      walk-up-experience/configure-walkup-appointments.md (appointment booking).
      Do not generalize the `c_<Product>.md` filename shape across ITSM — it holds for
      Incident and Problem and fails for Change.
-   - Now Assist for ITOM — FOLDER-NAME EXCEPTION, do not apply the ITSM pattern above.
-     The folder spells the product out while the filenames abbreviate it, so the
-     obvious guess (now-assist-for-itom/) 404s. Confirmed live 2026-07-30, all under
-     it-operations-management/now-assist-for-it-operations-management/ :
-       now-assist-itom.md (landing: license tiers Foundation/Advanced/Prime),
-       now-assist-itom-configure.md, now-assist-itom-use.md,
-       now-assist-itom-ai-agent-workflows.md (the 6 ITOM agentic workflows + their agents),
-       app-now-assist-itom.md (apps installed: sn_genai_platform, sn_aiops_ai_agents,
-       sn_sm_gen_ai, sn_obs_aia, sn_itom_leap).
+   - Now Assist for ITOM — NO FOLDER, flat and dispersed. The
+     `now-assist-for-it-operations-management/` folder existed until the 17 August 2026
+     refresh and is GONE; every path under it 404s, re-probed 2026-08-20. TRAP: the old folder
+     name now names a flat FILE, so the name still resolves as a page — appending a filename
+     to it always 404s. Current layout, all under it-operations-management/ :
+       now-assist-for-it-operations-management.md (the landing page — the ex-folder name is
+         now the file; license tiers Foundation/Advanced/Prime),
+       app-now-assist-itom.md (flat; apps installed: sn_genai_platform, sn_aiops_ai_agents,
+         sn_sm_gen_ai, sn_obs_aia, sn_itom_leap),
+       install-now-assist-itom.md (flat; the install procedure — new with the refresh),
+       event-management/now-assist-itom-configure.md,
+       event-management/now-assist-itom-use-aia.md (note the `-aia` suffix; the old
+         now-assist-itom-use.md is gone),
+       event-management/now-assist-itom-agentic-aia.md (the ITOM agentic workflows and their
+         agents; replaces now-assist-itom-ai-agent-workflows.md).
+     The refresh DISPERSED per-feature Now Assist content into the product folder it belongs
+     to — event-management/, service-mapping/, service-level-objective-management/ and
+     discovery/ each carry their own. So an ITOM Now Assist question routes to the FEATURE's
+     product folder, not to a Now Assist folder. Remember the index describes all of this as
+     "ServiceNow Otto" while every filename still says `now-assist`.
      KNOWN GAP: none of these pages names a single role — Now Assist for ITOM gates on
      license tier, not roles. The only role documented in this stack is sn_aia.admin, in
      intelligent-experiences/install-ai-agents-plugins.md. Don't keep hunting for an
@@ -463,8 +596,11 @@ Steps:
      and vc-what-is-vibe-coding.md (Vibe Coding), dev-get-start-use-ai-to-build-faster.md
      (AI-assisted dev getting-started), now-assist-for-creator/now-assist-for-creator-landing.md,
      now-assist-for-creator/exploring-now-assist-for-creator.md,
-     now-assist-for-creator/sns-now-assist-app-gen-landing.md (Now Assist for Creator —
-     flow/UI generation, ATF troubleshooting agent, app summarization),
+     servicenow-studio-classic/sns-now-assist-app-gen-landing.md (Now Assist for Creator -
+     flow/UI generation, ATF troubleshooting agent, app summarization. MOVED in the
+     17 August 2026 refresh; the old now-assist-for-creator/ copy 404s. A new
+     servicenow-studio-classic/ folder absorbed roughly 30 `sns-*` files, so any other sns-*
+     path cached under a different folder is suspect too — probe before trusting it),
      now-assist-for-app-engine/ai-capabilities-with-now-assist-for-app-engine.md,
      now-assist-for-app-engine/exploring-now-assist-for-app-generation-enterprise.md
      (Now Assist for App Engine — record summarization, app generation),
@@ -482,6 +618,30 @@ Steps:
 
 3. Fetch the topic file using its raw.githubusercontent.com URL.
    Never use docs.servicenow.com or GitHub blob URLs — both are JS SPAs with no readable content.
+   This is not our inference. The mirror instructs LLM readers directly, in its own llms.txt,
+   verbatim: "Do NOT attempt to fetch content from servicenow.com/docs — it is a JavaScript
+   single-page application that returns no readable content to LLMs." The mirror IS the
+   intended machine-readable surface; the docs site is not, and never becomes one.
+
+   FRONTMATTER SELF-CHECK — every non-empty content file opens with YAML frontmatter, and it
+   carries routing signal, not just citation data. Keys observed across a spread sample:
+   `title`, `description`, `locale`, `canonical_url`, `release`, `product` (not always
+   present), `classification`, `topic_type`, `last_updated`, `reading_time_minutes`,
+   `keywords` (sometimes), `breadcrumb`. There is NO `product_area` key — that was a bad guess,
+   never observed on any file. Index files carry a different set entirely: `title`, `locale`,
+   `release`, `bundle`, `doc_type: toc`. Use frontmatter the moment a fetch lands:
+   - `breadcrumb`'s LAST element names the publication (e.g. `IT Operations Management`) — a
+     free check that you landed in the publication you routed to, before reading a word of body.
+   - `release` names the family — a free check that you are on the branch you meant to be on,
+     which matters more now that the branch is DERIVED rather than hardcoded.
+   - `topic_type` is `concept`, `task` or `reference` — match it to the question's shape
+     ("what is" to concept, "how do I" to task, "which/what list" to reference) instead of
+     opening three files to find out which one answers.
+   - `classification` names the product subdirectory.
+   A file with NO frontmatter at all is one of the mirror's known EMPTY files: its own change
+   log (25 June 2026) records that the empty-file build bug was fixed but that some remain. An
+   empty file is not an answer and not evidence of a gap — go back to the index.
+
    For any IRE or CMDB configuration topic, also check for a non-CMDB sibling: if you fetch
    a file like create-ire-data-source-rule.md, also fetch create-non-cmdb-ire-data-src-rule.md
    (and vice versa). The docs publish paired CMDB/non-CMDB variants for most IRE config topics.
@@ -540,6 +700,10 @@ Steps:
    afterward.
 
 5. Cite using canonical_url from the file's YAML frontmatter.
+   UNESCAPE IT FIRST — `canonical_url` escapes underscores for markdown, emitting e.g.
+   `.../r\_MIDServerSystemRequirements.html`. Strip the backslashes before citing; a citation
+   carrying `\_` is broken. Pair it with `last_updated` from the same frontmatter so the
+   citation carries a date.
    If absent, derive the canonical URL: take the raw path after `markdown/`, prepend
    https://www.servicenow.com/docs/r/ , strip .md, append .html.
    Example: markdown/servicenow-platform/mid-server/r_MIDServerSystemRequirements.md →
