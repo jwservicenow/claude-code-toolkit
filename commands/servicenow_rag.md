@@ -430,6 +430,11 @@ Steps:
 
    Known direct paths (skip index navigation for these — same mirror, confirmed live,
    saves paging a 1MB+ index for content the index can't reliably surface anyway):
+   - Vocabulary / synonym table (query normalization — a canonical term mapped to its
+     synonyms, abbreviations and common misspellings; usage and caveats under SYNONYM
+     TABLE above): vocabulary/sn-docs-synonym-terms-enus.md (11,329 B, 234 term groups,
+     generated 2026-08-17). The vocabulary folder carries no index of its own, so fetch
+     this file by direct path.
    - CMDB/CSDM have no own index.md; locate via servicenow-platform/index.md, but these
      are direct: common-service-data-model-csdm/csdm-landing-page.md,
      configuration-management-database-cmdb/cmdb-tables-details.md (base classes only —
