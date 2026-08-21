@@ -25,10 +25,13 @@ candidates=()
 for rc in "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
   [ -f "$rc" ] || continue
   while IFS= read -r dir; do
+    # alias paths are commonly quoted: CLAUDE_CONFIG_DIR="$HOME/.claude-x"
+    dir="${dir//\"/}"
+    dir="${dir//\'/}"
     dir="${dir//\$HOME/$HOME}"
     dir="${dir/#\~/$HOME}"
     [ -n "$dir" ] && candidates+=("$dir")
-  done < <(grep -ohE 'CLAUDE_CONFIG_DIR=[^[:space:]"'"'"']+' "$rc" 2>/dev/null | sed -E 's/CLAUDE_CONFIG_DIR=//')
+  done < <(grep -ohE 'CLAUDE_CONFIG_DIR=[^[:space:]]+' "$rc" 2>/dev/null | sed -E 's/CLAUDE_CONFIG_DIR=//')
 done
 
 candidates+=("$HOME/.claude")
