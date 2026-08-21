@@ -190,17 +190,17 @@ Restart Claude Code. Then type `/prompt-sweep`.
 
 ### `/token-audit`
 
-If you run more than one Claude Code account/config on the same machine, type `/token-audit` to
-check each one for what's actually costing you tokens: oversized `CLAUDE.md` files, MCP
+Type `/token-audit` to check what's actually costing you tokens: oversized `CLAUDE.md` files, MCP
 server/tool bloat, model and effort-level config, hooks pointing at scripts that no longer exist,
 and `settings.json` keys that aren't in the official docs (docs lag recent CLI releases, so this
-gets reported, not auto-removed). It also totals actual cache/token usage per account for the
-most recent day you used it, with the cache-hit percentage.
+gets reported, not auto-removed). It also totals actual cache/token usage for the most recent day
+you used Claude Code, with the cache-hit percentage.
 
-Built for a multi-account setup — one run covers every config dir you point it at, so you don't
-have to switch accounts to audit each one separately. If one of your config dirs turns out to
-just symlink its session data from another (a common way to share one login's history across two
-CLI aliases), it detects that and skips the double-count automatically.
+Works the same whether you run one Claude Code account or several — it auto-discovers every real
+config dir on the machine (a single `~/.claude` is plenty), so there's nothing to configure. If
+you do run more than one account, one run covers all of them, and if one of your config dirs
+turns out to just symlink its session data from another (a common way to share one login's
+history across two CLI aliases), it detects that and skips the double-count automatically.
 
 **Install**
 
@@ -210,7 +210,9 @@ curl -o ~/.claude/skills/token-audit/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/token-audit/SKILL.md
 curl -o ~/.claude/skills/token-audit/parse_usage.py \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/token-audit/parse_usage.py
-chmod +x ~/.claude/skills/token-audit/parse_usage.py
+curl -o ~/.claude/skills/token-audit/discover_accounts.sh \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/token-audit/discover_accounts.sh
+chmod +x ~/.claude/skills/token-audit/parse_usage.py ~/.claude/skills/token-audit/discover_accounts.sh
 ```
 
 Restart Claude Code. Then type `/token-audit`.
