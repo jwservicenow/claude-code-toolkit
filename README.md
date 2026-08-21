@@ -14,6 +14,7 @@ Everything here works inside **Claude Code** (the command-line app). Some tools 
 | [/ai-security](#ai-security) | Security review for AI/LLM systems and agents — prompt injection (direct and indirect), agent tool abuse, guardrail resistance, model inversion and data-poisoning exposure, mapped to MITRE ATLAS |
 | [/deps-audit](#deps-audit) | Dependency health check — known vulnerabilities, outdated and unused packages, license compliance. Detects your package manager (npm/yarn/pnpm, pip/poetry, …) and ranks what to fix first |
 | [/prompt-sweep](#prompt-sweep) | Housekeeping backstop — finds retired `/newsession` handoff files and, with your consent, files the superseded ones into each project's own `archive/`. Never touches an active prompt, never deletes |
+| [/token-audit](#token-audit) | Checks your Claude Code accounts for token waste — oversized `CLAUDE.md` files, MCP server bloat, undocumented `settings.json` keys, dead hooks, and actual cache/token usage totals per account |
 | [RAG demo walkthrough](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-rag-demo-walkthrough-2026-08-08.html) | Annotated end-to-end run of `/servicenow_rag` against a real question — what it fetches, in what order, and why |
 | [Mirror retrieval testing](docs/mirror-testing/) | Test artifacts and mirror-side recommendations from evaluating the ServiceNow docs mirror as an AI retrieval source, plus the [model × thinking-effort benchmark](https://jwservicenow.github.io/claude-toolkit/docs/mirror-testing/model-thinking-sweep-writeup-2026-08-09.html) behind the model guidance |
 | [PDI integration - native MCP install](docs/pdi_native_mcp_install_guide.md) | Connect Claude Code to ServiceNow using the platform's ootb MCP — no scripts needed, OAuth 2.1 security profile with PKCE, 17 purpose-built tools |
@@ -184,6 +185,35 @@ curl -o ~/.claude/skills/prompt-sweep/SKILL.md \
 ```
 
 Restart Claude Code. Then type `/prompt-sweep`.
+
+---
+
+### `/token-audit`
+
+If you run more than one Claude Code account/config on the same machine, type `/token-audit` to
+check each one for what's actually costing you tokens: oversized `CLAUDE.md` files, MCP
+server/tool bloat, model and effort-level config, hooks pointing at scripts that no longer exist,
+and `settings.json` keys that aren't in the official docs (docs lag recent CLI releases, so this
+gets reported, not auto-removed). It also totals actual cache/token usage per account for the
+most recent day you used it, with the cache-hit percentage.
+
+Built for a multi-account setup — one run covers every config dir you point it at, so you don't
+have to switch accounts to audit each one separately. If one of your config dirs turns out to
+just symlink its session data from another (a common way to share one login's history across two
+CLI aliases), it detects that and skips the double-count automatically.
+
+**Install**
+
+```bash
+mkdir -p ~/.claude/skills/token-audit
+curl -o ~/.claude/skills/token-audit/SKILL.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/token-audit/SKILL.md
+curl -o ~/.claude/skills/token-audit/parse_usage.py \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/token-audit/parse_usage.py
+chmod +x ~/.claude/skills/token-audit/parse_usage.py
+```
+
+Restart Claude Code. Then type `/token-audit`.
 
 ---
 
