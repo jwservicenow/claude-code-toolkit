@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# Canonical pre-commit guard for the ClaudeOS repos. ONE file, vendored unchanged
+# into every repo, armed per clone with:
+#     git config core.hooksPath scripts/git-hooks
+# Fall back instantly (replaces the path, never additive):
+#     git config --unset core.hooksPath
+# Bypass a single commit, deliberately:
+#     git commit --no-verify
+#
+# Canonical copy lives at homelab/scripts/git-hooks/pre-commit — the same path it
+# is armed from, so there is no second copy in this repo to drift.
+# Standard and rationale: homelab/git-convention.md.
+#
+# One file serves repos with very different contents because every check that
+# does not apply self-skips: the ansible/ rules never match outside homelab, and
+# the intake-artifact rules run only in the home repo.
+#
+# What this guard CANNOT do, stated plainly: it does not recognise a serial
+# number, and it has no idea whether a repo is public or private. It shrinks the
+# blast radius of a mistake. It does not replace checking repo visibility before
+# a first push.
+set -uo pipefail
+
+fail=0
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+# Repo identity, for checks scoped to a single repo. remote.origin.url is matched
+# ANCHORED TO THE END with an optional .git stripped, because "jimww333/homelab"
+# contains "jimww333/home" — an unanchored match would quietly apply the intake
+# rules to the wrong repo and sit latent until the first legitimate image. Both
+# remote forms are handled: HTTPS (the Mac's clone) and SSH (a fresh clone
+# elsewhere), which differ only in the separator before the owner.
+origin_url=$(git config --get remote.origin.url 2>/dev/null || true)
+origin_slug=${origin_url%.git}
+origin_slug=${origin_slug%/}
+is_home_repo=0
+case "$origin_slug" in
+    *[/:]jimww333/home) is_home_repo=1 ;;
+esac
+
+# 1. The vault password file must never be staged, under any name or path.
+while IFS= read -r f; do
+    case "$(basename "$f")" in
+        .vault_pass|.vault_pass.txt|vault_pass|vault_pass.*)
+            echo "BLOCKED: vault password file staged -> $f"
+            echo "         Vault password files live only on the Ansible control node."
+            fail=1
+            ;;
+    esac
+done <<< "$staged"
+
+# 2. Any file named vault.yml / vault.yaml must be Ansible-Vault ciphertext, not plaintext.
+#    Reads the STAGED blob, not the worktree copy — an encrypted file on disk with a
+#    plaintext version staged would otherwise slip through.
+while IFS= read -r f; do
+    case "$(basename "$f")" in
+        vault.yml|vault.yaml|*.vault.yml)
+            if ! git show ":$f" 2>/dev/null | head -1 | grep -q '^\$ANSIBLE_VAULT'; then
+                echo "BLOCKED: $f is staged UNENCRYPTED (no \$ANSIBLE_VAULT header)."
+                echo "         Encrypt it:  ansible-vault encrypt $f"
+                fail=1
+            fi
+            ;;
+    esac
+done <<< "$staged"
+
+# 3. Belt-and-braces: obvious plaintext secret assignments anywhere under ansible/.
+#    Skips already-encrypted files. Deliberately narrow to avoid crying wolf.
+while IFS= read -r f; do
+    case "$f" in
+        ansible/*)
+            blob=$(git show ":$f" 2>/dev/null) || continue
+            printf '%s' "$blob" | head -1 | grep -q '^\$ANSIBLE_VAULT' && continue
+            if printf '%s' "$blob" | grep -nEi '^[[:space:]]*(vault_)?[a-z0-9_]*(password|passwd|secret|api_key|token)[a-z0-9_]*[[:space:]]*:[[:space:]]*["'"'"']?[^{[:space:]"'"'"'][^{]' | grep -vqi 'vault_password_file'; then
+                echo "WARNING: possible plaintext secret in $f:"
+                printf '%s' "$blob" | grep -nEi '^[[:space:]]*(vault_)?[a-z0-9_]*(password|passwd|secret|api_key|token)[a-z0-9_]*[[:space:]]*:' | grep -vi 'vault_password_file' | sed 's/^/         /'
+                echo "         If this is a real secret, move it into the vault file."
+                echo "         If it is a reference to a vault var, this is a false positive -> --no-verify."
+                fail=1
+            fi
+            ;;
+    esac
+done <<< "$staged"
+
+# 4. Private key material — by filename and by content.
+#    The content test is anchored to the real PEM header form (five dashes, then
+#    BEGIN ... PRIVATE KEY, then five dashes). Matching the bare phrase would
+#    block every future edit to git-convention.md, which names these patterns in
+#    prose — the exact cry-wolf failure this guard is meant to avoid.
+while IFS= read -r f; do
+    case "$(basename "$f")" in
+        *.pub) ;;
+        id_*)
+            echo "BLOCKED: private key filename staged -> $f"
+            echo "         Keys belong in ~/.ssh on the machine that owns them, never in a repo."
+            fail=1
+            ;;
+    esac
+    blob=$(git show ":$f" 2>/dev/null) || continue
+    if printf '%s' "$blob" | grep -aqE '^-{5}BEGIN [A-Z0-9 ]+PRIVATE KEY-{5}'; then
+        echo "BLOCKED: $f contains a PEM private key header."
+        echo "         Remove the key material. If this is documentation showing the"
+        echo "         header verbatim, that is what --no-verify is for."
+        fail=1
+    fi
+done <<< "$staged"
+
+# 5. Intake artifacts — the home repo ONLY (see the repo-identity block above).
+#    Order-history exports and nameplate photos are one-time identification aids,
+#    never to be committed, "even to a private repo". Until this check, nothing
+#    enforced that but attention. Scoped on purpose rather than applied globally:
+#    another repo may legitimately track a documentation screenshot, and a blanket
+#    image block would refuse a repo's own normal content. Full rationale lives in
+#    git-convention.md, which is not public.
+if [ "$is_home_repo" -eq 1 ]; then
+    while IFS= read -r f; do
+        lc=$(printf '%s' "$f" | tr '[:upper:]' '[:lower:]')
+        case "$lc" in
+            *.csv|*.mbox|*.jpg|*.jpeg|*.png|*.gif|*.heic|*.heif|*.webp|*.tif|*.tiff|*.bmp)
+                echo "BLOCKED: intake artifact staged -> $f"
+                echo "         Photos and order-history exports are identification aids only."
+                echo "         Read it, record the facts in the inventory doc, leave the file out."
+                fail=1
+                ;;
+        esac
+    done <<< "$staged"
+fi
+
+if [ "$fail" -ne 0 ]; then
+    echo ""
+    echo "pre-commit: commit refused. Nothing was committed."
+    echo "            Deliberate override, if you are certain: git commit --no-verify"
+    exit 1
+fi
+exit 0
