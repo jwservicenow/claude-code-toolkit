@@ -13,6 +13,23 @@
 # Only use this for GENERIC tools that behave the same in work and personal.
 # Tools that depend on work-only or personal-only systems (e.g. morning-brief:
 # Outlook vs Gmail) must stay as separate per-config copies — do NOT link them.
+#
+# LINKING IS NOT THE LAST STEP (changed 2026-08-24). ~/ClaudeOS/shared/ IS the
+# jwservicenow/claude-toolkit clone now — it is a git repo, and it is PUBLIC. A
+# skill you link from here is live in both configs immediately, but it is not
+# saved until it is committed and pushed:
+#
+#     gh auth switch --user jwservicenow && gh api user -q .login
+#     git -C ~/ClaudeOS/shared add -A && git -C ~/ClaudeOS/shared commit -m "..." && \
+#       git -C ~/ClaudeOS/shared push
+#
+# Being public also means: check the file for real hostnames, usernames or email
+# addresses before that first push. Two leaks have happened this way already.
+#
+# There are FOUR Claude config dirs but this script writes to TWO on purpose.
+# ~/.claude-claudec/skills and /commands are whole-directory symlinks into
+# ~/.claude-personal, so it inherits every link automatically. ~/.claude keeps
+# its own private copies and is deliberately not managed here.
 
 set -euo pipefail
 
