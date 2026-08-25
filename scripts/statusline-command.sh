@@ -14,14 +14,6 @@ else
   model_label="$model"
 fi
 
-# Session cost
-cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
-if [ -n "$cost" ] && [ "$cost" != "0" ] && [ "$cost" != "0.0" ]; then
-  cost_label=$(printf "\$%.2f" "$cost")
-else
-  cost_label=""
-fi
-
 # Tokens/sec — from the last two tokenSamples of the most recent task.
 # tokenSamples entries are expected to be {time: <ms epoch>, tokens: <cumulative>}.
 # Silently omitted if samples are unavailable or the task is idle.
@@ -52,16 +44,13 @@ if [ -n "$used" ]; then
     fi
     i=$(( i + 1 ))
   done
-  base=$(printf "\033[34m%s\033[0m  \033[33m%s\033[0m  ctx:\033[32m%s %s\033[0m" "$dir" "$model_label" "$bar" "$ctx")
+  base=$(printf "\033[34m%s\033[0m  \033[32m%s\033[0m  ctx:\033[31m%s %s\033[0m" "$dir" "$model_label" "$bar" "$ctx")
 else
-  base=$(printf "\033[34m%s\033[0m  \033[33m%s\033[0m" "$dir" "$model_label")
+  base=$(printf "\033[34m%s\033[0m  \033[32m%s\033[0m" "$dir" "$model_label")
 fi
 
-# Append cost and t/s only when present
+# Append t/s only when present
 extras=""
-if [ -n "$cost_label" ]; then
-  extras="${extras}  \033[31m${cost_label}\033[0m"
-fi
 if [ -n "$tok_label" ]; then
   extras="${extras}  \033[36m${tok_label}\033[0m"
 fi

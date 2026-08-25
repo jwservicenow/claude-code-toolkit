@@ -2,3 +2,5 @@
 *.swp
 .env
 statusbar-prompt-2026-06-23.md
+skills/ai-security/scripts/__pycache__/
+.claude/settings.local.json
