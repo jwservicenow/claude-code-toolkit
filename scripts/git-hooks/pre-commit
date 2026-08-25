@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # Canonical pre-commit guard for the ClaudeOS repos. ONE file, vendored unchanged
 # into every repo, armed per clone with:
-#     git config core.hooksPath scripts/git-hooks
+#     git config core.hooksPath .githooks
 # Fall back instantly (replaces the path, never additive):
 #     git config --unset core.hooksPath
 # Bypass a single commit, deliberately:
 #     git commit --no-verify
 #
-# Canonical copy lives at homelab/scripts/git-hooks/pre-commit — the same path it
-# is armed from, so there is no second copy in this repo to drift.
+# Canonical copy lives at the workspace repo root, .githooks/pre-commit — the same
+# path it is armed from, so there is no second copy in this repo to drift.
 # Standard and rationale: homelab/git-convention.md.
 #
 # One file serves repos with very different contents because every check that
 # does not apply self-skips: the ansible/ rules never match outside homelab, and
-# the intake-artifact rules run only in the home repo.
+# the intake-artifact rules run only on paths under personal/projects/home/.
 #
 # What this guard CANNOT do, stated plainly: it does not recognise a serial
 # number, and it has no idea whether a repo is public or private. It shrinks the
@@ -24,20 +24,6 @@ set -uo pipefail
 fail=0
 staged=$(git diff --cached --name-only --diff-filter=ACM)
 [ -z "$staged" ] && exit 0
-
-# Repo identity, for checks scoped to a single repo. remote.origin.url is matched
-# ANCHORED TO THE END with an optional .git stripped, because "jimww333/homelab"
-# contains "jimww333/home" — an unanchored match would quietly apply the intake
-# rules to the wrong repo and sit latent until the first legitimate image. Both
-# remote forms are handled: HTTPS (the Mac's clone) and SSH (a fresh clone
-# elsewhere), which differ only in the separator before the owner.
-origin_url=$(git config --get remote.origin.url 2>/dev/null || true)
-origin_slug=${origin_url%.git}
-origin_slug=${origin_slug%/}
-is_home_repo=0
-case "$origin_slug" in
-    *[/:]jimww333/home) is_home_repo=1 ;;
-esac
 
 # 1. The vault password file must never be staged, under any name or path.
 while IFS= read -r f; do
@@ -106,26 +92,33 @@ while IFS= read -r f; do
     fi
 done <<< "$staged"
 
-# 5. Intake artifacts — the home repo ONLY (see the repo-identity block above).
+# 5. Intake artifacts — the home project ONLY, scoped BY STAGED PATH.
 #    Order-history exports and nameplate photos are one-time identification aids,
-#    never to be committed, "even to a private repo". Until this check, nothing
-#    enforced that but attention. Scoped on purpose rather than applied globally:
-#    another repo may legitimately track a documentation screenshot, and a blanket
-#    image block would refuse a repo's own normal content. Full rationale lives in
-#    git-convention.md, which is not public.
-if [ "$is_home_repo" -eq 1 ]; then
-    while IFS= read -r f; do
-        lc=$(printf '%s' "$f" | tr '[:upper:]' '[:lower:]')
-        case "$lc" in
-            *.csv|*.mbox|*.jpg|*.jpeg|*.png|*.gif|*.heic|*.heif|*.webp|*.tif|*.tiff|*.bmp)
-                echo "BLOCKED: intake artifact staged -> $f"
-                echo "         Photos and order-history exports are identification aids only."
-                echo "         Read it, record the facts in the inventory doc, leave the file out."
-                fail=1
-                ;;
-        esac
-    done <<< "$staged"
-fi
+#    never to be committed, "even to a private repo". Scoped on purpose rather than
+#    applied globally: another project may legitimately track a documentation
+#    screenshot, and a blanket image block would refuse normal content. Full
+#    rationale lives in git-convention.md, which is not public.
+#
+#    The scope is the path prefix, not remote.origin.url. One repo now spans home/,
+#    homelab/ and work/, so a remote-URL test can never distinguish them and would
+#    fail OPEN — silently, until the first real photo. Paths from
+#    `git diff --cached --name-only` are always repo-root-relative, so the prefix
+#    holds regardless of the directory the commit is run from.
+while IFS= read -r f; do
+    case "$f" in
+        personal/projects/home/*) ;;
+        *) continue ;;
+    esac
+    lc=$(printf '%s' "$f" | tr '[:upper:]' '[:lower:]')
+    case "$lc" in
+        *.csv|*.mbox|*.jpg|*.jpeg|*.png|*.gif|*.heic|*.heif|*.webp|*.tif|*.tiff|*.bmp)
+            echo "BLOCKED: intake artifact staged -> $f"
+            echo "         Photos and order-history exports are identification aids only."
+            echo "         Read it, record the facts in the inventory doc, leave the file out."
+            fail=1
+            ;;
+    esac
+done <<< "$staged"
 
 if [ "$fail" -ne 0 ]; then
     echo ""
