@@ -46,6 +46,8 @@ Save the generated handoff prompt as a standalone prompt file — this becomes t
 
 Write only the contents of the handoff prompt (no intro line, no fences) to the file with the Write tool. Do **not** create or modify a README or a `.last-newsession.md`.
 
+The handoff prompt is the one exception to the working-artifacts rule — like the plan it points at, it stays flat in the project directory because it is the resume pointer. **Any other file this session created goes by `/newplan`'s *Working artifacts* section** (`shared/skills/newplan/SKILL.md`): `<topic>-<kind>-YYYY-MM-DD.md`, durable at the project root, ephemeral in `<project>/run/`. Do not restate that rule in the handoff — cite the artifacts by path and let the convention do the rest.
+
 The prompt lifecycle (states, banner formats, when things get archived) is defined once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow that spec; do not restate its rules here.
 
 ## Step 4 — Report the filename only
@@ -88,7 +90,7 @@ Deferred:
 Topics discussed but intentionally parked. One line each — prevents the next session from re-litigating resolved decisions.
 
 Key artifacts:
-Only what's needed for the next action — file paths, IPs, sys_ids, commands, URLs. Include verbatim any lookup tables, slot maps, or ID-to-name mappings needed to interpret next-session output — do not summarize these into prose.
+Only what's needed for the next action — file paths, IPs, sys_ids, commands, URLs. Give the real path for anything in `run/` so the next session doesn't hunt for it at the project root. Include verbatim any lookup tables, slot maps, or ID-to-name mappings needed to interpret next-session output — do not summarize these into prose.
 
 Resume instruction:
 Direct instruction to future Claude: exactly how to pick up, first move, no preamble.

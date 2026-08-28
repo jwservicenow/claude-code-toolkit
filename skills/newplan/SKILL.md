@@ -77,6 +77,7 @@ The single check that confirms the agreed goal (top of this plan) was actually a
 The last task of every plan, always present. Once the goal above is verified and the work is done:
 1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date) — the DONE/SUPERSEDED vocabulary defined in `shared/skills/prompt-sweep/prompt-lifecycle.md`.
 2. Move both this plan (`<topic>-plan-*.md`) and its prompt (`<topic>-prompt-*.md`) into the project's `archive/` folder — the `archive/` directly under the project dir where they live; create it if it doesn't exist.
+3. Deal with `run/` (see *Working artifacts* in the skill): promote anything durable to the project root and commit it; keeping or deleting the rest is the user's call — ask, don't assume.
 
 Until these are done, this section stands as the open marker that the plan isn't closed yet.
 
@@ -139,6 +140,25 @@ Absolute path, no code block, no commentary after it. That line ends the turn.
 The deliverables are the two files from Steps 6–7: the plan (`*-plan-*.md`) and the standalone transition prompt (`*-prompt-*.md`). **Do not create a README** — keep the project lean; the plan doc is the self-contained resume point and the prompt file is the paste-to-resume pointer. Leave any existing README untouched.
 
 That's the end — the echoed transition prompt followed by the `Session prompt written: <path>` line is the final output. No handoff, no next steps, nothing after that path line.
+
+## Working artifacts — files created while executing the plan
+
+Executing a plan generates byproducts the plan itself never named: censuses, findings, verification checklists, diffs, scratch notes. Two rules cover all of them.
+
+**Naming** — `<topic>-<kind>-YYYY-MM-DD.md`, same shape as the plan and prompt. `<kind>` says what it is (`census`, `findings`, `goal-verification`). Add a letter suffix for same-day revisions (`…-2026-06-07b.md`).
+
+**Where it goes** — decided by lifespan, not by kind:
+
+| | Durable | Ephemeral |
+|---|---|---|
+| Test | someone reads it in three months with none of this session's context | only meaningful while the plan is running |
+| Lives | project root, version-controlled | `<project>/run/`, ignored wholesale |
+
+Create `run/` on first need, beside `archive/`. In a version-controlled project it gets **one** ignore rule, once — never a new pattern per kind of file, which is how the ignore list rots.
+
+The plan and the prompt are the exception: they stay flat at the project root even though they are session artifacts, because they are the resume pointer and have to be obvious to the next session. Everything else earns its place at the root by passing the durability test.
+
+Write the plan so the executing session inherits this — the Closure section already points at it.
 
 ## Rules
 
