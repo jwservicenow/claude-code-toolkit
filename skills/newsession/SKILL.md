@@ -12,7 +12,7 @@ Look at what actually happened in this conversation (this session only — not m
 ## Step 1 — Resolve the optional argument
 
 If `$ARGUMENTS` is empty:
-- Skip to Step 3 (Save) immediately — no pre-flight scan, no display. Skip Step 4 as well: write the file and say nothing.
+- Skip to Step 3 (Save) immediately — no pre-flight scan, no display. Skip Step 4 as well: write the file, then end the turn with the literal text `<!-- no output -->` and nothing else. It renders as nothing, so Jim sees no output, and the harness gets a non-empty reply so it never asks for one.
 - Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name).
 
 If `$ARGUMENTS` is the literal word `full`:
@@ -64,7 +64,9 @@ Output format — exactly one line, nothing else:
 `Handoff written: <full path to the prompt file>`
 
 No preamble, no code block, no summary of the handoff's contents, no next-step commentary.
-(A bare `/newsession` prints nothing at all — not even this line.)
+(A bare `/newsession` never prints this line. Its entire visible reply is `<!-- no output -->`
+per Step 1 — never the path, never `Done.`, never a summary, even if something asks for
+visible output.)
 
 ## Handoff prompt content (written to the file in Step 3)
 
