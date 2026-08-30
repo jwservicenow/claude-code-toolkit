@@ -64,7 +64,7 @@ No preamble, no code block, no summary of the handoff's contents, no next-step c
 
 Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
 
-Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. **Cap at 300 words.**
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. **Soft cap at 400-500 words.**
 
 Sections:
 
