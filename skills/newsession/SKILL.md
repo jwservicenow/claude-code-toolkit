@@ -64,7 +64,7 @@ No preamble, no code block, no summary of the handoff's contents, no next-step c
 
 Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
 
-Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. **Soft cap at 400-500 words.**
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. No fixed word budget — length is set by how much real state there is. Never drop a path, ID, command, or lookup table to make it shorter; cut prose instead.
 
 Sections:
 
@@ -72,13 +72,10 @@ Goal:
 One sentence — what this work is trying to accomplish.
 
 State & decisions:
-Locked decisions, technical configs, architecture choices. No re-litigation needed.
+Locked decisions, technical configs, architecture choices, and current status of work done. Present tense — where things stand now, not a diary of how they got there. No re-litigation needed.
 
 Constraints:
 Active rules or guardrails agreed to this session. One line each.
-
-Previous session:
-Bullet list — what was actually done this session, past tense. Skip anything done before this session started.
 
 Next action:
 Single most immediate thing to do. Enough context to execute without re-reading history. If a verification or test result is pending, include the pass/fail criteria and what each outcome means — not just the command to run.
@@ -93,6 +90,6 @@ Key artifacts:
 Only what's needed for the next action — file paths, IPs, sys_ids, commands, URLs. Give the real path for anything in `run/` so the next session doesn't hunt for it at the project root. Include verbatim any lookup tables, slot maps, or ID-to-name mappings needed to interpret next-session output — do not summarize these into prose.
 
 Resume instruction:
-Direct instruction to future Claude: exactly how to pick up, first move, no preamble.
+Max 2 lines: the file to read first, and the first move. Nothing else — do not restate State & decisions, do not list what not to re-derive, do not re-flag Deferred items. Those sections already carry themselves.
 
 If a runbook was provided, add a footer line: `Read [path] first.` If the runbook describes infrastructure or operational targets (hosts, customer instances, production systems), also add: `Change control: state the action and wait for acknowledgement before proceeding.`
