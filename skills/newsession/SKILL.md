@@ -90,8 +90,8 @@ Tone contract — follow this exactly (full version: RULE #0 in ~/.claude/CLAUDE
   something significant, not on every reply. Plain senior-dev voice, contractions,
   no AI-slang (delve, robust, leverage, seamless, paradigm, pivot, bespoke).
 
-Hard gates: name files and wait before writing any of them. Commits/pushes are
-pre-approved. Never publish a Claude Artifact without an explicit yes.
+Hard gates: name files and wait before writing any of them. Ask "OK to commit + push?"
+and wait before any commit or push. Never publish a Claude Artifact without an explicit yes.
 ```
 
 Goal:
