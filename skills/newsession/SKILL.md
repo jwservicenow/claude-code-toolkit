@@ -1,6 +1,6 @@
 ---
 name: newsession
-description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (writes the handoff file and prints only its path; flags only genuinely urgent must-do-now items in one line, no loose-ends seminar) and `/newsession fast` (silent — writes file only, no output). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
+description: Token flush for long conversations — when context is filling up or a topic is wrapping up, invoke /newsession. Two modes: `/newsession` (silent — writes the handoff file only, no output, no pre-flight check) and `/newsession full` (also runs the urgent must-do-now check, then writes the file and prints its path). Optionally shaped by a runbook or planning file. Strictly user-invoked — never auto-triggers.
 ---
 
 # /newsession — Session handoff
@@ -11,18 +11,24 @@ Look at what actually happened in this conversation (this session only — not m
 
 ## Step 1 — Resolve the optional argument
 
-If `$ARGUMENTS` is the literal word `fast`:
-- Skip to Step 3 (Save) immediately — no argument processing, no pre-flight scan, no display.
-- Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name) — `fast` takes no focus argument, so rule 1 never applies.
+If `$ARGUMENTS` is empty:
+- Skip to Step 3 (Save) immediately — no pre-flight scan, no display. Skip Step 4 as well: write the file and say nothing.
+- Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name).
 
-Otherwise, if `$ARGUMENTS` is provided, determine how to treat it:
+If `$ARGUMENTS` is the literal word `full`:
+- Run Step 2, then Step 3, then Step 4.
+- Derive `<topic>` by Step 3's ordering — `full` takes no focus argument, so rule 1 never applies.
+
+Otherwise, if `$ARGUMENTS` is provided, determine how to treat it (Step 2 still does **not** run — only `full` turns it on; finish with Step 4):
 1. If it contains a "/" or ends in a file extension, treat as a file path — read it as a runbook and let its content shape the handoff.
 2. If it's a bare filename (no slash, has extension), locate it: `find ~/ClaudeOS -name "<filename>" -type f 2>/dev/null | head -5` — one match → use it; multiple → list and ask; none → ask for full path.
 3. If it's a short phrase (no slash, no extension, one or more words), treat as a focus instruction — bias the handoff toward that topic/area without filtering out other important context.
 
-## Step 2 — Critical-only check (act first, don't hold a seminar)
+## Step 2 — Critical-only check (`full` only — never runs by default)
 
-Default behavior: **just write the handoff and report its path** (Steps 3–4). Do not survey loose
+This step runs **only** when `$ARGUMENTS` is the literal word `full`. Otherwise skip it entirely.
+
+Even under `full`: **just write the handoff and report its path** (Steps 3–4). Do not survey loose
 ends, do not produce a two-list summary, do not ask what to finish first. Unfinished work
 belongs in the handoff's Next action / Deferred sections, not in a pre-flight discussion.
 
@@ -50,7 +56,7 @@ The handoff prompt is the one exception to the working-artifacts rule — like t
 
 The prompt lifecycle (states, banner formats, when things get archived) is defined once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow that spec; do not restate its rules here.
 
-## Step 4 — Report the filename only
+## Step 4 — Report the filename only (skipped when there was no argument)
 
 **Never print the handoff prompt in chat.** It is written to disk in Step 3 and nothing more.
 
@@ -58,7 +64,7 @@ Output format — exactly one line, nothing else:
 `Handoff written: <full path to the prompt file>`
 
 No preamble, no code block, no summary of the handoff's contents, no next-step commentary.
-(`/newsession fast` prints nothing at all.)
+(A bare `/newsession` prints nothing at all — not even this line.)
 
 ## Handoff prompt content (written to the file in Step 3)
 
