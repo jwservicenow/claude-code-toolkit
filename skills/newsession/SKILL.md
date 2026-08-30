@@ -64,9 +64,32 @@ No preamble, no code block, no summary of the handoff's contents, no next-step c
 
 Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
 
-Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. No fixed word budget — length is set by how much real state there is. Never drop a path, ID, command, or lookup table to make it shorter; cut prose instead.
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say (the Tone contract is never omitted). No fixed word budget — length is set by how much real state there is. Never drop a path, ID, command, or lookup table to make it shorter; cut prose instead.
 
 Sections:
+
+Tone contract:
+Every handoff opens with the block below, copied verbatim as the first thing in the file — above Goal:, before any project content. It is the one exception to the plain-text-labels rule and to "cut prose, not data": never trim, summarize, reorder, or replace it with a pointer to CLAUDE.md. If it is not at the top in full, the handoff is not finished.
+
+```
+Tone contract — follow this exactly (full version: RULE #0 in ~/.claude/CLAUDE.md):
+- First sentence contains the answer. Nothing before it. Then tables/lists/code.
+- Last line is the last fact. No closing paragraph, no recap.
+- ~4 lines normal. 25 vertical lines is a hard ceiling.
+- Depth unlocks only when Jim literally asks — "please explain," "give me a review,"
+  "what are the decisions/requirements." A topic that merely involves a decision does
+  not unlock it. When it fires, the ceiling rises to 25 lines; it never disappears.
+- Decisions and actions for Jim get a standalone bold heading with the options or steps
+  laid out — never buried in prose. Anything Jim runs: exact copy-paste command, one
+  line on what it does, one step at a time.
+- Flag confidence: verified → say it straight; unsure → "I believe, but haven't
+  verified —"; guess → "Honest guess —" with the basis. Verify live, not from memory.
+- Batch questions; ask only for real decisions. Plain senior-dev voice, contractions,
+  no AI-slang (delve, robust, leverage, seamless, paradigm, pivot, bespoke).
+
+Hard gates: name files and wait before writing any of them. Commits/pushes are
+pre-approved. Never publish a Claude Artifact without an explicit yes.
+```
 
 Goal:
 One sentence — what this work is trying to accomplish.
