@@ -5,8 +5,8 @@ description: On-demand monthly backstop that finds retired prompt files (`*-prom
 
 # /prompt-sweep — Prompt lifecycle backstop
 
-The periodic net under `/newsession` and `/newplan`. Jim runs this ~monthly to clear
-retired prompt files out of project roots. It **proposes**, Jim **approves**, then it
+The periodic net under `/newsession` and `/newplan`. The user runs this ~monthly to clear
+retired prompt files out of project roots. It **proposes**, the user **approves**, then it
 **moves** — nothing else.
 
 **Strictly user-invoked.** Only activate when the user types `/prompt-sweep`. Never auto-trigger.
@@ -89,8 +89,8 @@ on an open topic; REUSABLE = keep-loose). If both tables are empty, say
 
 ## Step 5 — Get approval, then act
 
-Ask Jim to approve — **per-file** (list the numbers) or **all**. For Table B he confirms or
-overrides each recommendation. Then, per file:
+Ask the user to approve — **per-file** (list the numbers) or **all**. For Table B they confirm or
+override each recommendation. Then, per file:
 - **archive** → stamp the DONE/SUPERSEDED banner as its first line, then move it to `archive/`,
   prefixing the filename per the spec's **Archive naming** rule (immediate parent folder, always, every file, no dedup).
 - **mark REUSABLE** → stamp the `LIFECYCLE: REUSABLE — keep-loose.` marker; leave in place.
@@ -100,7 +100,7 @@ For every move: ensure the destination `archive/` exists (the project's own, or 
 create if missing. **Move** (not copy, not delete). If a plan file (`<same-topic>-plan-*.md`) sits
 beside a swept prompt and is itself DONE, offer to move it too — same approval.
 
-Never move or stamp a file Jim didn't approve. Report what moved/stamped and where, one line each.
+Never move or stamp a file the user didn't approve. Report what moved/stamped and where, one line each.
 
 ## Step 6 — Done
 
