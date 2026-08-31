@@ -80,7 +80,7 @@ If Claude fetches from GitHub before answering, it's working. If it answers imme
 
 Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history.
 
-It doesn't interview you first. Unfinished work goes into the handoff's *Next action* and *Deferred* sections; the only thing it stops to flag is something genuinely urgent that would break if the session flushed without it. Previous handoffs are kept and marked *superseded*, never deleted, so you keep a trail — a same-day re-run gets a letter suffix (`…-08-20b.md`, then `…-08-20c.md`) rather than overwriting. `/newsession fast` writes the file silently and prints nothing at all.
+It doesn't interview you first. Unfinished work goes into the handoff's *Next action* and *Deferred* sections. Previous handoffs are kept and marked *superseded*, never deleted, so you keep a trail — a same-day re-run gets a letter suffix (`…-08-20b.md`, then `…-08-20c.md`) rather than overwriting. Plain `/newsession` writes the file silently and prints nothing; `/newsession full` also flags anything genuinely urgent that would break if the session flushed without it, then prints the path.
 
 Optionally pass a filename and the next session will be shaped around that file:
 ```
