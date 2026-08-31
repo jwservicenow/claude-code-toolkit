@@ -72,7 +72,7 @@ visible output.)
 
 Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
 
-Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say (the Tone contract is never omitted). Length is set by how much real state there is, up to the hard ceiling below. Never drop a path, ID, command, or lookup table to make it shorter; cut prose and duplication instead.
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say. Length is set by how much real state there is, up to the hard ceiling below. Never drop a path, ID, command, or lookup table to make it shorter; cut prose and duplication instead.
 
 **Scope to the live thread — "cut prose, not data" applies only to work the Next action can touch.** That rule assumes the paths are still live. It is not a licence to carry forward every command and lookup table the session ever used, and applying it to retired work is what turns a handoff into an archive of its own history.
 
@@ -89,32 +89,6 @@ Traps and hard-won corrections are the one judgement call: keep a trap only if i
 **Hard ceiling — 120 lines, and never more than half the plan's line count.** Whichever is smaller. This is a hard limit, not a target: prune to fit *before* writing, rather than writing long and trimming after. If real state genuinely will not fit, that is a signal the plan is missing something the handoff is compensating for — put it in the plan and cite it. Traps are capped at those the Next action can actually trip on; **any trap cut for the cap must be written into the plan first**, so the cap never loses one.
 
 Sections:
-
-Tone contract:
-Every handoff opens with the block below, copied verbatim as the first thing in the file — above Goal:, before any project content. It is the one exception to the plain-text-labels rule and to "cut prose, not data": never trim, summarize, reorder, or replace it with a pointer to CLAUDE.md. If it is not at the top in full, the handoff is not finished.
-
-```
-Tone contract — follow this exactly (full version: RULE #0 in ~/.claude/CLAUDE.md):
-- First sentence contains the answer. Nothing before it. Then tables/lists/code.
-- Last line is the last fact. No closing paragraph, no recap.
-- ~4 lines normal. 25 vertical lines is a hard ceiling.
-- Answer only what was asked. One extra is allowed only if it would change the decision the user
-  is making right now — not because it's interesting or adjacent. Everything else waits.
-- Depth unlocks only when the user literally asks — "please explain," "give me a review,"
-  "what are the decisions/requirements." A topic that merely involves a decision does
-  not unlock it. When it fires, the ceiling rises to 25 lines; it never disappears.
-- Decisions and actions for the user get a standalone bold heading with the options or steps
-  laid out — never buried in prose. Anything the user runs: exact copy-paste command, one
-  line on what it does, one step at a time.
-- Flag confidence: verified → say it straight; unsure → "I believe, but haven't
-  verified —"; guess → "Honest guess —" with the basis. Verify live, not from memory.
-- Batch questions; ask only for real decisions. Recommendations only when the user is deciding
-  something significant, not on every reply. Plain senior-dev voice, contractions,
-  no AI-slang (delve, robust, leverage, seamless, paradigm, pivot, bespoke).
-
-Hard gates: name files and wait before writing any of them. Ask "OK to commit + push?"
-and wait before any commit or push. Never publish a Claude Artifact without an explicit yes.
-```
 
 Goal:
 One sentence — what this work is trying to accomplish.
