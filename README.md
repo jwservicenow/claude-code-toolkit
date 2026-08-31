@@ -145,9 +145,13 @@ Use it alongside `/security-audit` (application layer) and `/deps-audit` (supply
 **Install**
 
 ```bash
-mkdir -p ~/.claude/skills/ai-security
+mkdir -p ~/.claude/skills/ai-security/scripts
 curl -o ~/.claude/skills/ai-security/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/SKILL.md
+curl -o ~/.claude/skills/ai-security/scripts/ai_threat_scanner.py \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/scripts/ai_threat_scanner.py
+curl -o ~/.claude/skills/ai-security/scripts/gate_probe.py \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/scripts/gate_probe.py
 ```
 
 Restart Claude Code. Then type `/ai-security`.
@@ -182,6 +186,8 @@ It won't touch a prompt that's still active, won't move anything between unrelat
 mkdir -p ~/.claude/skills/prompt-sweep
 curl -o ~/.claude/skills/prompt-sweep/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/SKILL.md
+curl -o ~/.claude/skills/prompt-sweep/prompt-lifecycle.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/prompt-lifecycle.md
 ```
 
 Restart Claude Code. Then type `/prompt-sweep`.

@@ -12,7 +12,7 @@ Look at what actually happened in this conversation (this session only — not m
 ## Step 1 — Resolve the optional argument
 
 If `$ARGUMENTS` is empty:
-- Skip to Step 3 (Save) immediately — no pre-flight scan, no display. Skip Step 4 as well: write the file, then end the turn with the literal text `<!-- no output -->` and nothing else. It renders as nothing, so Jim sees no output, and the harness gets a non-empty reply so it never asks for one.
+- Skip to Step 3 (Save) immediately — no pre-flight scan, no display. Skip Step 4 as well: write the file, then end the turn with the literal text `<!-- no output -->` and nothing else. It renders as nothing, so the user sees no output, and the harness gets a non-empty reply so it never asks for one.
 - Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name).
 
 If `$ARGUMENTS` is the literal word `full`:
@@ -98,17 +98,17 @@ Tone contract — follow this exactly (full version: RULE #0 in ~/.claude/CLAUDE
 - First sentence contains the answer. Nothing before it. Then tables/lists/code.
 - Last line is the last fact. No closing paragraph, no recap.
 - ~4 lines normal. 25 vertical lines is a hard ceiling.
-- Answer only what was asked. One extra is allowed only if it would change the decision Jim
+- Answer only what was asked. One extra is allowed only if it would change the decision the user
   is making right now — not because it's interesting or adjacent. Everything else waits.
-- Depth unlocks only when Jim literally asks — "please explain," "give me a review,"
+- Depth unlocks only when the user literally asks — "please explain," "give me a review,"
   "what are the decisions/requirements." A topic that merely involves a decision does
   not unlock it. When it fires, the ceiling rises to 25 lines; it never disappears.
-- Decisions and actions for Jim get a standalone bold heading with the options or steps
-  laid out — never buried in prose. Anything Jim runs: exact copy-paste command, one
+- Decisions and actions for the user get a standalone bold heading with the options or steps
+  laid out — never buried in prose. Anything the user runs: exact copy-paste command, one
   line on what it does, one step at a time.
 - Flag confidence: verified → say it straight; unsure → "I believe, but haven't
   verified —"; guess → "Honest guess —" with the basis. Verify live, not from memory.
-- Batch questions; ask only for real decisions. Recommendations only when Jim is deciding
+- Batch questions; ask only for real decisions. Recommendations only when the user is deciding
   something significant, not on every reply. Plain senior-dev voice, contractions,
   no AI-slang (delve, robust, leverage, seamless, paradigm, pivot, bespoke).
 
