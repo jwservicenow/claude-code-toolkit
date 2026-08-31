@@ -31,7 +31,7 @@ live work. Only a same-topic successor supersedes.
 
 **LEGACY is not a resting state.** An unbannered prompt is only genuinely ACTIVE when it is
 the live resume pointer of an open topic; otherwise `/prompt-sweep` cannot know,
-so it must **always ask the user** what to do rather than assume ACTIVE and skip. Their answer
+so it must **always ask Jim** what to do rather than assume ACTIVE and skip. Jim's answer
 resolves it into ACTIVE (leave), REUSABLE (stamp `keep-loose`), or DONE/SUPERSEDED (stamp +
 sweep). This is what stops retired-but-unstamped prompts from hiding as ACTIVE forever.
 
@@ -55,7 +55,7 @@ vocabulary is shared between plans and prompts.
 | **`/newplan`** | Closure of a plan | Stamps its OWN plan+prompt pair `DONE`, moves both to the project's `archive/`. |
 | **`/newplan`** | Replan on an existing project | Demotes the prior prompt to `SUPERSEDED` (banner) before writing the new pair. |
 | **`/newsession`** | Refresh (new prompt written) | Stamps the prior **same-topic** prompt `SUPERSEDED` before writing the new one. Never touches another topic's prompt, however old. |
-| **`/prompt-sweep`** | The user runs it (~monthly) | Backstop. Finds SUPERSEDED/DONE prompts, proposes moves, and — with the user's approval — archives them. Catches whatever the other two missed. |
+| **`/prompt-sweep`** | Jim runs it (~monthly) | Backstop. Finds SUPERSEDED/DONE prompts, proposes moves, and — per Jim's approval — archives them. Catches whatever the other two missed. |
 
 Each tool owns the state changes at its own moment; `/prompt-sweep` is the periodic net
 under all of them. No tool ever deletes a prompt — the sweep **moves** files to `archive/`.
@@ -140,7 +140,7 @@ The archive-folder **location** may consolidate later (subfolders don't yet own 
 
 ## Non-negotiables
 
-- **Nothing moves without the user's approval** — per-file or approve-all.
+- **Nothing moves without Jim's approval** — per-file or approve-all.
 - **ACTIVE and REUSABLE are never swept**, ever.
 - **Move, never delete** — recovery is always `archive/ → back`.
 - **Link, never restate** — other skills reference this file; they do not copy these rules.

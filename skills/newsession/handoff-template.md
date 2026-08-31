@@ -11,15 +11,30 @@ summarize, or write your own preamble around them.
 
 1. The lifecycle banner, if this supersedes a prior prompt. Format and rules are canonical in
    `shared/skills/prompt-sweep/prompt-lifecycle.md`.
-2. The tone contract — the communication rules the next session must follow, carried inside the
-   handoff so they survive the context flush instead of being re-derived from scratch.
+2. The tone contract, verbatim:
 
-   Source it from the user's own `CLAUDE.md`. If that file has a tone, style, or communication
-   section, copy it **verbatim** into the handoff here, introduced by a line naming where the
-   full version lives, e.g. `Tone contract — follow this exactly (full version: <path>):`.
-   Do not summarize it, reorder it, or replace it with a pointer — a pointer is precisely what
-   fails under a fresh context, which is why the rules are restated in full every time.
-   If the user's `CLAUDE.md` has no such section, omit this block entirely.
+```
+Tone contract — follow this exactly (full version: RULE #0 in ~/.claude/CLAUDE.md):
+- First sentence contains the answer. Nothing before it. Then tables/lists/code.
+- Last line is the last fact. No closing paragraph, no recap.
+- ~4 lines normal. 25 vertical lines is a hard ceiling.
+- Answer only what was asked. One extra is allowed only if it would change the decision Jim
+  is making right now — not because it's interesting or adjacent. Everything else waits.
+- Depth unlocks only when Jim literally asks — "please explain," "give me a review,"
+  "what are the decisions/requirements." A topic that merely involves a decision does
+  not unlock it. When it fires, the ceiling rises to 25 lines; it never disappears.
+- Decisions and actions for Jim get a standalone bold heading with the options or steps
+  laid out — never buried in prose. Anything Jim runs: exact copy-paste command, one
+  line on what it does, one step at a time.
+- Flag confidence: verified → say it straight; unsure → "I believe, but haven't
+  verified —"; guess → "Honest guess —" with the basis. Verify live, not from memory.
+- Batch questions; ask only for real decisions. Recommendations only when Jim is deciding
+  something significant, not on every reply. Plain senior-dev voice, contractions,
+  no AI-slang (delve, robust, leverage, seamless, paradigm, pivot, bespoke).
+
+Hard gates: name files and wait before writing any of them. Ask "OK to commit + push?"
+and wait before any commit or push. Never publish a Claude Artifact without an explicit yes.
+```
 
 Nothing else goes above `Goal:`. No "READ THIS FIRST", no restatement of the tone contract in
 your own words, no editorial about what went wrong this session.
@@ -33,7 +48,7 @@ your own words, no editorial about what went wrong this session.
 | `Constraints:` | — | Active rules agreed this session. One line each. |
 | `Next action:` | — | The immediate thing to do, executable without re-reading history. If a verification is pending, give the pass/fail criteria and what each outcome means. |
 | `Traps the next action can still trip on:` | — | Hard-won corrections that can still bite. The label is the filter: if it can only bite work already finished, it fails the live-target gate below. |
-| `Awaiting:` | **1 entry per item, ≤3 sentences** | Only if the session ends blocked on the user. One entry per blocked item — what's blocked and what input is needed. |
+| `Awaiting:` | **1 entry per item, ≤3 sentences** | Only if the session ends blocked on Jim. One entry per blocked item — what's blocked and what input is needed. |
 | `Deferred:` | — | Parked topics, one line each, so they aren't re-litigated. |
 | `Key artifacts:` | — | Paths, IPs, sys_ids, commands, URLs the next action needs. Real path for anything in `run/`. Lookup tables and ID-to-name maps go in verbatim — never summarized into prose. |
 | `Resume instruction:` | **2 sentences** | The file to read first, and the first move. Nothing else. |

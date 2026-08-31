@@ -18,7 +18,7 @@ not prior sessions.
 If `$ARGUMENTS` is empty:
 - Skip to Step 3 immediately — no pre-flight scan, no display. Skip Step 4 as well: write the
   file, then end the turn with the literal text `<!-- no output -->` and nothing else. It renders
-  as nothing, so the user sees no output, and the harness gets a non-empty reply so it never asks for one.
+  as nothing, so Jim sees no output, and the harness gets a non-empty reply so it never asks for one.
 - Derive `<topic>` by Step 3's ordering (worked-on plan's label, else the current directory's name).
 
 If `$ARGUMENTS` is the literal word `full`:
@@ -41,9 +41,9 @@ Do not survey loose ends, produce a summary, or ask what to finish first — unf
 in the handoff's Next action / Awaiting / Deferred sections, not in a pre-flight discussion.
 
 One high-bar scan only: is there anything that must be done NOW or real harm follows if the session
-flushes without it — an uncommitted change the user explicitly asked to push, a half-applied edit that
+flushes without it — an uncommitted change Jim explicitly asked to push, a half-applied edit that
 leaves things broken, live or temporary state that must be restored? If so, flag it in **one line**
-and let the user decide (honor normal change-control and destructive-op acks). If nothing clears that
+and let Jim decide (honor normal change-control and destructive-op acks). If nothing clears that
 bar — the usual case — say nothing and go to Step 3.
 
 ## Step 3 — Write the handoff to disk
