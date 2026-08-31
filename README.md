@@ -8,7 +8,7 @@ Everything here works inside **Claude Code** (the command-line app). Some tools 
 |------|-------------|
 | [Claude Desktop RAG](https://jwservicenow.github.io/claude-toolkit/docs/servicenow-mirror-desktop-guide.html) **· v3** | Claude Desktop can't read the ServiceNow docsite directly — this fixes it. Wires in a custom MCP fetch server to pull from the [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs), then locks it down with Project Instructions that re-enforces docsite-only answers with citable URLs. |
 | [/servicenow_rag](#servicenow_rag) | Claude Code RAG skill — Navigates ServiceNow's official [GitHub docs mirror](https://github.com/ServiceNow/ServiceNowDocs#servicenowdocs) from its published index down to the exact topic file, then supplements with a scoped ServiceNow Community search. Answers are cited to real docs.servicenow.com URLs; it won't invent a doc path, and says so when the docs don't cover something. |
-| [/newsession](#newsession-v2) **· v2** | Long chat getting slow or pricey? Turn it into a compact handoff you paste into a fresh session — goal, decisions, constraints, next action, written straight to your project folder |
+| [/newsession](#newsession) | Long chat getting slow or pricey? Turn it into a compact handoff you paste into a fresh session — goal, decisions, constraints, next action, written straight to your project folder |
 | [/newplan](#newplan) | Turn a goal into an approved, written plan — interviews you, asks clarifying questions, provides 3–4 ranked approaches with trade-offs, saved as a plan file; every plan ends with a built-in closure step (status DONE + archive) |
 | [/security-audit](#security-audit) | Scans the whole codebase for OWASP Top 10 patterns, dependency CVEs, hardcoded secrets, weak auth, and risky config — an audit of everything, not just your pending diff |
 | [/ai-security](#ai-security) | Security review for AI/LLM systems and agents — prompt injection (direct and indirect), agent tool abuse, guardrail resistance, model inversion and data-poisoning exposure, mapped to MITRE ATLAS |
@@ -76,13 +76,11 @@ If Claude fetches from GitHub before answering, it's working. If it answers imme
 
 ---
 
-### `/newsession` v2
+### `/newsession`
 
 Long conversations get slow, lose the thread, and burn tokens. Type `/newsession` and it writes a dense, structured handoff — goal, decisions, constraints, next action — and saves it as a resume file right in your project folder. Paste it into a new chat and pick up exactly where you left off, no replaying history.
 
-It doesn't interview you first. Unfinished work goes into the handoff's *Next action* and *Deferred* sections; the only thing it stops to flag is something genuinely urgent that would break if the session flushed without it. Previous handoffs are kept and marked *superseded*, never deleted, so you keep a trail — a same-day re-run gets a letter suffix (`…-08-20b.md`, then `…-08-20c.md`) rather than overwriting. Bare `/newsession` writes the file silently and prints nothing at all; `/newsession full` also runs the urgent-item check and prints the path.
-
-**New in v2.** The handoff's shape now lives in a separate `handoff-template.md`: a fixed set of section labels, caps counted in sentences on the three that can only hold restatement, and two rules that decide what stays. A block earns its place by naming something the next action will actually touch; anything else is written into your plan or a reference file *first* and then cited, never dropped. On a real 420-line handoff this cut it to 143 with nothing lost, and left an already-tight 146-line one untouched.
+It doesn't interview you first. Unfinished work goes into the handoff's *Next action* and *Deferred* sections; the only thing it stops to flag is something genuinely urgent that would break if the session flushed without it. Previous handoffs are kept and marked *superseded*, never deleted, so you keep a trail — a same-day re-run gets a letter suffix (`…-08-20b.md`, then `…-08-20c.md`) rather than overwriting. `/newsession fast` writes the file silently and prints nothing at all.
 
 Optionally pass a filename and the next session will be shaped around that file:
 ```
@@ -95,8 +93,6 @@ Optionally pass a filename and the next session will be shaped around that file:
 mkdir -p ~/.claude/skills/newsession
 curl -o ~/.claude/skills/newsession/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/newsession/SKILL.md
-curl -o ~/.claude/skills/newsession/handoff-template.md \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/newsession/handoff-template.md
 ```
 
 Restart Claude Code. Then type `/newsession`.
@@ -150,13 +146,8 @@ Use it alongside `/security-audit` (application layer) and `/deps-audit` (supply
 
 ```bash
 mkdir -p ~/.claude/skills/ai-security
-mkdir -p ~/.claude/skills/ai-security/scripts
 curl -o ~/.claude/skills/ai-security/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/SKILL.md
-curl -o ~/.claude/skills/ai-security/scripts/ai_threat_scanner.py \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/scripts/ai_threat_scanner.py
-curl -o ~/.claude/skills/ai-security/scripts/gate_probe.py \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/ai-security/scripts/gate_probe.py
 ```
 
 Restart Claude Code. Then type `/ai-security`.
@@ -191,8 +182,6 @@ It won't touch a prompt that's still active, won't move anything between unrelat
 mkdir -p ~/.claude/skills/prompt-sweep
 curl -o ~/.claude/skills/prompt-sweep/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/SKILL.md
-curl -o ~/.claude/skills/prompt-sweep/prompt-lifecycle.md \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/prompt-lifecycle.md
 ```
 
 Restart Claude Code. Then type `/prompt-sweep`.

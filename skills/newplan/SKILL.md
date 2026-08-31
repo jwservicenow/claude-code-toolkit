@@ -121,8 +121,6 @@ The transition prompt should contain:
 - The first concrete step to take
 - An instruction to read the full plan file before doing anything: "Full plan is in `<topic>-plan-YYYY-MM-DD.md` — read it before starting."
 
-This transition prompt is deliberately small — the three bullets above and nothing more. It is NOT the `/newsession` handoff shape: `skills/newsession/handoff-template.md` governs that file only, and its label set does not apply here.
-
 If this is a **replan** on an existing project (a prior `*-prompt-*.md` already exists for it), **demote the prior prompt to SUPERSEDED** before writing the new one: prepend `STATUS YYYY-MM-DD — SUPERSEDED by <new-prompt-filename>.` (today's date) as its first line. Do not delete it — `/prompt-sweep` archives superseded prompts later, with the user's approval. **Never demote a `keep-loose` REUSABLE prompt** (first line `LIFECYCLE: REUSABLE — keep-loose.`) — skip it entirely when choosing the prior prompt.
 
 Tell the user both filenames, then echo the transition prompt.
