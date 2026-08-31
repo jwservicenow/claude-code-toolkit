@@ -72,7 +72,7 @@ visible output.)
 
 Generate a dense, structured handoff prompt the user can paste as the first message of a new Claude Code session.
 
-Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say (the Tone contract is never omitted). No fixed word budget — length is set by how much real state there is. Never drop a path, ID, command, or lookup table to make it shorter; cut prose instead.
+Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say (the Tone contract is never omitted). Length is set by how much real state there is, up to the hard ceiling below. Never drop a path, ID, command, or lookup table to make it shorter; cut prose and duplication instead.
 
 **Scope to the live thread — "cut prose, not data" applies only to work the Next action can touch.** That rule assumes the paths are still live. It is not a licence to carry forward every command and lookup table the session ever used, and applying it to retired work is what turns a handoff into an archive of its own history.
 
@@ -81,6 +81,12 @@ A thread **closed during this session** — decided, executed, verified, and wri
 Test each block before keeping it: **could the Next action plausibly touch this?** If the answer is no because the thing was just shut down, deleted, rejected, or superseded, it is not state — it is history, and history belongs in the artifact the closure step already wrote.
 
 Traps and hard-won corrections are the one judgement call: keep a trap only if it can still bite the *next* action. A trap about infrastructure the session just retired goes with the rest of that thread.
+
+**Do not duplicate the artifact this handoff points at.** The rules above catch *retired* work. This one catches the opposite failure: a plan that is fully live, whose contents therefore pass the Next-action test, and which the handoff restates anyway. When the handoff names a plan, that plan is the durable copy — cite the section (`plan §Phase 1 step 7`) instead of reproducing its source tables, port maps, pipeline descriptions, measurements, or per-file statistics. Two copies of a block mean the next session reads it twice and the copies drift the first time one is edited. Narrow exception: anything needed to act *before* the plan has been read.
+
+**The prior prompt is not a template.** Re-derive every block from this session's actual state. A block earns its place by passing the Next-action test on its own — having appeared in the previous prompt is not a reason to keep it, and copying its shape forward is how a handoff grows monotonically: nothing is ever removed because nothing is ever re-examined. Read the prior prompt to know what is superseded, not to know what to write.
+
+**Hard ceiling — 120 lines, and never more than half the plan's line count.** Whichever is smaller. This is a hard limit, not a target: prune to fit *before* writing, rather than writing long and trimming after. If real state genuinely will not fit, that is a signal the plan is missing something the handoff is compensating for — put it in the plan and cite it. Traps are capped at those the Next action can actually trip on; **any trap cut for the cap must be written into the plan first**, so the cap never loses one.
 
 Sections:
 
