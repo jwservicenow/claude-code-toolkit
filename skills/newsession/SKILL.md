@@ -74,6 +74,14 @@ Generate a dense, structured handoff prompt the user can paste as the first mess
 
 Strip all fluff, filler words, pronouns, polite transitions. Aggressive shorthand, bullets, high-density keywords. Plain-text section labels (no markdown bold/asterisks), each on its own line ending with a colon. Content follows on the next line(s). Omit any section with nothing real to say (the Tone contract is never omitted). No fixed word budget — length is set by how much real state there is. Never drop a path, ID, command, or lookup table to make it shorter; cut prose instead.
 
+**Scope to the live thread — "cut prose, not data" applies only to work the Next action can touch.** That rule assumes the paths are still live. It is not a licence to carry forward every command and lookup table the session ever used, and applying it to retired work is what turns a handoff into an archive of its own history.
+
+A thread **closed during this session** — decided, executed, verified, and written into a durable artifact — does not carry its mechanics forward. It compresses to **one line**: that it is closed, that it must not be reopened, and where the detail permanently lives (a findings doc, an inventory entry, a commit hash). Its hosts, ports, tokens, endpoint quirks, and trap lists stay in that artifact. Promoting them into the handoff duplicates the artifact and buries the one thing the next session actually needs.
+
+Test each block before keeping it: **could the Next action plausibly touch this?** If the answer is no because the thing was just shut down, deleted, rejected, or superseded, it is not state — it is history, and history belongs in the artifact the closure step already wrote.
+
+Traps and hard-won corrections are the one judgement call: keep a trap only if it can still bite the *next* action. A trap about infrastructure the session just retired goes with the rest of that thread.
+
 Sections:
 
 Tone contract:
