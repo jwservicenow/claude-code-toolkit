@@ -615,6 +615,18 @@ Steps:
      now-assist-skill-kit/exploring-now-assist-skill-kit.md,
      now-assist-readiness-evaluation/exploring-now-assist-readiness-evaluation.md.
      Confirmed live 2026-08-08.
+   - Now Assist Skill Kit payload storage table (sys_generative_ai_log): NOT in the
+     Skill Kit publication itself — one hop out, generative-ai-controller/
+     generative-ai-controller-tables.md (reached via generative-ai-controller/
+     reference-for-generative-ai-controller.md) documents the "Generative AI Log
+     [sys_generative_ai_log]" table — Prompt ("Final prompt passed to the model"),
+     Response, Prompt Token Count, Response Token Count, Output Metadata, Feedback.
+     Verified live, last_updated 2026-03-12. Do not answer "no such table is
+     documented" — it is real and citable at that path. Scheduled evaluation IS a
+     genuine gap, not a naming trap: evaluate-prompt.md documents only manual/
+     on-demand evaluation (create dataset -> create Evaluation Run -> pick metrics ->
+     Save & Evaluate); no scheduling mechanism appears anywhere in the Skill Kit
+     publication.
    - application-development (own publication, index.md 624,025 B — treat as index-only
      like it-service-management and it-asset-management, bracketing offsets required for
      anything not listed here; no cached direct paths before 2026-08-08):
