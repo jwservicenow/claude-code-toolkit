@@ -120,6 +120,40 @@ while IFS= read -r f; do
     esac
 done <<< "$staged"
 
+# 6. work/projects/search-routing must NEVER be committed to this repo. Its home is
+#    the jwservicenow account (private jwservicenow/search-routing), and it was
+#    pushed to jimww333/workspace by mistake twice — 2026-08-31 and 2026-09-01 —
+#    because the root .gitignore opted it in and the CLAUDE.md repo-map, plus a
+#    stale memory file, both named jimww333 as the destination. Documentation was
+#    corrected each time and the mistake still recurred, so the block lives here.
+#    Self-skips in every other repo, where the path does not exist.
+#    Deletions are NOT blocked: `staged` is ACM-filtered, so untracking the path
+#    (git rm --cached) commits cleanly. Only re-ADDING it is refused.
+while IFS= read -r f; do
+    case "$f" in
+        work/projects/search-routing/*)
+            echo "BLOCKED: search-routing artifact staged -> $f"
+            echo "         This project does NOT belong to jimww333/workspace."
+            echo "         Its home is the jwservicenow account. Commit it there instead."
+            fail=1
+            ;;
+    esac
+done <<< "$staged"
+
+# 7. Plan and prompt files are rsync-backed working scratch, never versioned
+#    (Jim, 2026-08-25). Checked on ADDITIONS only, so the two prompt files already
+#    tracked in claude-toolkit stay editable without crying wolf on every commit.
+while IFS= read -r f; do
+    case "$(basename "$f")" in
+        *-plan-*.md|*-prompt-*.md)
+            echo "BLOCKED: new plan/prompt file staged -> $f"
+            echo "         Plans and prompts stay untracked in every repo; the 14:00"
+            echo "         TrueNAS rsync is their backup. Deliberate exception: --no-verify."
+            fail=1
+            ;;
+    esac
+done <<< $(git diff --cached --name-only --diff-filter=A)
+
 if [ "$fail" -ne 0 ]; then
     echo ""
     echo "pre-commit: commit refused. Nothing was committed."
