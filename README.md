@@ -63,7 +63,7 @@ Two guardrails do most of the work. It can only fetch a doc path that came from 
 ```bash
 mkdir -p ~/.claude/commands
 curl -o ~/.claude/commands/servicenow_rag.md \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/commands/servicenow_rag.md
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/v2026-08-09-suite-green/commands/servicenow_rag.md
 ```
 
 Restart Claude Code. Then type `/servicenow_rag` followed by your question.
