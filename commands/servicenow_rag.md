@@ -439,6 +439,22 @@ Steps:
      configuration-management-database-cmdb/cmdb-tables-details.md (base classes only —
      not connector/Store-app classes; check api-sgc-*-tables.md for those first before
      concluding a class doesn't exist).
+   - CMDB roles / who can CRUD a CI:
+     configuration-management-database-cmdb/installed-with-cmdb-workspace.md carries the
+     "Roles installed" table — sn_cmdb_admin (full CRUD on cmdb_ci plus CI Class Manager
+     policy), sn_cmdb_editor (write to cmdb_ci, no policy), sn_cmdb_user (read-only,
+     contained by itil indirectly), the cmdb_ms_* Multisource tier, the
+     sn_cmdb_ws.config_* pair and cmdb_manual_ci_ire_access, each with its role
+     containment. Verified live 2026-09-01. NAMING TRAP: neither the filename nor the
+     index description says "roles for CI CRUD" — the index line reads "components ...
+     installed with the activation of the CMDB Workspace (sn_cmdb_ws) plugin", so a text
+     match on "role" or "CRUD" will not surface it and index paging misses it at ~5% of
+     the 1,255,768 B platform index. There is NO cmdb-roles.md and no r_CMDBRoles.md;
+     both 404. roles-by-product does not cover CMDB either. Note for upgrades: on an
+     instance moved directly from Xanadu or Yokohama to Australia, the CUD grants on
+     sn_cmdb_admin/sn_cmdb_editor require running the "Remove CMDB Roles from ITIL roles
+     and Add CUD access" scheduled job — the page says so and cites the Zurich CMDB
+     release notes.
    - IRE: configuration-management-database-cmdb/ire.md (engine concept) —
      `c_IRE.md` does NOT exist (common wrong guess); module landing is
      c_CMDBIdentifyandReconcile.md, identification is c_IdentificationRules.md.
