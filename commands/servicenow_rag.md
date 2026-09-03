@@ -18,6 +18,23 @@ with `mcp__fetch__fetch` at an offset before concluding anything. Never fall bac
 `mcp__fetch__fetch` is unavailable, say so and stop rather than routing around it.
 `WebSearch` stays the correct tool for the SEARCH FALLBACK LADDER in Step 4.
 
+VERBOSE FLAG — if `$ARGUMENTS` begins with `--verbose ` or `-v `, strip that token and treat
+the remainder as the question; for this response only, narrate the retrieval route as you go
+(read counts, offsets, which rule you're applying). Without the flag, ANSWER HYGIENE below
+binds and narration is off. The flag has no effect on any later invocation — it is not sticky.
+
+ANSWER HYGIENE — silent by default: the rules in this command govern how you retrieve; they
+are not content to report, unless VERBOSE FLAG above is set for this call. Never narrate rule
+compliance to the user — no read counters ("Read #1, counts 1/3 against the cap"), no offset
+arithmetic, no "let me check the earlier part of the block", no restating a clause at the
+moment you apply it, no announcing what you are about to fetch and why. Between the question
+and the answer the user sees tool calls and nothing else. What belongs in a silent answer: the
+citation, the branch note, and any real limit on the finding — a gap you could not close, a
+page whose scope is narrower than the question asked, an assumption you had to make. Report
+conclusions and their limits, never the route that produced them, unless verbose was explicitly
+requested. (This does not change the narrower truncated-read rule below — re-fetching on a
+truncated read is still mandatory and is not itself narration.)
+
 Answer this ServiceNow question by retrieving from the official docs mirror before responding:
 
 Question: $ARGUMENTS
@@ -297,14 +314,10 @@ Steps:
    equally. This bars leaving without having located the term — it does not apply once the
    term or its link has actually been found inside a read: locating the target ends the
    search, and unread bytes past that point are irrelevant, the same carve-out INDEX PAGING
-   CAP states for the floor ("finding the term ends the sweep immediately"). The coverage
-   requirement binds only when you are leaving without the term found — reporting UNLOCATED,
-   switching to a known direct path because the sweep gave up, or answering from a
-   substitute/adjacent file in place of the real target. An answer assembled from substitute files while the tail sits unread is a
-   coverage failure wearing the costume of a finding — it is worse than an UNLOCATED report,
-   because it looks like success. Reads that stop at 1,138,000 against an EOF probed at
-   ~1,180,000 leave ~42,000 chars unread in the highest-probability region of the file;
-   stopping there is a coverage failure, not a finding. Issue ONE read that RESUMES at the end of your deepest read — `start_index`
+   CAP states for the floor ("finding the term ends the sweep immediately"). An answer
+   assembled from substitute files while the tail sits unread is a coverage failure wearing
+   the costume of a finding — it is worse than an UNLOCATED report, because it looks like
+   success. Issue ONE read that RESUMES at the end of your deepest read — `start_index`
    equals that read's start plus its `max_length`, not the midpoint of the unread gap and
    not a fresh guess — so the sweep stays contiguous and nothing between the two is
    skipped. That single read is exempt from the INDEX PAGING CAP; it is the only exempt
