@@ -767,6 +767,15 @@ Steps:
    - Cite only documents fetched this session. A path harvested from another document's
      link list or an index is a POINTER, not a source — if you name it, label it
      "not retrieved this pass."
+   - POINTERS STILL GET A LIVE LINK — naming a pointer as bare text is a defect. Render
+     it as a markdown link whose ANCHOR TEXT is the `.md` basename and whose href is that
+     path's derived canonical URL, using the same derivation as Step 5 above (take the raw
+     path after `markdown/`, prepend https://www.servicenow.com/docs/r/ , strip .md,
+     append .html). Example:
+     [installed-with-model-management.md](https://www.servicenow.com/docs/r/it-asset-management/asset-management/installed-with-model-management.html)
+     Keep the basename as the anchor text — never swap it for a page title. Deriving a
+     cite-only URL is not a fetch and the URL never becomes a fetch target, so PATH
+     PROVENANCE is untouched; the "not retrieved this pass" label still applies and stays.
    - Never drop a citable identifier (KB number, canonical URL, companion page) that was
      present in bytes you actually read.
    Known gap: this is enforced by instruction only, not tooling — there is no automated

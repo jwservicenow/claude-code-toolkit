@@ -159,7 +159,7 @@ which uvx</code></pre>
 
 **Recovery:** If a link 404s: (1) check Known doc locations; (2) fetch the bundle index and page for the filename; (3) only if both fail, stop and ask for the URL.
 
-**Citation Integrity:** Cite only documents fetched this session — never a remembered path, even if it looks correct. An unfetched path, whether from a link list or memory, is a pointer, not a source. Preserve citable identifiers (KB numbers, canonical URLs) from your fetches.
+**Citation Integrity:** Cite only documents fetched this session — never a remembered path, even if it looks correct. An unfetched path, whether from a link list or memory, is a pointer, not a source. Preserve citable identifiers (KB numbers, canonical URLs) from your fetches. **Pointers still get a live link** — naming one as bare text is a defect. Render an unfetched cross-reference as a markdown link whose ANCHOR TEXT is the .md basename and whose href is that path's derived canonical URL (take the path after markdown/, prepend https://www.servicenow.com/docs/r/ , strip .md, append .html) — e.g. [installed-with-model-management.md](https://www.servicenow.com/docs/r/it-asset-management/asset-management/installed-with-model-management.html). Keep the basename as the anchor text, never swap it for a page title. Deriving a cite-only URL is not a fetch and the URL never becomes a fetch target, so Path Provenance is unaffected; the pointer label stays.
 
 **Frontmatter Self-Check:** Every non-empty content file opens with YAML frontmatter, and it is the file's own statement of what it is — title, canonical_url, and a last_updated date. Read it before answering from the file: if the title does not match the topic you routed for, you are in the wrong file regardless of how the path looked, and last_updated tells you whether the page predates a refresh you are reasoning about.
 
@@ -270,7 +270,7 @@ Every URL above shows a branch token. Do NOT treat it as a constant — derive i
 ---
 Validated: ServiceNow/ServiceNowDocs @ australia, 2026-08-20 (paths re-probed after the 17 August 2026 refresh). Branch token is derived, not fixed. Not an official ServiceNow artifact.
 
-**Instruction Block Version:** 2026-09-03a — if the user asks for the instruction version, block version, or "what version are you running", reply with this line verbatim and nothing else. This is an explicit exception to Answer Hygiene.</code></pre>
+**Instruction Block Version:** 2026-09-03b — if the user asks for the instruction version, block version, or "what version are you running", reply with this line verbatim and nothing else. This is an explicit exception to Answer Hygiene.</code></pre>
       </details>
     </li>
 
