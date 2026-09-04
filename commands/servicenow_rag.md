@@ -452,6 +452,20 @@ Steps:
      configuration-management-database-cmdb/cmdb-tables-details.md (base classes only —
      not connector/Store-app classes; check api-sgc-*-tables.md for those first before
      concluding a class doesn't exist).
+   - CI ownership / group governance — Managed by Group, Support group, Change group:
+     the sync and precedence rules are filed under CSDM, NOT under CMDB, and the route
+     (CSDM > Implement > Dynamic CI group and service type) is unguessable from a question
+     phrased about CIs. They sit at ~offset 227,000 of the servicenow-platform index, past
+     the INDEX PAGING CAP for any run that starts in the CMDB block, so go direct:
+     common-service-data-model-csdm/csdm-data-synchronize.md (what syncs onto the CI —
+     Managed by Group, Support group, Change group — and the CI Class Manager vs Technology
+     Management Offering precedence order), csdm-data-synchronize-enable.md (turning the
+     sync on) and csdm-enable-tso.md (the TSO side). Verified live 2026-09-03. Related
+     CMDB-side pages that do NOT carry the sync rules: cmdb-groups.md,
+     cmdb-table-property-descriptions.md. Note the doc defect — the cmdb_ci attribute
+     reference in cmdb-table-property-descriptions.md lists Approval Group, Change Group,
+     Managed by (User), Owned by and Support group but has NO Managed by Group row, so its
+     absence there is not evidence the field does not exist.
    - CMDB roles / who can CRUD a CI:
      configuration-management-database-cmdb/installed-with-cmdb-workspace.md carries the
      "Roles installed" table — sn_cmdb_admin (full CRUD on cmdb_ci plus CI Class Manager
