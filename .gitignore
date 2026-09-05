@@ -1,6 +1,11 @@
 .DS_Store
 *.swp
 .env
-statusbar-prompt-2026-06-23.md
+# plans and prompts — local only, never versioned. BLANKET, NO EXCEPTIONS
+# (Jim, 2026-09-05). Mirrors the ~/ClaudeOS workspace rule. Char classes, not
+# lowercase literals, so it holds on a case-sensitive clone too. Supersedes
+# the old one-off statusbar-prompt-2026-06-23.md line.
+*[Pp][Ll][Aa][Nn]*.md
+*[Pp][Rr][Oo][Mm][Pp][Tt]*.md
 skills/ai-security/scripts/__pycache__/
 .claude/settings.local.json
