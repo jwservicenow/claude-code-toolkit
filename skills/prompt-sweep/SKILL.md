@@ -12,7 +12,7 @@ retired prompt files out of project roots. It **proposes**, the user **approves*
 **Strictly user-invoked.** Only activate when the user types `/prompt-sweep`. Never auto-trigger.
 
 The lifecycle states, banner formats, division of labor, and scope guardrail are defined
-once in the canonical spec: **`shared/skills/prompt-sweep/prompt-lifecycle.md`**. Read it
+once in the canonical spec: **`shared/skills/prompt-sweep/prmpt-lifecycle.md`**. Read it
 before running. This skill does not restate those rules — it applies them.
 
 ## Step 1 — Resolve the branch (hard scope)
@@ -31,7 +31,7 @@ Within the resolved branch, find every `*-prompt-*.md`:
 
 ## Step 3 — Classify each file (per the spec)
 
-For each prompt file, assign a state using `prompt-lifecycle.md` precedence
+For each prompt file, assign a state using `prmpt-lifecycle.md` precedence
 (**REUSABLE > ACTIVE > DONE > SUPERSEDED**):
 - **REUSABLE** — first line is the `LIFECYCLE: REUSABLE — keep-loose.` marker. Never swept.
 - **DONE** — first line is a `STATUS … — DONE.` banner. Sweep candidate.
@@ -42,7 +42,7 @@ For each prompt file, assign a state using `prompt-lifecycle.md` precedence
   and treating the project's newest as the only survivor retires real work.
 - **ACTIVE** — no banner AND the live resume pointer of an open topic. Never swept. If its date
   is **more than 60 days old** it is **dormant** — still never swept, but surfaced in Step 4's
-  "needs your call" list alongside LEGACY (see `prompt-lifecycle.md` § Dormant topics).
+  "needs your call" list alongside LEGACY (see `prmpt-lifecycle.md` § Dormant topics).
 - **LEGACY** — no banner and no `keep-loose` marker, and **not** confidently ACTIVE per the
   line above (predates the system, retired without stamping, or a lone prompt in a flat root
   with no open plan). **Do not assume ACTIVE and skip it** — surface it for a decision (Step 4).
@@ -112,4 +112,4 @@ State the final tally (moved N, left M active/reusable). No handoff, no README, 
 - One branch per run — never cross the work/personal line.
 - ACTIVE and REUSABLE are never candidates.
 - Move, never delete. Every move is approval-gated.
-- Rules live in `prompt-lifecycle.md` — link to it, never restate it.
+- Rules live in `prmpt-lifecycle.md` — link to it, never restate it.

@@ -186,8 +186,8 @@ It won't touch a prompt that's still active, won't move anything between unrelat
 mkdir -p ~/.claude/skills/prompt-sweep
 curl -o ~/.claude/skills/prompt-sweep/SKILL.md \
   https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/SKILL.md
-curl -o ~/.claude/skills/prompt-sweep/prompt-lifecycle.md \
-  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/prompt-lifecycle.md
+curl -o ~/.claude/skills/prompt-sweep/prmpt-lifecycle.md \
+  https://raw.githubusercontent.com/jwservicenow/claude-toolkit/main/skills/prompt-sweep/prmpt-lifecycle.md
 ```
 
 Restart Claude Code. Then type `/prompt-sweep`.

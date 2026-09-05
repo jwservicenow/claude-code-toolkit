@@ -75,13 +75,13 @@ The single check that confirms the agreed goal (top of this plan) was actually a
 
 ## Closure
 The last task of every plan, always present. Once the goal above is verified and the work is done:
-1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date) — the DONE/SUPERSEDED vocabulary defined in `shared/skills/prompt-sweep/prompt-lifecycle.md`.
+1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date) — the DONE/SUPERSEDED vocabulary defined in `shared/skills/prompt-sweep/prmpt-lifecycle.md`.
 2. Move both this plan (`<topic>-plan-*.md`) and its prompt (`<topic>-prompt-*.md`) into the project's `archive/` folder — the `archive/` directly under the project dir where they live; create it if it doesn't exist.
 3. Deal with `run/` (see *Working artifacts* in the skill): promote anything durable to the project root and commit it; keeping or deleting the rest is the user's call — ask, don't assume.
 
 Until these are done, this section stands as the open marker that the plan isn't closed yet.
 
-The prompt lifecycle (states, banners, when prompts get archived) is specified once in `shared/skills/prompt-sweep/prompt-lifecycle.md` — follow it; do not restate its rules here.
+The prompt lifecycle (states, banners, when prompts get archived) is specified once in `shared/skills/prompt-sweep/prmpt-lifecycle.md` — follow it; do not restate its rules here.
 
 ---
 
