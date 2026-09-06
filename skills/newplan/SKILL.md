@@ -59,7 +59,7 @@ The chosen approach and the reasoning behind it.
 Ordered list of concrete steps to execute the plan. The **final step is always closure** — point it at the `## Closure` section below.
 
 ## Testing
-How to verify it worked.
+How to verify it worked. **Score each criterion separately and never roll results into a single number** — a single score cannot tell you *which* thing failed, so it cannot be acted on, and a plan whose progress is one number is unfalsifiable. If an acceptance-criteria artifact exists, this section names its criteria and reports against them rather than inventing its own bar.
 
 ## Backout
 How to undo or recover if something goes wrong.
@@ -78,6 +78,7 @@ The last task of every plan, always present. Once the goal above is verified and
 1. Banner the plan header with **`STATUS YYYY-MM-DD — DONE.`** (today's date) — the DONE/SUPERSEDED vocabulary defined in `shared/skills/prompt-sweep/prmpt-lifecycle.md`.
 2. Move both this plan (`<topic>-plan-*.md`) and its prompt (`<topic>-prompt-*.md`) into the project's `archive/` folder — the `archive/` directly under the project dir where they live; create it if it doesn't exist.
 3. Deal with `run/` (see *Working artifacts* in the skill): promote anything durable to the project root and commit it; keeping or deleting the rest is the user's call — ask, don't assume.
+4. Settle the project's artifacts: carry forward anything a successor still needs, then mark superseded findings docs as read-only history so they stop loading at session start. Version-free artifacts — a defect log, a runbook — are **not** archived with the plan; they outlive it. Never archive an artifact another live plan still cites.
 
 Until these are done, this section stands as the open marker that the plan isn't closed yet.
 
@@ -144,6 +145,20 @@ That's the end — the echoed transition prompt followed by the `Session prompt 
 ## Working artifacts — files created while executing the plan
 
 Executing a plan generates byproducts the plan itself never named: censuses, findings, verification checklists, diffs, scratch notes. Two rules cover all of them.
+
+**The standard set.** Most projects of any size end up needing some of these. Create one the first time its content appears, rather than letting the handoff prompt absorb it — a prompt that keeps growing is almost always a missing artifact, not a formatting problem.
+
+| Artifact | `<kind>` | Owns |
+|---|---|---|
+| Acceptance criteria | `acceptance` | What "done" means. The stopping condition, ratified by the user. |
+| Findings | `findings` | What was learned, proven, or ruled out. Numbered, so it can be cited. |
+| Defect / backlog log | `defects` | Known bugs and parked work — including things deliberately left unfixed, and why. |
+| Runbook | `runbook` | Operational traps, host and service mechanics, recovery steps. |
+| Traceability | often a table inside the acceptance doc | Which criterion each test covers, and its current result. |
+
+**Each artifact owns its content.** Nothing that lives in one gets copied into the plan or the handoff prompt — they cite it (`runbook §1`, `defects D4`, `F81`). Two copies of a block drift the first time one is edited. `/newsession` relies on this: its section-ownership rule cites exactly these artifacts.
+
+**Version-free where it makes sense.** A defect log and a runbook usually describe the project, not one iteration of it — name them without a version so they outlive it, rather than being rebuilt each round.
 
 **Naming** — `<topic>-<kind>-YYYY-MM-DD.md`, same shape as the plan and prompt. `<kind>` says what it is (`census`, `findings`, `goal-verification`). Add a letter suffix for same-day revisions (`…-2026-06-07b.md`).
 
