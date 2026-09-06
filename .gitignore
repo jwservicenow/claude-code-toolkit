@@ -9,3 +9,7 @@
 *[Pp][Rr][Oo][Mm][Pp][Tt]*.md
 skills/ai-security/scripts/__pycache__/
 .claude/settings.local.json
+
+# any output/ folder, at any depth — the drop box for material that lives on
+# disk but must never be versioned. This repo is PUBLIC (Jim, 2026-09-06).
+output/
