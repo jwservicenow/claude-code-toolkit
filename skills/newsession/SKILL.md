@@ -82,16 +82,29 @@ Test each block before keeping it: **could the Next action plausibly touch this?
 
 Traps and hard-won corrections are the one judgement call: keep a trap only if it can still bite the *next* action. A trap about infrastructure the session just retired goes with the rest of that thread.
 
-**Do not duplicate the artifact this handoff points at.** The rules above catch *retired* work. This one catches the opposite failure: a plan that is fully live, whose contents therefore pass the Next-action test, and which the handoff restates anyway. When the handoff names a plan, that plan is the durable copy — cite the section (`plan §Phase 1 step 7`) instead of reproducing its source tables, port maps, pipeline descriptions, measurements, or per-file statistics. Two copies of a block mean the next session reads it twice and the copies drift the first time one is edited. Narrow exception: anything needed to act *before* the plan has been read.
+**Do not duplicate the artifacts this handoff points at.** The rules above catch *retired* work. This one catches the opposite failure: an artifact that is fully live, whose contents therefore pass the Next-action test, and which the handoff restates anyway. A project may own several durable artifacts, not just a plan — a defect log, a runbook, a findings doc, acceptance criteria. **Each one owns its content; the handoff cites it and never reproduces it.** Cite the section (`plan §Phase 1 step 7`, `runbook §1`, `defects D4`) instead of copying source tables, port maps, pipeline descriptions, measurements, or per-file statistics.
+
+**Section ownership — where a block belongs when the project has these artifacts:**
+
+| Handoff section | Owned by | Handoff carries |
+|---|---|---|
+| Deferred | the defect/backlog log | a pointer, plus anything the Next action must not re-litigate |
+| Traps | the runbook | only traps the Next action can actually trip on |
+| State & decisions | the plan and findings doc | current position, not the reasoning that produced it |
+| Key artifacts | — | paths only |
+
+If the owning artifact does not exist, the content stays in the handoff and **that is the signal to create the artifact**, not to let the section grow. Two copies of a block mean the next session reads it twice and the copies drift the first time one is edited. Narrow exception: anything needed to act *before* the plan has been read.
 
 **The prior prompt is not a template.** Re-derive every block from this session's actual state. A block earns its place by passing the Next-action test on its own — having appeared in the previous prompt is not a reason to keep it, and copying its shape forward is how a handoff grows monotonically: nothing is ever removed because nothing is ever re-examined. Read the prior prompt to know what is superseded, not to know what to write.
 
-**Hard ceiling — 120 lines, and never more than half the plan's line count.** Whichever is smaller. This is a hard limit, not a target: prune to fit *before* writing, rather than writing long and trimming after. If real state genuinely will not fit, that is a signal the plan is missing something the handoff is compensating for — put it in the plan and cite it. Traps are capped at those the Next action can actually trip on; **any trap cut for the cap must be written into the plan first**, so the cap never loses one.
+**Hard ceiling — 120 lines, and never more than half the plan's line count.** Whichever is smaller. **If the session worked no plan, the ceiling is a flat 120 lines** — the half-the-plan clause simply does not apply, and it never prunes below 120 on its own. This is a hard limit, not a target: prune to fit *before* writing, rather than writing long and trimming after. If real state genuinely will not fit, that is a signal the plan is missing something the handoff is compensating for — put it in the plan and cite it. Traps are capped at those the Next action can actually trip on; **any trap cut for the cap must be written into the runbook first** — or the plan, if the project has no runbook — so the cap never loses one.
+
+**Sessions with no plan are a normal case, not a degraded one.** A long exploratory session — questions, reading, decisions, no plan file — still deserves a good handoff. It just carries different content: what was learned and what is still open, rather than progress against steps. Two sections flex accordingly (see below), and `Open threads:` usually becomes the most valuable block in the file. Do not invent a plan-shaped Goal or a Next action that the session never actually produced.
 
 Sections:
 
 Goal:
-One sentence — what this work is trying to accomplish.
+One sentence — what this work is trying to accomplish. **With no plan, this is what the session was *about*, not an objective** — "understand how X works and decide whether to adopt it" is a valid Goal.
 
 State & decisions:
 Locked decisions, technical configs, architecture choices, and current status of work done. Present tense — where things stand now, not a diary of how they got there. No re-litigation needed.
@@ -100,13 +113,19 @@ Constraints:
 Active rules or guardrails agreed to this session. One line each.
 
 Next action:
-Single most immediate thing to do. Enough context to execute without re-reading history. If a verification or test result is pending, include the pass/fail criteria and what each outcome means — not just the command to run.
+Single most immediate thing to do. **May legitimately be absent** when the session was exploratory and produced no committed next step — omit it rather than inventing one. An invented next action sends the following session off on work nobody asked for. Enough context to execute without re-reading history. If a verification or test result is pending, include the pass/fail criteria and what each outcome means — not just the command to run.
 
 Awaiting:
 Only if the session ends blocked on user input. One sentence — what's blocked and what input is needed.
 
+Open threads:
+Optional, and usually the most valuable section in a session with no plan. Questions raised and **not resolved** — one line each, stated as the question, not as a topic. Distinct from `Deferred:`: an open thread is live and unanswered, a deferred item is a decision already taken to park something. Include enough context to re-ask the question cold. Where a partial answer exists, say what is known and what is missing.
+
 Deferred:
-Topics discussed but intentionally parked. One line each — prevents the next session from re-litigating resolved decisions.
+Topics discussed but intentionally parked. One line each — prevents the next session from re-litigating resolved decisions. **If the project has a defect/backlog log, that log owns these** — carry a pointer and only what the Next action must not reopen. A Deferred block that keeps growing across prompts means the log is missing.
+
+Traps:
+Optional. Only hard-won gotchas that **the Next action itself can trip on** — a false-failure signal, a command that silently returns nothing, a flag that means the opposite of what it looks like. **If the project has a runbook, the runbook owns these**; carry at most the two or three live ones and cite the rest. Never carry a trap forward because the previous prompt had it — re-derive it from this session or drop it. This section is capped at 10 lines; anything longer belongs in the runbook.
 
 Key artifacts:
 Only what's needed for the next action — file paths, IPs, sys_ids, commands, URLs. Give the real path for anything in `run/` so the next session doesn't hunt for it at the project root. Include verbatim any lookup tables, slot maps, or ID-to-name mappings needed to interpret next-session output — do not summarize these into prose.
